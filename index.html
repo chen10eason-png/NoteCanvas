@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>NoteFlow</title>
+<style>
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --line:#e6e8ee; --text:#1d2433;
+  --muted:#7a8497; --accent:#2f6fed; --shadow:0 8px 28px rgba(20,30,60,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+button,input{font:inherit}
+.app{height:100dvh;display:grid;grid-template-rows:56px 1fr}
+.topbar{
+  display:flex;align-items:center;gap:10px;padding:0 14px;background:rgba(255,255,255,.94);
+  border-bottom:1px solid var(--line);backdrop-filter:blur(14px);z-index:10
+}
+.brand{font-weight:800;font-size:18px;letter-spacing:-.3px;margin-right:8px}
+.docname{font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spacer{flex:1}
+.iconbtn,.toolbtn{
+  border:1px solid transparent;background:transparent;border-radius:11px;height:38px;min-width:38px;padding:0 10px;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--text)
+}
+.iconbtn:hover,.toolbtn:hover{background:#f0f3f8}
+.toolbtn.active{background:#eaf1ff;color:var(--accent);border-color:#d8e5ff}
+.primary{background:var(--accent);color:white;border:none}
+.main{display:grid;grid-template-columns:248px 1fr;min-height:0}
+.sidebar{border-right:1px solid var(--line);background:#fbfbfc;display:flex;flex-direction:column;min-width:0}
+.sidehead{padding:14px 14px 10px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
+.notebooks{padding:0 10px 12px;overflow:auto}
+.nb{display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer}
+.nb:hover,.nb.active{background:#eef3fb}
+.nb .dot{width:12px;height:12px;border-radius:4px;background:#8eb2ff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.05)}
+.workspace{display:grid;grid-template-columns:112px 1fr;min-width:0;min-height:0}
+.pages{background:#f0f2f5;border-right:1px solid var(--line);overflow:auto;padding:10px}
+.thumb{
+  background:white;border:2px solid transparent;border-radius:9px;margin-bottom:10px;aspect-ratio:3/4;box-shadow:0 2px 9px rgba(0,0,0,.06);
+  position:relative;cursor:pointer;overflow:hidden
+}
+.thumb.active{border-color:var(--accent)}
+.thumb .num{position:absolute;bottom:4px;right:6px;font-size:10px;color:#7e8797;background:rgba(255,255,255,.8);padding:1px 4px;border-radius:5px}
+.editor{display:grid;grid-template-rows:52px 1fr;min-width:0;min-height:0}
+.toolbar{
+  background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:6px;padding:6px 10px;overflow-x:auto
+}
+.sep{width:1px;height:24px;background:var(--line);margin:0 3px;flex:0 0 auto}
+.swatch{width:24px;height:24px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #cfd5df;cursor:pointer}
+.swatch.active{box-shadow:0 0 0 2px var(--accent)}
+.stagewrap{
+  position:relative;overflow:auto;background:
+  radial-gradient(circle at 20% 10%,rgba(90,110,160,.06),transparent 30%),
+  #e9ebef;
+}
+.stage{min-width:920px;min-height:1200px;padding:40px;display:flex;justify-content:center}
+.paper{
+  width:760px;height:1013px;background:white;box-shadow:var(--shadow);border-radius:2px;position:relative;overflow:hidden;
+  background-image:linear-gradient(#edf0f5 1px,transparent 1px),linear-gradient(90deg,#edf0f5 1px,transparent 1px);
+  background-size:28px 28px;
+}
+canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+#textLayer{position:absolute;inset:0;pointer-events:none}
+.textbox{position:absolute;min-width:120px;min-height:34px;padding:6px 8px;border-radius:6px;background:transparent;outline:1px dashed #aab7cf;pointer-events:auto}
+.status{
+  position:absolute;right:18px;bottom:16px;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:10px;
+  padding:7px 10px;font-size:12px;color:var(--muted);box-shadow:0 4px 16px rgba(0,0,0,.05)
+}
+.mobile-toggle{display:none}
+@media(max-width:900px){
+  .main{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:0;top:56px;bottom:0;width:260px;z-index:30;transform:translateX(-102%);transition:.2s;box-shadow:var(--shadow)}
+  .sidebar.open{transform:translateX(0)}
+  .mobile-toggle{display:inline-flex}
+  .workspace{grid-template-columns:86px 1fr}
+  .stage{padding:18px;min-width:820px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <button class="iconbtn mobile-toggle" id="menuBtn">☰</button>
+    <div class="brand">NoteFlow</div>
+    <div class="docname" id="docname">我的筆記</div>
+    <div class="spacer"></div>
+    <button class="iconbtn" id="undoBtn" title="復原">↶</button>
+    <button class="iconbtn" id="redoBtn" title="重做">↷</button>
+    <button class="iconbtn" id="exportBtn">匯出 PNG</button>
+  </header>
+
+  <div class="main">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidehead">筆記本 <button class="iconbtn" id="addBook">＋</button></div>
+      <div class="notebooks" id="notebooks"></div>
+    </aside>
+
+    <section class="workspace">
+      <aside class="pages">
+        <button class="iconbtn primary" id="addPage" style="width:100%;margin-bottom:10px">＋ 頁面</button>
+        <div id="pages"></div>
+      </aside>
+
+      <section class="editor">
+        <div class="toolbar">
+          <button class="toolbtn active" data-tool="pen">✎ 筆</button>
+          <button class="toolbtn" data-tool="highlighter">▰ 螢光筆</button>
+          <button class="toolbtn" data-tool="eraser">⌫ 橡皮擦</button>
+          <button class="toolbtn" data-tool="text">T 文字</button>
+          <div class="sep"></div>
+          <div class="swatch active" data-color="#111827" style="background:#111827"></div>
+          <div class="swatch" data-color="#2563eb" style="background:#2563eb"></div>
+          <div class="swatch" data-color="#ef4444" style="background:#ef4444"></div>
+          <div class="swatch" data-color="#16a34a" style="background:#16a34a"></div>
+          <div class="sep"></div>
+          <label class="toolbtn">粗細 <input id="size" type="range" min="1" max="18" value="4" style="width:90px"></label>
+          <button class="toolbtn" id="clearBtn">清除頁面</button>
+        </div>
+        <div class="stagewrap">
+          <div class="stage">
+            <div class="paper" id="paper">
+              <canvas id="canvas" width="760" height="1013"></canvas>
+              <div id="textLayer"></div>
+            </div>
+          </div>
+          <div class="status" id="status">筆工具 · 4 px</div>
+        </div>
+      </section>
+    </section>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const canvas=$("#canvas"), ctx=canvas.getContext("2d"), textLayer=$("#textLayer");
+let tool="pen", color="#111827", size=4, drawing=false, last=null;
+let books=JSON.parse(localStorage.getItem("noteflow.books")||"null") || [
+  {id:crypto.randomUUID(),name:"我的筆記",pages:[{id:crypto.randomUUID(),image:null,texts:[]}]}
+];
+let activeBook=0, activePage=0, undoStack=[], redoStack=[];
+
+function save(){
+  snapshotPage();
+  localStorage.setItem("noteflow.books",JSON.stringify(books));
+}
+function currentPage(){return books[activeBook].pages[activePage]}
+function snapshotPage(){
+  if(!books[activeBook]) return;
+  currentPage().image=canvas.toDataURL();
+  currentPage().texts=[...textLayer.querySelectorAll(".textbox")].map(el=>({
+    x:parseFloat(el.style.left)||0,y:parseFloat(el.style.top)||0,
+    text:el.innerText,color:el.style.color||color,fontSize:parseFloat(el.style.fontSize)||22
+  }));
+}
+function loadPage(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  textLayer.innerHTML="";
+  const p=currentPage();
+  if(p.image){
+    const img=new Image(); img.onload=()=>ctx.drawImage(img,0,0); img.src=p.image;
+  }
+  (p.texts||[]).forEach(t=>addTextBox(t.x,t.y,t.text,t.color,t.fontSize));
+  undoStack=[]; redoStack=[]; renderPages(); saveDebounced();
+}
+function renderBooks(){
+  const box=$("#notebooks"); box.innerHTML="";
+  books.forEach((b,i)=>{
+    const d=document.createElement("div"); d.className="nb"+(i===activeBook?" active":"");
+    d.innerHTML=`<span class="dot"></span><span>${escapeHtml(b.name)}</span>`;
+    d.onclick=()=>{snapshotPage();activeBook=i;activePage=0;$("#docname").textContent=b.name;renderBooks();loadPage()};
+    box.appendChild(d);
+  })
+}
+function renderPages(){
+  const box=$("#pages"); box.innerHTML="";
+  books[activeBook].pages.forEach((p,i)=>{
+    const t=document.createElement("div"); t.className="thumb"+(i===activePage?" active":"");
+    if(p.image){ const im=document.createElement("img"); im.src=p.image; im.style.cssText="width:100%;height:100%;object-fit:cover"; t.appendChild(im);}
+    const n=document.createElement("div"); n.className="num"; n.textContent=i+1; t.appendChild(n);
+    t.onclick=()=>{snapshotPage();activePage=i;loadPage()}; box.appendChild(t);
+  })
+}
+function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function pushUndo(){
+  undoStack.push({image:canvas.toDataURL(),texts:textLayer.innerHTML});
+  if(undoStack.length>40) undoStack.shift();
+  redoStack=[];
+}
+function restore(state){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  textLayer.innerHTML=state.texts;
+  if(state.image){const i=new Image();i.onload=()=>ctx.drawImage(i,0,0);i.src=state.image}
+}
+canvas.addEventListener("pointerdown",e=>{
+  if(tool==="text"){
+    const r=canvas.getBoundingClientRect();
+    const x=(e.clientX-r.left)*canvas.width/r.width, y=(e.clientY-r.top)*canvas.height/r.height;
+    pushUndo(); addTextBox(x,y,"輸入文字",color,22); saveDebounced(); return;
+  }
+  drawing=true; pushUndo(); canvas.setPointerCapture(e.pointerId);
+  const r=canvas.getBoundingClientRect(); last={x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height};
+});
+canvas.addEventListener("pointermove",e=>{
+  if(!drawing) return;
+  const r=canvas.getBoundingClientRect(), p={x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height};
+  ctx.lineCap="round"; ctx.lineJoin="round";
+  if(tool==="eraser"){ctx.globalCompositeOperation="destination-out";ctx.lineWidth=size*4;ctx.globalAlpha=1}
+  else{
+    ctx.globalCompositeOperation="source-over";ctx.strokeStyle=color;ctx.lineWidth=tool==="highlighter"?size*3:size;ctx.globalAlpha=tool==="highlighter"?.26:1
+  }
+  ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.globalAlpha=1;last=p;
+});
+["pointerup","pointercancel"].forEach(ev=>canvas.addEventListener(ev,()=>{drawing=false;saveDebounced()}));
+
+function addTextBox(x,y,text,c,fs){
+  const el=document.createElement("div"); el.className="textbox";el.contentEditable="true";el.innerText=text;
+  el.style.left=x+"px";el.style.top=y+"px";el.style.color=c;el.style.fontSize=fs+"px";
+  el.oninput=saveDebounced; el.onfocus=()=>{el.style.outline="1px dashed #2f6fed"}; el.onblur=()=>{el.style.outline="1px dashed #aab7cf";saveDebounced()};
+  textLayer.appendChild(el); el.focus();
+}
+$$(".toolbtn[data-tool]").forEach(b=>b.onclick=()=>{
+  tool=b.dataset.tool; $$(".toolbtn[data-tool]").forEach(x=>x.classList.toggle("active",x===b)); updateStatus()
+});
+$$(".swatch").forEach(s=>s.onclick=()=>{color=s.dataset.color;$$(".swatch").forEach(x=>x.classList.toggle("active",x===s))});
+$("#size").oninput=e=>{size=+e.target.value;updateStatus()};
+function updateStatus(){const names={pen:"筆工具",highlighter:"螢光筆",eraser:"橡皮擦",text:"文字"};$("#status").textContent=`${names[tool]} · ${size} px`}
+
+$("#addPage").onclick=()=>{snapshotPage();books[activeBook].pages.push({id:crypto.randomUUID(),image:null,texts:[]});activePage=books[activeBook].pages.length-1;loadPage();save()};
+$("#addBook").onclick=()=>{const name=prompt("筆記本名稱","新筆記本");if(!name)return; snapshotPage();books.push({id:crypto.randomUUID(),name,pages:[{id:crypto.randomUUID(),image:null,texts:[]}]});activeBook=books.length-1;activePage=0;$("#docname").textContent=name;renderBooks();loadPage();save()};
+$("#clearBtn").onclick=()=>{pushUndo();ctx.clearRect(0,0,canvas.width,canvas.height);textLayer.innerHTML="";saveDebounced()};
+$("#undoBtn").onclick=()=>{if(!undoStack.length)return;redoStack.push({image:canvas.toDataURL(),texts:textLayer.innerHTML});restore(undoStack.pop());saveDebounced()};
+$("#redoBtn").onclick=()=>{if(!redoStack.length)return;undoStack.push({image:canvas.toDataURL(),texts:textLayer.innerHTML});restore(redoStack.pop());saveDebounced()};
+$("#exportBtn").onclick=()=>{
+  snapshotPage();
+  const out=document.createElement("canvas");out.width=canvas.width;out.height=canvas.height;const c=out.getContext("2d");
+  c.fillStyle="white";c.fillRect(0,0,out.width,out.height);
+  c.strokeStyle="#edf0f5";c.lineWidth=1;
+  for(let x=0;x<out.width;x+=28){c.beginPath();c.moveTo(x,0);c.lineTo(x,out.height);c.stroke()}
+  for(let y=0;y<out.height;y+=28){c.beginPath();c.moveTo(0,y);c.lineTo(out.width,y);c.stroke()}
+  c.drawImage(canvas,0,0);
+  [...textLayer.querySelectorAll(".textbox")].forEach(el=>{c.fillStyle=el.style.color||"#111";c.font=`${parseFloat(el.style.fontSize)||22}px sans-serif`;c.fillText(el.innerText,parseFloat(el.style.left)||0,(parseFloat(el.style.top)||0)+(parseFloat(el.style.fontSize)||22))});
+  const a=document.createElement("a");a.download="noteflow-page.png";a.href=out.toDataURL("image/png");a.click();
+};
+$("#menuBtn").onclick=()=>$("#sidebar").classList.toggle("open");
+let timer; function saveDebounced(){clearTimeout(timer);timer=setTimeout(save,250)}
+window.addEventListener("beforeunload",save);
+
+renderBooks();$("#docname").textContent=books[0].name;loadPage();updateStatus();
+</script>
+</body>
+</html>
