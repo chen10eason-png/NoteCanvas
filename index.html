@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=yes">
 <meta name="theme-color" content="#f7f8fb">
 <link rel="manifest" href="manifest.webmanifest">
-<title>NoteCanvas</title>
+<title>NoteCanvas V4</title>
 <style>
 :root{--bg:#f4f5f8;--card:#fff;--ink:#20242c;--muted:#7d8492;--line:#e3e5ea;--blue:#3478f6;--blue2:#eaf2ff;--shadow:0 8px 28px #1d273514}
 *{box-sizing:border-box}html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI","Noto Sans TC",sans-serif;color:var(--ink);background:var(--bg);overscroll-behavior:none}
@@ -21,7 +21,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 .side-actions{display:flex;gap:6px;padding:4px 10px 8px}.side-actions .btn{flex:1;background:#fff;border:1px solid var(--line);font-size:12px}
 .thumbs{overflow:auto;padding:4px 14px 24px}.thumbrow{display:grid;grid-template-columns:26px 1fr;gap:8px;align-items:start;margin:8px 0}.pageno{font-size:11px;color:var(--muted);text-align:center;padding-top:5px}
 .thumb{background:white;aspect-ratio:3/4;border-radius:7px;border:2px solid transparent;box-shadow:0 2px 8px #0000000d;overflow:hidden;position:relative}.thumb.active{border-color:var(--blue)}.thumb img{width:100%;height:100%;object-fit:cover}
-.editor{min-width:0;min-height:0;display:grid;grid-template-rows:52px 44px 1fr}
+.editor{min-width:0;min-height:0;display:grid;grid-template-rows:auto auto minmax(0,1fr)}
 .toolbar,.subbar{display:flex;align-items:center;gap:4px;padding:5px 10px;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}.toolbar::-webkit-scrollbar,.subbar::-webkit-scrollbar{display:none}
 .tool{height:38px;min-width:42px;border:0;background:transparent;border-radius:10px;padding:0 9px;display:flex;align-items:center;gap:5px;justify-content:center;white-space:nowrap}.tool.active{background:var(--blue2);color:var(--blue)}
 .subbar{height:44px;background:#fcfcfd;font-size:13px}.chip{height:30px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:0 9px}.chip.active{border-color:#9cbcf8;background:#eef4ff}
@@ -32,7 +32,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 .page.grid{background-image:linear-gradient(#e8ebf0 1px,transparent 1px),linear-gradient(90deg,#e8ebf0 1px,transparent 1px);background-size:28px 28px}
 .page.lines{background-image:linear-gradient(#edf0f4 1px,transparent 1px);background-size:100% 30px}
 .page.dots{background-image:radial-gradient(#d7dbe2 1px,transparent 1px);background-size:24px 24px}
-#pdfBg,#draw,#overlay{position:absolute;inset:0;width:100%;height:100%}#pdfBg{object-fit:fill;pointer-events:none}#draw{touch-action:none}#overlay{pointer-events:none}
+#pdfBg,#draw,#overlay{position:absolute;inset:0;width:100%;height:100%}#pdfBg{object-fit:fill;pointer-events:none}#draw{touch-action:pan-x pan-y pinch-zoom} body.pen-active #draw{touch-action:none}#overlay{pointer-events:none}
 .obj{position:absolute;pointer-events:auto;user-select:none}.obj img{width:100%;height:100%;object-fit:contain;display:block}.obj.selected{outline:2px solid var(--blue)}.handle{position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--blue);right:-8px;bottom:-8px}
 .textobj{min-width:120px;min-height:32px;padding:5px 7px;font-size:22px;outline:none;white-space:pre-wrap}.textobj.selected{outline:2px solid var(--blue);border-radius:4px}
 .lassoBox{position:absolute;border:2px dashed var(--blue);background:#3478f614;pointer-events:none}
@@ -45,12 +45,12 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 </head>
 <body>
 <div id="library" class="library">
- <aside class="libside"><div class="logo">NoteCanvas</div><div class="libitem active">▣ 文件</div><div class="libitem">☆ 我的最愛</div><div class="libitem">⌕ 搜尋</div><div class="libitem">▤ Study Sets</div><div class="libitem">♧ 範本</div></aside>
- <main class="libmain"><div class="libhead"><h1>文件</h1><div class="spacer"></div><button class="btn" id="importHome">匯入 PDF</button><button class="btn primary" id="newBook">＋ 新筆記本</button></div><div class="cards" id="bookCards"></div></main>
+ <aside class="libside"><div class="logo">NoteCanvas <small style="font-size:11px;color:#7d8492">V4</small></div><div class="libitem active" data-filter="all">▣ 文件</div><div class="libitem" data-filter="favorite">☆ 我的最愛</div><div class="libitem" data-filter="search">⌕ 搜尋</div><div class="libitem">▤ Study Sets</div><div class="libitem">♧ 範本</div></aside>
+ <main class="libmain"><div class="libhead"><h1>文件</h1><div class="spacer"></div><button class="btn" id="importHome">匯入 PDF</button><button class="btn primary" id="newBook">＋ 新筆記本</button></div><div style="margin-top:18px;display:flex;gap:10px"><input id="librarySearch" placeholder="搜尋筆記本名稱" style="border:1px solid #e3e5ea;border-radius:12px;padding:10px;flex:1"><select id="librarySort" style="border:1px solid #e3e5ea;border-radius:12px;padding:10px"><option value="recent">最近編輯</option><option value="name">名稱</option></select></div><div class="cards" id="bookCards"></div></main>
 </div>
 
 <div class="app">
- <header class="nav"><button class="btn" id="back">‹ 文件</button><button class="btn" id="sideToggle">☷</button><div class="title" id="title">我的筆記</div><div class="spacer"></div><button class="btn" id="readMode">◉ 閱讀</button><button class="btn" id="addPageTop">＋ 頁面</button><button class="btn" id="share">↥ 匯出</button><button class="btn" id="more">•••</button></header>
+ <header class="nav"><button class="btn" id="back">‹ 文件</button><button class="btn" id="sideToggle">☷</button><div class="title" id="title">我的筆記</div><div class="spacer"></div><button class="btn" id="readMode">◉ 閱讀</button><button class="btn" id="addPageTop">＋ 頁面</button><button class="btn" id="bookmark">☆ 書籤</button><button class="btn" id="share">↥ 匯出</button><button class="btn" id="more">•••</button></header>
  <div class="body">
   <aside class="sidebar" id="sidebar">
    <div class="side-tabs"><button class="active">頁面</button><button>大綱</button><button>錄音</button></div>
@@ -59,7 +59,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
   </aside>
   <main class="editor">
    <div class="toolbar" id="toolbar">
-    <button class="tool" data-tool="lasso">◌ 套索</button><button class="tool active" data-tool="pen">✎ 筆</button><button class="tool" data-tool="eraser">⌫</button><button class="tool" data-tool="highlighter">▰</button><button class="tool" data-tool="shape">◇</button><button class="tool" data-tool="tape">▱ 膠帶</button><button class="tool" data-tool="image">▧ 圖片</button><button class="tool" data-tool="text">T</button><button class="tool" data-tool="element">✦ 元素</button><button class="tool" data-tool="laser">⌁</button><div class="spacer"></div><button class="tool" id="undo">↶</button><button class="tool" id="redo">↷</button>
+    <button class="tool" data-tool="lasso">◌ 套索</button><button class="tool active" data-tool="pen">✎ 筆</button><button class="tool" data-tool="eraser">⌫</button><button class="tool" data-tool="highlighter">▰</button><button class="tool" data-tool="shape">◇</button><button class="tool" data-tool="tape">▱ 膠帶</button><button class="tool" data-tool="image">▧ 圖片</button><button class="tool" data-tool="text">T</button><button class="tool" data-tool="element">✦ 元素</button><button class="tool" data-tool="laser">⌁</button><button class="tool" id="exportPDF">PDF ↥</button><div class="spacer"></div><button class="tool" id="undo">↶</button><button class="tool" id="redo">↷</button>
    </div>
    <div class="subbar">
     <button class="chip active" data-pen="fountain">鋼筆</button><button class="chip" data-pen="ball">原子筆</button><button class="chip" data-pen="brush">畫筆</button>
@@ -84,7 +84,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  <div style="display:flex;justify-content:flex-end;margin-top:16px"><button class="btn primary" id="closeSettings">完成</button></div>
 </div></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs" type="module"></script>
+
 <script type="module">
 import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs";
 pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
@@ -92,22 +92,22 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
 let tool="pen",color="#20242c",width=4,penStyle="fountain",pencilOnly=true,zoom=1;
 let drawing=false,currentStroke=null,lassoStart=null,selectedIds=new Set(),history=[],future=[];
-let db, bookId=null,pageIndex=0, book=null;
+let db, bookId=null,pageIndex=0, book=null, libraryFilter="all";
 const uid=()=>crypto.randomUUID(), toast=t=>{let x=$("#toast");x.textContent=t;x.classList.remove("hidden");setTimeout(()=>x.classList.add("hidden"),1600)};
 const defaultBook=()=>({id:uid(),title:"我的筆記",favorite:false,updated:Date.now(),pages:[newPage()]});
-const newPage=()=>({id:uid(),paper:"grid",bg:null,strokes:[],objects:[],tapes:[]});
+const newPage=()=>({id:uid(),paper:"grid",bg:null,strokes:[],objects:[],tapes:[],bookmark:false});
 
 function openDB(){return new Promise((res,rej)=>{let r=indexedDB.open("NoteCanvasDB",1);r.onupgradeneeded=()=>r.result.createObjectStore("books",{keyPath:"id"});r.onsuccess=()=>{db=r.result;res()};r.onerror=rej})}
 const getAll=()=>new Promise(res=>{let r=db.transaction("books").objectStore("books").getAll();r.onsuccess=()=>res(r.result)});
 const put=b=>new Promise(res=>{b.updated=Date.now();let r=db.transaction("books","readwrite").objectStore("books").put(b);r.onsuccess=res});
 async function init(){await openDB();let bs=await getAll();if(!bs.length){await put(defaultBook());bs=await getAll()}renderLibrary(bs)}
-async function renderLibrary(bs=await getAll()){let box=$("#bookCards");box.innerHTML="";bs.sort((a,b)=>b.updated-a.updated).forEach(b=>{let c=document.createElement("div");c.className="card";c.innerHTML=`<div class="cover"></div><h4>${esc(b.title)}</h4><small>${b.pages.length} 頁 · ${new Date(b.updated).toLocaleDateString()}</small>`;c.onclick=()=>openBook(b.id);box.appendChild(c)})}
+async function renderLibrary(bs){if(!bs)bs=await getAll();const q=($("#librarySearch").value||"").toLowerCase();bs=bs.filter(b=>(libraryFilter!=="favorite"||b.favorite)&&b.title.toLowerCase().includes(q));if($("#librarySort").value==="name")bs.sort((a,b)=>a.title.localeCompare(b.title));else bs.sort((a,b)=>b.updated-a.updated);let box=$("#bookCards");box.innerHTML="";bs.forEach(b=>{let c=document.createElement("div");c.className="card";c.innerHTML=`<div class="cover"></div><h4>${esc(b.title)}</h4><small>${b.pages.length} 頁 · ${new Date(b.updated).toLocaleDateString()}</small>`;c.onclick=()=>openBook(b.id);c.oncontextmenu=async e=>{e.preventDefault();const action=prompt("筆記本操作：rename 重新命名、favorite 收藏、duplicate 複製、delete 刪除", "favorite");if(action==="rename"){const name=prompt("新名稱",b.title);if(name)b.title=name}else if(action==="favorite")b.favorite=!b.favorite;else if(action==="duplicate"){let copy=structuredClone(b);copy.id=uid();copy.title+="（副本）";await put(copy)}else if(action==="delete"){if(confirm("確定刪除這本筆記？")){db.transaction("books","readwrite").objectStore("books").delete(b.id);renderLibrary();return}}await put(b);renderLibrary()};box.appendChild(c)})}
 function esc(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 async function openBook(id){book=(await getAll()).find(x=>x.id===id);bookId=id;pageIndex=0;$("#library").classList.add("hidden");$("#title").textContent=book.title;loadPage()}
 function p(){return book.pages[pageIndex]}
 function snapshot(){history.push(JSON.stringify(p()));if(history.length>40)history.shift();future=[]}
 async function save(){if(book)await put(book)}
-function loadPage(){selectedIds.clear();history=[];future=[];pageEl.className="page "+(p().paper||"");$("#pdfBg").classList.toggle("hidden",!p().bg);if(p().bg)$("#pdfBg").src=p().bg;render();renderThumbs();save()}
+function loadPage(){document.body.classList.remove("pen-active");selectedIds.clear();history=[];future=[];pageEl.className="page "+(p().paper||"");$("#pdfBg").classList.toggle("hidden",!p().bg);if(p().bg)$("#pdfBg").src=p().bg;render();renderThumbs();$("#bookmark").textContent=p().bookmark?"★ 已收藏":"☆ 書籤";save()}
 function render(){
  ctx.clearRect(0,0,768,1024);
  for(const s of p().strokes){drawStroke(s)}
@@ -122,7 +122,7 @@ function drawStroke(s){
 function pos(e){let r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*768/r.width,y:(e.clientY-r.top)*1024/r.height,p:e.pressure||.5}}
 function allowed(e){return !pencilOnly || e.pointerType==="pen"}
 cv.addEventListener("pointerdown",e=>{
- if(!allowed(e)){return} e.preventDefault(); cv.setPointerCapture(e.pointerId);
+ if(!allowed(e)){return} e.preventDefault();document.body.classList.add("pen-active"); cv.setPointerCapture(e.pointerId);
  let q=pos(e);
  if(tool==="pen"||tool==="highlighter"||tool==="eraser"||tool==="shape"||tool==="tape"||tool==="laser"){drawing=true;snapshot();currentStroke={id:uid(),tool,color:tool==="highlighter"?"#f2c94c":color,width:tool==="highlighter"?width*3:width,alpha:tool==="highlighter"?.3:1,pressure:tool==="pen",points:[q]};}
  else if(tool==="lasso"){lassoStart=q;let b=document.createElement("div");b.id="lasso";b.className="lassoBox";ov.appendChild(b)}
@@ -134,7 +134,7 @@ cv.addEventListener("pointermove",e=>{
  if(lassoStart){let x=Math.min(q.x,lassoStart.x),y=Math.min(q.y,lassoStart.y),w=Math.abs(q.x-lassoStart.x),h=Math.abs(q.y-lassoStart.y),b=$("#lasso");Object.assign(b.style,{left:x+"px",top:y+"px",width:w+"px",height:h+"px"});}
 });
 cv.addEventListener("pointerup",e=>{
- if(!allowed(e))return;let q=pos(e);
+ document.body.classList.remove("pen-active");if(!allowed(e))return;let q=pos(e);
  if(drawing&&currentStroke){
    if(tool==="pen"||tool==="highlighter")p().strokes.push(currentStroke);
    if(tool==="shape"){let a=currentStroke.points[0];p().objects.push({id:uid(),type:"shape",x:Math.min(a.x,q.x),y:Math.min(a.y,q.y),w:Math.abs(q.x-a.x),h:Math.abs(q.y-a.y),color})}
@@ -143,6 +143,7 @@ cv.addEventListener("pointerup",e=>{
  }
  if(lassoStart){selectInRect(lassoStart,q);lassoStart=null;$("#lasso")?.remove();render()}
 });
+cv.addEventListener("pointercancel",()=>{drawing=false;currentStroke=null;lassoStart=null;document.body.classList.remove("pen-active");render()});
 function eraseAt(q){p().strokes=p().strokes.filter(s=>!s.points.some(a=>Math.hypot(a.x-q.x,a.y-q.y)<width*3));render()}
 function selectInRect(a,b){let x1=Math.min(a.x,b.x),x2=Math.max(a.x,b.x),y1=Math.min(a.y,b.y),y2=Math.max(a.y,b.y);selectedIds.clear();for(const o of p().objects){if(o.x>=x1&&o.y>=y1&&o.x+o.w<=x2&&o.y+o.h<=y2)selectedIds.add(o.id)}for(const s of p().strokes){if(s.points.some(q=>q.x>=x1&&q.x<=x2&&q.y>=y1&&q.y<=y2))selectedIds.add(s.id)}toast(selectedIds.size?`已選取 ${selectedIds.size} 個物件`:"沒有選到物件")}
 function renderObject(o){
@@ -154,8 +155,8 @@ function renderObject(o){
  ov.appendChild(d)
 }
 function renderTape(t){let d=document.createElement("div");d.className="obj";Object.assign(d.style,{left:t.x+"px",top:t.y+"px",width:t.w+"px",height:t.h+"px",background:t.revealed?"#f2c94c44":"#f2c94c",borderRadius:"5px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"11px",color:"#745f00"});d.textContent=t.revealed?"再點一下遮住":"點一下顯示";d.onclick=()=>{t.revealed=!t.revealed;render();save()};ov.appendChild(d)}
-async function renderThumbs(){let box=$("#thumbs");box.innerHTML="";book.pages.forEach((pg,i)=>{let r=document.createElement("div");r.className="thumbrow";r.innerHTML=`<div class="pageno">${i+1}</div><div class="thumb ${i===pageIndex?"active":""}">${pg.bg?`<img src="${pg.bg}">`:""}</div>`;r.onclick=()=>{pageIndex=i;loadPage()};box.appendChild(r)})}
-function setTool(t){tool=t;$$(".tool[data-tool]").forEach(b=>b.classList.toggle("active",b.dataset.tool===t));$(".subbar").style.opacity=["pen","highlighter","eraser"].includes(t)?"1":".72";if(t==="image")$("#fileImage").click();if(t==="element")addElement()}
+async function renderThumbs(){let box=$("#thumbs");box.innerHTML="";book.pages.forEach((pg,i)=>{let r=document.createElement("div");r.className="thumbrow";r.innerHTML=`<div class="pageno">${pg.bookmark?"★":""}${i+1}</div><div class="thumb ${i===pageIndex?"active":""}">${pg.bg?`<img src="${pg.bg}">`:""}</div>`;r.onclick=()=>{pageIndex=i;loadPage()};box.appendChild(r)})}
+function setTool(t){tool=t;document.body.classList.remove("pen-active");$$(".tool[data-tool]").forEach(b=>b.classList.toggle("active",b.dataset.tool===t));$(".subbar").style.opacity=["pen","highlighter","eraser"].includes(t)?"1":".72";if(t==="image")$("#fileImage").click();if(t==="element")addElement()}
 $$(".tool[data-tool]").forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$$(".swatch").forEach(b=>b.onclick=()=>{color=b.dataset.color;$$(".swatch").forEach(x=>x.classList.toggle("active",x===b))});$("#width").oninput=e=>width=+e.target.value;
 $$("[data-pen]").forEach(b=>b.onclick=()=>{penStyle=b.dataset.pen;$$("[data-pen]").forEach(x=>x.classList.toggle("active",x===b))});
 $("#fileImage").onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader;r.onload=()=>{snapshot();p().objects.push({id:uid(),type:"image",x:150,y:160,w:300,h:220,src:r.result});render();save()};r.readAsDataURL(f)};
@@ -163,16 +164,20 @@ function addElement(){snapshot();p().objects.push({id:uid(),type:"shape",x:280,y
 $("#undo").onclick=()=>{if(!history.length)return;future.push(JSON.stringify(p()));book.pages[pageIndex]=JSON.parse(history.pop());render();save()};$("#redo").onclick=()=>{if(!future.length)return;history.push(JSON.stringify(p()));book.pages[pageIndex]=JSON.parse(future.pop());render();save()};
 function addPage(){book.pages.splice(pageIndex+1,0,newPage());pageIndex++;loadPage()}$("#addPage").onclick=addPage;$("#addPageTop").onclick=addPage;
 $("#pageMenu").onclick=()=>{let a=prompt("頁面操作：輸入 duplicate 複製、delete 刪除、move 1 移到第1頁");if(a==="duplicate"){book.pages.splice(pageIndex+1,0,structuredClone({...p(),id:uid()}));pageIndex++}else if(a==="delete"&&book.pages.length>1){book.pages.splice(pageIndex,1);pageIndex=Math.max(0,pageIndex-1)}else if(a?.startsWith("move ")){let n=Math.max(0,Math.min(book.pages.length-1,+a.split(" ")[1]-1)),x=book.pages.splice(pageIndex,1)[0];book.pages.splice(n,0,x);pageIndex=n}loadPage()};
+$("#bookmark").onclick=()=>{p().bookmark=!p().bookmark;$("#bookmark").textContent=p().bookmark?"★ 已收藏":"☆ 書籤";save()};
 $("#back").onclick=async()=>{await save();$("#library").classList.remove("hidden");renderLibrary()};$("#sideToggle").onclick=()=>$("#sidebar").classList.toggle("open");
 $("#more").onclick=()=>$("#settings").classList.remove("hidden");$("#closeSettings").onclick=()=>$("#settings").classList.add("hidden");
 $("#pencilSwitch").onclick=()=>{pencilOnly=!pencilOnly;$("#pencilSwitch").classList.toggle("on",pencilOnly);$("#pencilState").textContent=pencilOnly?" Pencil Only":"手指可書寫";toast(pencilOnly?"Apple Pencil Only 已開啟":"手指書寫已開啟")};
 $("#paperType").onchange=e=>{p().paper=e.target.value;loadPage()};$("#readMode").onclick=()=>{let on=$("#toolbar").classList.toggle("hidden");$(".subbar").classList.toggle("hidden",on);$("#readMode").classList.toggle("active",on);$("#readMode").textContent=on?"◉ 閱讀中":"◉ 閱讀"};
 function applyZoom(){pageEl.style.transform=`scale(${zoom})`;pageEl.parentElement.style.height=(1024*zoom+120)+"px";$("#zoomLabel").textContent=Math.round(zoom*100)+"%"}$("#zoomIn").onclick=()=>{zoom=Math.min(1.8,zoom+.1);applyZoom()};$("#zoomOut").onclick=()=>{zoom=Math.max(.5,zoom-.1);applyZoom()};
 $("#share").onclick=()=>{render();let out=document.createElement("canvas");out.width=768;out.height=1024;let c=out.getContext("2d");c.fillStyle="#fff";c.fillRect(0,0,768,1024);c.drawImage(cv,0,0);let a=document.createElement("a");a.download=(book.title||"NoteCanvas")+".png";a.href=out.toDataURL();a.click();toast("已匯出目前頁面 PNG")};
+$("#exportPDF").onclick=()=>{toast("列印版目前只包含手寫筆跡；PDF 底圖請使用 PNG 匯出");const w=window.open("","_blank");if(!w){toast("請允許彈出視窗");return}const pageImgs=book.pages.map(pg=>{const c=document.createElement("canvas");c.width=768;c.height=1024;const x=c.getContext("2d");x.fillStyle="white";x.fillRect(0,0,768,1024);if(pg.paper==="grid"){x.strokeStyle="#e9edf4";for(let k=0;k<768;k+=28){x.beginPath();x.moveTo(k,0);x.lineTo(k,1024);x.stroke()}for(let k=0;k<1024;k+=28){x.beginPath();x.moveTo(0,k);x.lineTo(768,k);x.stroke()}}pg.strokes.forEach(s=>{x.strokeStyle=s.color;x.globalAlpha=s.alpha??1;x.lineWidth=s.width;x.lineCap="round";x.lineJoin="round";x.beginPath();s.points.forEach((pt,i)=>i?x.lineTo(pt.x,pt.y):x.moveTo(pt.x,pt.y));x.stroke();x.globalAlpha=1});return c.toDataURL("image/png")});w.document.write('<html><head><title>列印筆記</title><style>@page{size:A4;margin:0}body{margin:0}img{display:block;width:100%;height:100vh;object-fit:contain;page-break-after:always}</style></head><body>'+pageImgs.map(src=>'<img src="'+src+'">').join('')+'</body></html>');w.document.close();w.onload=()=>w.print();};
 $("#newBook").onclick=async()=>{let title=prompt("筆記本名稱","新筆記本");if(!title)return;let b=defaultBook();b.title=title;await put(b);renderLibrary()};
 $("#importHome").onclick=()=>$("#filePDF").click();$("#importPDF").onclick=()=>$("#filePDF").click();
 $("#filePDF").onchange=async e=>{let f=e.target.files[0];if(!f)return;toast("正在匯入 PDF…");let data=new Uint8Array(await f.arrayBuffer()),pdf=await pdfjsLib.getDocument({data}).promise,pages=[];for(let i=1;i<=pdf.numPages;i++){let pg=await pdf.getPage(i),vp=pg.getViewport({scale:1.5}),c=document.createElement("canvas");c.width=vp.width;c.height=vp.height;await pg.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;let np=newPage();np.paper="";np.bg=c.toDataURL("image/jpeg",.88);pages.push(np)}if(book){book.pages.splice(pageIndex+1,0,...pages);pageIndex++;loadPage()}else{let b=defaultBook();b.title=f.name.replace(/\.pdf$/i,"");b.pages=pages;await put(b);renderLibrary()}toast(`已匯入 ${pages.length} 頁 PDF`)};
 $("#customize").onclick=()=>toast("工具列可依常用工具排序；此版本先保留完整工具列");
+$("#librarySearch").oninput=()=>renderLibrary();$("#librarySort").onchange=()=>renderLibrary();$$('[data-filter]').forEach(el=>el.onclick=()=>{libraryFilter=el.dataset.filter;$$('[data-filter]').forEach(x=>x.classList.toggle('active',x===el));if(libraryFilter==='search')$("#librarySearch").focus();renderLibrary()});
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
 init();
 </script>
 </body></html>
