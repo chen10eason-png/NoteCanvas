@@ -3,250 +3,399 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>NoteFlow</title>
+<meta name="theme-color" content="#f7f7f8" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<title>NoteCanvas</title>
 <style>
 :root{
-  --bg:#f5f6f8; --panel:#ffffff; --line:#e6e8ee; --text:#1d2433;
-  --muted:#7a8497; --accent:#2f6fed; --shadow:0 8px 28px rgba(20,30,60,.08);
+  --bg:#f6f6f7; --panel:#fff; --panel2:#fafafa; --ink:#1f2329; --muted:#777d87;
+  --line:#e7e7e9; --blue:#2f6fed; --blue2:#eaf1ff; --shadow:0 12px 35px rgba(29,35,50,.09);
+  --radius:14px; --navw:232px;
 }
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
-button,input{font:inherit}
-.app{height:100dvh;display:grid;grid-template-rows:56px 1fr}
-.topbar{
-  display:flex;align-items:center;gap:10px;padding:0 14px;background:rgba(255,255,255,.94);
-  border-bottom:1px solid var(--line);backdrop-filter:blur(14px);z-index:10
-}
-.brand{font-weight:800;font-size:18px;letter-spacing:-.3px;margin-right:8px}
-.docname{font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.spacer{flex:1}
-.iconbtn,.toolbtn{
-  border:1px solid transparent;background:transparent;border-radius:11px;height:38px;min-width:38px;padding:0 10px;
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--text)
-}
-.iconbtn:hover,.toolbtn:hover{background:#f0f3f8}
-.toolbtn.active{background:#eaf1ff;color:var(--accent);border-color:#d8e5ff}
-.primary{background:var(--accent);color:white;border:none}
-.main{display:grid;grid-template-columns:248px 1fr;min-height:0}
-.sidebar{border-right:1px solid var(--line);background:#fbfbfc;display:flex;flex-direction:column;min-width:0}
-.sidehead{padding:14px 14px 10px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
-.notebooks{padding:0 10px 12px;overflow:auto}
-.nb{display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;cursor:pointer}
-.nb:hover,.nb.active{background:#eef3fb}
-.nb .dot{width:12px;height:12px;border-radius:4px;background:#8eb2ff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.05)}
-.workspace{display:grid;grid-template-columns:112px 1fr;min-width:0;min-height:0}
-.pages{background:#f0f2f5;border-right:1px solid var(--line);overflow:auto;padding:10px}
-.thumb{
-  background:white;border:2px solid transparent;border-radius:9px;margin-bottom:10px;aspect-ratio:3/4;box-shadow:0 2px 9px rgba(0,0,0,.06);
-  position:relative;cursor:pointer;overflow:hidden
-}
-.thumb.active{border-color:var(--accent)}
-.thumb .num{position:absolute;bottom:4px;right:6px;font-size:10px;color:#7e8797;background:rgba(255,255,255,.8);padding:1px 4px;border-radius:5px}
-.editor{display:grid;grid-template-rows:52px 1fr;min-width:0;min-height:0}
-.toolbar{
-  background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:6px;padding:6px 10px;overflow-x:auto
-}
-.sep{width:1px;height:24px;background:var(--line);margin:0 3px;flex:0 0 auto}
-.swatch{width:24px;height:24px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #cfd5df;cursor:pointer}
-.swatch.active{box-shadow:0 0 0 2px var(--accent)}
-.stagewrap{
-  position:relative;overflow:auto;background:
-  radial-gradient(circle at 20% 10%,rgba(90,110,160,.06),transparent 30%),
-  #e9ebef;
-}
-.stage{min-width:920px;min-height:1200px;padding:40px;display:flex;justify-content:center}
-.paper{
-  width:760px;height:1013px;background:white;box-shadow:var(--shadow);border-radius:2px;position:relative;overflow:hidden;
-  background-image:linear-gradient(#edf0f5 1px,transparent 1px),linear-gradient(90deg,#edf0f5 1px,transparent 1px);
-  background-size:28px 28px;
-}
-canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI","Noto Sans TC",sans-serif;color:var(--ink);background:var(--bg);overflow:hidden}
+button,input,select{font:inherit}
+button{color:inherit}
+.hidden{display:none!important}
+.app{height:100dvh;display:flex;background:var(--bg)}
+
+/* ---------- Library ---------- */
+.library{display:flex;width:100%;height:100%}
+.lib-side{width:var(--navw);background:#fbfbfc;border-right:1px solid var(--line);padding:16px 12px;display:flex;flex-direction:column;gap:12px}
+.logo{display:flex;align-items:center;gap:10px;padding:4px 8px 12px;font-weight:750;font-size:20px;letter-spacing:-.4px}
+.logo-mark{width:31px;height:31px;border-radius:9px;background:linear-gradient(145deg,#2f6fed,#6b8fff);display:grid;place-items:center;color:white;font-weight:800;box-shadow:0 6px 16px rgba(47,111,237,.23)}
+.nav{display:flex;flex-direction:column;gap:3px}
+.navbtn{height:42px;border:none;background:transparent;border-radius:10px;padding:0 11px;display:flex;align-items:center;gap:11px;cursor:pointer;font-weight:560;text-align:left}
+.navbtn:hover{background:#f1f1f3}.navbtn.active{background:#eceff5;color:#1f4da8}
+.navbtn svg{width:19px;height:19px;stroke-width:1.8}
+.side-bottom{margin-top:auto;padding:9px 8px;color:var(--muted);font-size:12px;line-height:1.5}
+.lib-main{flex:1;min-width:0;display:flex;flex-direction:column;background:white}
+.lib-top{height:68px;display:flex;align-items:center;gap:12px;padding:0 28px;border-bottom:1px solid #f0f0f1}
+.lib-title{font-size:24px;font-weight:760;letter-spacing:-.5px}
+.grow{flex:1}
+.search{width:min(360px,38vw);height:39px;border:1px solid var(--line);background:#f7f7f8;border-radius:10px;padding:0 12px 0 38px;outline:none}
+.search-wrap{position:relative}.search-wrap .icon{position:absolute;left:12px;top:10px;color:#9096a0}
+.pillbtn,.sqbtn{border:1px solid var(--line);background:#fff;border-radius:10px;height:39px;padding:0 13px;display:inline-flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;font-weight:600}
+.pillbtn:hover,.sqbtn:hover{background:#f7f7f8}.pillbtn.primary{background:#2f6fed;border-color:#2f6fed;color:#fff}
+.sqbtn{width:39px;padding:0}
+.lib-content{padding:28px 30px 36px;overflow:auto}
+.section-head{display:flex;align-items:center;margin-bottom:14px}.section-title{font-size:16px;font-weight:720}.subtle{color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:22px 18px;margin-bottom:32px}
+.card{min-width:0;cursor:pointer;user-select:none;position:relative}
+.card:hover .cover{transform:translateY(-2px);box-shadow:0 13px 27px rgba(20,30,50,.12)}
+.cover{aspect-ratio:4/5;border-radius:8px;box-shadow:0 6px 18px rgba(20,30,50,.08);transition:.18s;background:#e9edf6;overflow:hidden;position:relative;border:1px solid rgba(0,0,0,.05)}
+.cover.book:before{content:"";position:absolute;left:0;top:0;bottom:0;width:8px;background:rgba(0,0,0,.09)}
+.cover.book .label{position:absolute;left:14px;right:14px;top:42%;padding:12px 7px;border-radius:3px;background:rgba(255,255,255,.92);text-align:center;font-weight:700;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.cover.folder{aspect-ratio:1.2/1;background:transparent;border:none;box-shadow:none;overflow:visible;margin-top:30px}
+.folder-shape{height:105px;border-radius:8px;background:linear-gradient(#f0be52,#e7a832);position:relative;box-shadow:0 8px 20px rgba(122,88,22,.16)}
+.folder-shape:before{content:"";position:absolute;width:56%;height:22px;top:-10px;left:0;border-radius:8px 8px 0 0;background:#f2c45c}
+.card-title{font-size:13.5px;font-weight:650;margin-top:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-meta{font-size:11.5px;color:var(--muted);margin-top:3px}
+.star{position:absolute;right:9px;top:9px;width:28px;height:28px;border:none;border-radius:8px;background:rgba(255,255,255,.87);backdrop-filter:blur(6px);display:grid;place-items:center;opacity:0;transition:.16s;cursor:pointer}
+.card:hover .star,.star.on{opacity:1}.star.on{color:#e4a51b}
+.new-card .cover{display:grid;place-items:center;border:1.5px dashed #cbd2de;background:#fafbfc;box-shadow:none}
+.plus-circle{width:45px;height:45px;border-radius:50%;display:grid;place-items:center;background:#eef4ff;color:var(--blue);font-size:29px;font-weight:300}
+
+/* ---------- Editor ---------- */
+.editor{display:none;width:100%;height:100%;flex-direction:column;background:#eceef1}
+.docbar{height:54px;background:rgba(255,255,255,.97);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:7px;padding:0 10px;z-index:20}
+.doc-title{font-size:14px;font-weight:650;padding:0 8px;white-space:nowrap;max-width:240px;overflow:hidden;text-overflow:ellipsis}
+.iconbtn{height:36px;min-width:36px;border:none;background:transparent;border-radius:9px;display:grid;place-items:center;cursor:pointer;padding:0 9px}
+.iconbtn:hover{background:#f2f3f5}.iconbtn.active{background:#eef3ff;color:#275cc9}
+.iconbtn svg{width:19px;height:19px;stroke-width:1.8}
+.mode-switch{height:34px;border:1px solid var(--line);background:#f7f7f8;border-radius:9px;padding:3px;display:flex}
+.mode-switch button{border:none;background:transparent;border-radius:6px;padding:0 11px;font-size:12px;cursor:pointer;color:#666}
+.mode-switch button.active{background:white;color:#222;box-shadow:0 1px 4px rgba(0,0,0,.09)}
+
+.toolrow{height:58px;background:rgba(255,255,255,.98);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:5px;padding:8px 12px;z-index:18;overflow-x:auto;overflow-y:hidden}
+.toolrow::-webkit-scrollbar{display:none}
+.toolgroup{height:42px;display:flex;align-items:center;gap:3px;padding:3px;border-radius:12px;background:#f5f5f6;flex:0 0 auto}
+.tool{height:36px;min-width:38px;border:none;background:transparent;border-radius:9px;display:flex;align-items:center;gap:6px;justify-content:center;padding:0 10px;cursor:pointer;font-size:12px;font-weight:650;color:#4c5159}
+.tool:hover{background:#eceef2}.tool.active{background:#fff;color:#1f55c6;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.tool svg{width:19px;height:19px;stroke-width:1.8}
+.tooldot{width:18px;height:18px;border-radius:50%;background:#1c1e22;box-shadow:inset 0 0 0 1px rgba(255,255,255,.6)}
+
+.active-menu{min-height:46px;background:rgba(250,250,251,.98);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:6px 16px;z-index:17;overflow-x:auto}
+.active-menu::-webkit-scrollbar{display:none}
+.menu-label{font-size:12px;color:#767b84;font-weight:650;white-space:nowrap}.chip{height:30px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:0 10px;display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;white-space:nowrap}
+.chip.active{border-color:#b9ccfb;background:#eef4ff;color:#2456bc}
+.widthchip{width:34px;height:30px;border:1px solid var(--line);background:white;border-radius:8px;display:grid;place-items:center;cursor:pointer}.widthchip.active{border-color:#9bb6f1;background:#eef4ff}
+.widthline{width:20px;background:#222;border-radius:8px}
+.colorchip{width:28px;height:28px;border-radius:50%;border:2px solid white;box-shadow:0 0 0 1px #c9cbd0;cursor:pointer;flex:0 0 auto}.colorchip.active{box-shadow:0 0 0 2px #2f6fed}
+
+.docbody{flex:1;min-height:0;display:flex;position:relative}
+.page-side{width:236px;background:#fafafa;border-right:1px solid var(--line);display:flex;flex-direction:column;z-index:12;transition:.18s}
+.page-side.closed{width:0;overflow:hidden;border-right:0}
+.side-tabs{height:48px;display:flex;align-items:end;padding:0 12px;border-bottom:1px solid var(--line);gap:18px;min-width:236px}
+.side-tab{height:48px;border:none;background:transparent;font-size:12px;color:#6e737d;font-weight:650;position:relative;cursor:pointer}.side-tab.active{color:#20242a}.side-tab.active:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#2f6fed;border-radius:2px}
+.page-list{padding:14px 14px 24px;overflow:auto;min-width:236px}
+.page-thumb-wrap{display:grid;grid-template-columns:22px 1fr;gap:7px;align-items:start;margin-bottom:14px}
+.page-num{font-size:11px;color:#8c919a;padding-top:5px;text-align:right}
+.page-thumb{aspect-ratio:3/4;background:white;border:1px solid #d8d9dd;border-radius:5px;box-shadow:0 2px 8px rgba(0,0,0,.05);overflow:hidden;cursor:pointer;position:relative}
+.page-thumb.active{outline:2px solid #4d7ee5;outline-offset:1px}.page-thumb canvas{width:100%;height:100%;display:block}
+.add-side-page{width:100%;height:38px;border:1px dashed #bfc4cd;background:#fff;border-radius:9px;color:#5d6470;cursor:pointer}
+.outline-empty,.audio-empty{padding:28px 14px;text-align:center;color:#8b9099;font-size:12px;line-height:1.55;min-width:236px}
+
+.stage-wrap{flex:1;min-width:0;min-height:0;overflow:auto;position:relative;background:#e9eaed;overscroll-behavior:contain}
+.stage{min-width:960px;min-height:1260px;padding:36px 72px 80px;display:flex;justify-content:center;align-items:flex-start;transform-origin:top center}
+.paper{width:816px;height:1088px;background:#fff;box-shadow:0 8px 28px rgba(20,25,35,.12);position:relative;overflow:hidden;touch-action:none}
+.paper[data-paper="grid"]{background-image:linear-gradient(#e9edf4 1px,transparent 1px),linear-gradient(90deg,#e9edf4 1px,transparent 1px);background-size:27px 27px}
+.paper[data-paper="ruled"]{background-image:repeating-linear-gradient(to bottom,#fff 0,#fff 31px,#dfe5ef 32px)}
+.paper[data-paper="dot"]{background-image:radial-gradient(#cbd1dc 1px,transparent 1.2px);background-size:24px 24px}
+.paper[data-paper="blank"]{background-image:none}
+#ink{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 #textLayer{position:absolute;inset:0;pointer-events:none}
-.textbox{position:absolute;min-width:120px;min-height:34px;padding:6px 8px;border-radius:6px;background:transparent;outline:1px dashed #aab7cf;pointer-events:auto}
-.status{
-  position:absolute;right:18px;bottom:16px;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:10px;
-  padding:7px 10px;font-size:12px;color:var(--muted);box-shadow:0 4px 16px rgba(0,0,0,.05)
-}
-.mobile-toggle{display:none}
+.textbox{position:absolute;min-width:130px;min-height:32px;padding:4px 6px;border-radius:4px;outline:1px dashed transparent;pointer-events:auto;white-space:pre-wrap;word-break:break-word}
+.textbox:focus{outline-color:#7898dc;background:rgba(255,255,255,.35)}
+.zoomdock{position:fixed;right:18px;bottom:18px;height:38px;background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.08);display:flex;align-items:center;z-index:30;overflow:hidden}
+.zoomdock button{width:38px;height:38px;border:none;background:transparent;cursor:pointer}.zoomdock span{width:54px;text-align:center;font-size:12px;color:#646a73}
+
+/* ---------- Menus / modal / toast ---------- */
+.pop{position:fixed;z-index:100;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 40px rgba(0,0,0,.14);padding:7px;min-width:190px}
+.pop button{width:100%;height:37px;border:none;background:transparent;border-radius:8px;padding:0 10px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:9px;font-size:13px}.pop button:hover{background:#f4f5f7}
+.overlay{position:fixed;inset:0;background:rgba(20,22,28,.23);backdrop-filter:blur(2px);z-index:150;display:grid;place-items:center;padding:18px}
+.modal{width:min(660px,95vw);max-height:90vh;background:white;border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.2);overflow:auto}
+.modal-head{padding:20px 22px 14px;font-size:19px;font-weight:750;display:flex;align-items:center}.modal-body{padding:4px 22px 22px}.modal-foot{padding:14px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:9px}
+.field{margin:12px 0}.field label{display:block;font-size:12px;color:#6f7580;font-weight:650;margin-bottom:7px}.field input{width:100%;height:41px;border:1px solid #dcdde1;border-radius:10px;padding:0 12px;outline:none}.field input:focus{border-color:#7da1f3;box-shadow:0 0 0 3px #edf3ff}
+.cover-picks,.paper-picks{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.coverpick{aspect-ratio:4/5;border-radius:7px;border:2px solid transparent;cursor:pointer;position:relative;box-shadow:0 3px 9px rgba(0,0,0,.08)}.coverpick.active,.paperpick.active{border-color:#2f6fed;box-shadow:0 0 0 3px #eaf1ff}.paperpick{aspect-ratio:3/4;background:#fff;border:1px solid #d9dce2;border-radius:5px;cursor:pointer;position:relative}.paperpick span{position:absolute;left:0;right:0;bottom:5px;text-align:center;font-size:10px;color:#777}
+.paperpick.grid{background-image:linear-gradient(#e8ecf3 1px,transparent 1px),linear-gradient(90deg,#e8ecf3 1px,transparent 1px);background-size:9px 9px}.paperpick.ruled{background-image:repeating-linear-gradient(to bottom,#fff 0,#fff 10px,#e2e6ed 11px)}.paperpick.dot{background-image:radial-gradient(#cbd1dc .7px,transparent .8px);background-size:8px 8px}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);background:#20242a;color:#fff;padding:10px 14px;border-radius:10px;font-size:12px;opacity:0;pointer-events:none;transition:.2s;z-index:300}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
 @media(max-width:900px){
-  .main{grid-template-columns:1fr}
-  .sidebar{position:fixed;left:0;top:56px;bottom:0;width:260px;z-index:30;transform:translateX(-102%);transition:.2s;box-shadow:var(--shadow)}
-  .sidebar.open{transform:translateX(0)}
-  .mobile-toggle{display:inline-flex}
-  .workspace{grid-template-columns:86px 1fr}
-  .stage{padding:18px;min-width:820px}
+  :root{--navw:210px}.lib-side{position:fixed;left:0;top:0;bottom:0;z-index:60;transform:translateX(-102%);transition:.2s;box-shadow:var(--shadow)}.lib-side.open{transform:translateX(0)}
+  .lib-top{padding:0 14px}.lib-content{padding:20px 16px}.lib-title{font-size:21px}.search-wrap{display:none}.grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:18px 14px}
+  .doc-title{max-width:140px}.page-side{position:absolute;left:0;top:0;bottom:0;box-shadow:10px 0 30px rgba(0,0,0,.08)}.page-side.closed{transform:translateX(-100%);width:236px}
+  .stage{padding:28px 28px 70px;min-width:870px}.active-menu{padding-left:10px}.zoomdock{display:none}
 }
 </style>
 </head>
 <body>
 <div class="app">
-  <header class="topbar">
-    <button class="iconbtn mobile-toggle" id="menuBtn">☰</button>
-    <div class="brand">NoteFlow</div>
-    <div class="docname" id="docname">我的筆記</div>
-    <div class="spacer"></div>
-    <button class="iconbtn" id="undoBtn" title="復原">↶</button>
-    <button class="iconbtn" id="redoBtn" title="重做">↷</button>
-    <button class="iconbtn" id="exportBtn">匯出 PNG</button>
-  </header>
-
-  <div class="main">
-    <aside class="sidebar" id="sidebar">
-      <div class="sidehead">筆記本 <button class="iconbtn" id="addBook">＋</button></div>
-      <div class="notebooks" id="notebooks"></div>
+  <!-- Library -->
+  <section class="library" id="library">
+    <aside class="lib-side" id="libSide">
+      <div class="logo"><div class="logo-mark">N</div>NoteCanvas</div>
+      <nav class="nav">
+        <button class="navbtn active" data-view="documents" data-icon="docs">文件</button>
+        <button class="navbtn" data-view="favorites" data-icon="star">我的最愛</button>
+        <button class="navbtn" data-view="search" data-icon="search">搜尋</button>
+        <button class="navbtn" data-view="shared" data-icon="users">共享</button>
+      </nav>
+      <div class="side-bottom">本機模式 · 自動儲存<br>資料保留在這台裝置的瀏覽器</div>
     </aside>
+    <main class="lib-main">
+      <header class="lib-top">
+        <button class="sqbtn mobile-menu hidden" id="mobileMenu" data-icon="menu"></button>
+        <div class="lib-title" id="libTitle">文件</div>
+        <div class="grow"></div>
+        <div class="search-wrap"><span class="icon" id="searchIcon"></span><input class="search" id="searchBox" placeholder="搜尋筆記本與資料夾"></div>
+        <button class="sqbtn" id="sortBtn" title="排序" data-icon="sort"></button>
+        <button class="pillbtn primary" id="newBtn" data-icon="plus">新增</button>
+      </header>
+      <div class="lib-content" id="libContent"></div>
+    </main>
+  </section>
 
-    <section class="workspace">
-      <aside class="pages">
-        <button class="iconbtn primary" id="addPage" style="width:100%;margin-bottom:10px">＋ 頁面</button>
-        <div id="pages"></div>
+  <!-- Editor -->
+  <section class="editor" id="editor">
+    <header class="docbar">
+      <button class="iconbtn" id="backBtn" title="回到文件" data-icon="back"></button>
+      <button class="iconbtn active" id="sidebarBtn" title="側邊欄" data-icon="sidebar"></button>
+      <div class="doc-title" id="docTitle">筆記本</div>
+      <div class="grow"></div>
+      <button class="iconbtn" id="undoBtn" title="復原" data-icon="undo"></button>
+      <button class="iconbtn" id="redoBtn" title="重做" data-icon="redo"></button>
+      <div class="mode-switch"><button class="active" id="editMode">編輯</button><button id="readMode">閱讀</button></div>
+      <button class="iconbtn" id="addPageTop" title="新增頁面" data-icon="pageplus"></button>
+      <button class="iconbtn" id="exportBtn" title="分享與匯出" data-icon="share"></button>
+      <button class="iconbtn" id="moreBtn" title="更多" data-icon="more"></button>
+    </header>
+
+    <div class="toolrow" id="toolrow">
+      <div class="toolgroup">
+        <button class="tool" data-tool="lasso" data-icon="lasso">套索</button>
+        <button class="tool active" data-tool="pen" data-icon="pen">書寫</button>
+        <button class="tool" data-tool="eraser" data-icon="eraser">橡皮擦</button>
+        <button class="tool" data-tool="highlighter" data-icon="highlight">螢光筆</button>
+      </div>
+      <div class="toolgroup">
+        <button class="tool" data-tool="shape" data-icon="shape">圖形</button>
+        <button class="tool" data-tool="image" data-icon="image">圖片</button>
+        <button class="tool" data-tool="text" data-icon="text">文字</button>
+        <button class="tool" data-tool="laser" data-icon="laser">雷射</button>
+      </div>
+      <div class="grow"></div>
+      <div class="toolgroup" style="background:transparent">
+        <button class="tool" id="quickColor"><span class="tooldot" id="quickDot"></span></button>
+      </div>
+    </div>
+    <div class="active-menu" id="activeMenu"></div>
+
+    <div class="docbody">
+      <aside class="page-side" id="pageSide">
+        <div class="side-tabs"><button class="side-tab active" data-tab="pages">頁面</button><button class="side-tab" data-tab="outline">大綱</button><button class="side-tab" data-tab="audio">錄音</button></div>
+        <div class="page-list" id="pageList"></div>
       </aside>
-
-      <section class="editor">
-        <div class="toolbar">
-          <button class="toolbtn active" data-tool="pen">✎ 筆</button>
-          <button class="toolbtn" data-tool="highlighter">▰ 螢光筆</button>
-          <button class="toolbtn" data-tool="eraser">⌫ 橡皮擦</button>
-          <button class="toolbtn" data-tool="text">T 文字</button>
-          <div class="sep"></div>
-          <div class="swatch active" data-color="#111827" style="background:#111827"></div>
-          <div class="swatch" data-color="#2563eb" style="background:#2563eb"></div>
-          <div class="swatch" data-color="#ef4444" style="background:#ef4444"></div>
-          <div class="swatch" data-color="#16a34a" style="background:#16a34a"></div>
-          <div class="sep"></div>
-          <label class="toolbtn">粗細 <input id="size" type="range" min="1" max="18" value="4" style="width:90px"></label>
-          <button class="toolbtn" id="clearBtn">清除頁面</button>
-        </div>
-        <div class="stagewrap">
-          <div class="stage">
-            <div class="paper" id="paper">
-              <canvas id="canvas" width="760" height="1013"></canvas>
-              <div id="textLayer"></div>
-            </div>
-          </div>
-          <div class="status" id="status">筆工具 · 4 px</div>
-        </div>
-      </section>
-    </section>
-  </div>
+      <div class="stage-wrap" id="stageWrap">
+        <div class="stage" id="stage"><div class="paper" id="paper" data-paper="grid"><canvas id="ink" width="816" height="1088"></canvas><div id="textLayer"></div></div></div>
+      </div>
+    </div>
+    <div class="zoomdock"><button id="zoomOut">−</button><span id="zoomLabel">100%</span><button id="zoomIn">＋</button></div>
+  </section>
 </div>
 
+<input type="file" id="imageInput" accept="image/*" class="hidden">
+<div id="pop" class="pop hidden"></div>
+<div id="overlay" class="overlay hidden"></div>
+<div id="toast" class="toast"></div>
+
 <script>
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const canvas=$("#canvas"), ctx=canvas.getContext("2d"), textLayer=$("#textLayer");
-let tool="pen", color="#111827", size=4, drawing=false, last=null;
-let books=JSON.parse(localStorage.getItem("noteflow.books")||"null") || [
-  {id:crypto.randomUUID(),name:"我的筆記",pages:[{id:crypto.randomUUID(),image:null,texts:[]}]}
-];
-let activeBook=0, activePage=0, undoStack=[], redoStack=[];
-
-function save(){
-  snapshotPage();
-  localStorage.setItem("noteflow.books",JSON.stringify(books));
-}
-function currentPage(){return books[activeBook].pages[activePage]}
-function snapshotPage(){
-  if(!books[activeBook]) return;
-  currentPage().image=canvas.toDataURL();
-  currentPage().texts=[...textLayer.querySelectorAll(".textbox")].map(el=>({
-    x:parseFloat(el.style.left)||0,y:parseFloat(el.style.top)||0,
-    text:el.innerText,color:el.style.color||color,fontSize:parseFloat(el.style.fontSize)||22
-  }));
-}
-function loadPage(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  textLayer.innerHTML="";
-  const p=currentPage();
-  if(p.image){
-    const img=new Image(); img.onload=()=>ctx.drawImage(img,0,0); img.src=p.image;
-  }
-  (p.texts||[]).forEach(t=>addTextBox(t.x,t.y,t.text,t.color,t.fontSize));
-  undoStack=[]; redoStack=[]; renderPages(); saveDebounced();
-}
-function renderBooks(){
-  const box=$("#notebooks"); box.innerHTML="";
-  books.forEach((b,i)=>{
-    const d=document.createElement("div"); d.className="nb"+(i===activeBook?" active":"");
-    d.innerHTML=`<span class="dot"></span><span>${escapeHtml(b.name)}</span>`;
-    d.onclick=()=>{snapshotPage();activeBook=i;activePage=0;$("#docname").textContent=b.name;renderBooks();loadPage()};
-    box.appendChild(d);
-  })
-}
-function renderPages(){
-  const box=$("#pages"); box.innerHTML="";
-  books[activeBook].pages.forEach((p,i)=>{
-    const t=document.createElement("div"); t.className="thumb"+(i===activePage?" active":"");
-    if(p.image){ const im=document.createElement("img"); im.src=p.image; im.style.cssText="width:100%;height:100%;object-fit:cover"; t.appendChild(im);}
-    const n=document.createElement("div"); n.className="num"; n.textContent=i+1; t.appendChild(n);
-    t.onclick=()=>{snapshotPage();activePage=i;loadPage()}; box.appendChild(t);
-  })
-}
-function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function pushUndo(){
-  undoStack.push({image:canvas.toDataURL(),texts:textLayer.innerHTML});
-  if(undoStack.length>40) undoStack.shift();
-  redoStack=[];
-}
-function restore(state){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  textLayer.innerHTML=state.texts;
-  if(state.image){const i=new Image();i.onload=()=>ctx.drawImage(i,0,0);i.src=state.image}
-}
-canvas.addEventListener("pointerdown",e=>{
-  if(tool==="text"){
-    const r=canvas.getBoundingClientRect();
-    const x=(e.clientX-r.left)*canvas.width/r.width, y=(e.clientY-r.top)*canvas.height/r.height;
-    pushUndo(); addTextBox(x,y,"輸入文字",color,22); saveDebounced(); return;
-  }
-  drawing=true; pushUndo(); canvas.setPointerCapture(e.pointerId);
-  const r=canvas.getBoundingClientRect(); last={x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height};
-});
-canvas.addEventListener("pointermove",e=>{
-  if(!drawing) return;
-  const r=canvas.getBoundingClientRect(), p={x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height};
-  ctx.lineCap="round"; ctx.lineJoin="round";
-  if(tool==="eraser"){ctx.globalCompositeOperation="destination-out";ctx.lineWidth=size*4;ctx.globalAlpha=1}
-  else{
-    ctx.globalCompositeOperation="source-over";ctx.strokeStyle=color;ctx.lineWidth=tool==="highlighter"?size*3:size;ctx.globalAlpha=tool==="highlighter"?.26:1
-  }
-  ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.globalAlpha=1;last=p;
-});
-["pointerup","pointercancel"].forEach(ev=>canvas.addEventListener(ev,()=>{drawing=false;saveDebounced()}));
-
-function addTextBox(x,y,text,c,fs){
-  const el=document.createElement("div"); el.className="textbox";el.contentEditable="true";el.innerText=text;
-  el.style.left=x+"px";el.style.top=y+"px";el.style.color=c;el.style.fontSize=fs+"px";
-  el.oninput=saveDebounced; el.onfocus=()=>{el.style.outline="1px dashed #2f6fed"}; el.onblur=()=>{el.style.outline="1px dashed #aab7cf";saveDebounced()};
-  textLayer.appendChild(el); el.focus();
-}
-$$(".toolbtn[data-tool]").forEach(b=>b.onclick=()=>{
-  tool=b.dataset.tool; $$(".toolbtn[data-tool]").forEach(x=>x.classList.toggle("active",x===b)); updateStatus()
-});
-$$(".swatch").forEach(s=>s.onclick=()=>{color=s.dataset.color;$$(".swatch").forEach(x=>x.classList.toggle("active",x===s))});
-$("#size").oninput=e=>{size=+e.target.value;updateStatus()};
-function updateStatus(){const names={pen:"筆工具",highlighter:"螢光筆",eraser:"橡皮擦",text:"文字"};$("#status").textContent=`${names[tool]} · ${size} px`}
-
-$("#addPage").onclick=()=>{snapshotPage();books[activeBook].pages.push({id:crypto.randomUUID(),image:null,texts:[]});activePage=books[activeBook].pages.length-1;loadPage();save()};
-$("#addBook").onclick=()=>{const name=prompt("筆記本名稱","新筆記本");if(!name)return; snapshotPage();books.push({id:crypto.randomUUID(),name,pages:[{id:crypto.randomUUID(),image:null,texts:[]}]});activeBook=books.length-1;activePage=0;$("#docname").textContent=name;renderBooks();loadPage();save()};
-$("#clearBtn").onclick=()=>{pushUndo();ctx.clearRect(0,0,canvas.width,canvas.height);textLayer.innerHTML="";saveDebounced()};
-$("#undoBtn").onclick=()=>{if(!undoStack.length)return;redoStack.push({image:canvas.toDataURL(),texts:textLayer.innerHTML});restore(undoStack.pop());saveDebounced()};
-$("#redoBtn").onclick=()=>{if(!redoStack.length)return;undoStack.push({image:canvas.toDataURL(),texts:textLayer.innerHTML});restore(redoStack.pop());saveDebounced()};
-$("#exportBtn").onclick=()=>{
-  snapshotPage();
-  const out=document.createElement("canvas");out.width=canvas.width;out.height=canvas.height;const c=out.getContext("2d");
-  c.fillStyle="white";c.fillRect(0,0,out.width,out.height);
-  c.strokeStyle="#edf0f5";c.lineWidth=1;
-  for(let x=0;x<out.width;x+=28){c.beginPath();c.moveTo(x,0);c.lineTo(x,out.height);c.stroke()}
-  for(let y=0;y<out.height;y+=28){c.beginPath();c.moveTo(0,y);c.lineTo(out.width,y);c.stroke()}
-  c.drawImage(canvas,0,0);
-  [...textLayer.querySelectorAll(".textbox")].forEach(el=>{c.fillStyle=el.style.color||"#111";c.font=`${parseFloat(el.style.fontSize)||22}px sans-serif`;c.fillText(el.innerText,parseFloat(el.style.left)||0,(parseFloat(el.style.top)||0)+(parseFloat(el.style.fontSize)||22))});
-  const a=document.createElement("a");a.download="noteflow-page.png";a.href=out.toDataURL("image/png");a.click();
+// ---------- icon system ----------
+const ICONS={
+ docs:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/>',
+ star:'<path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.8 1-6.1-4.4-4.3 6.1-.9L12 3z"/>',
+ search:'<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>', users:'<path d="M16 19v-1.4a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V19"/><circle cx="9.5" cy="7" r="3"/><path d="M17 10a3 3 0 0 0 0-6M21 19v-1.5a4 4 0 0 0-3-3.7"/>',
+ sort:'<path d="M8 6h12M8 12h8M8 18h4"/><path d="m3 8 2-2 2 2M5 6v12"/>',plus:'<path d="M12 5v14M5 12h14"/>',menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',back:'<path d="m15 18-6-6 6-6"/>',
+ sidebar:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>',undo:'<path d="M9 7H5v-4"/><path d="M5 7c3-3 7-4 10-2 4 2 5 7 3 11-2 3-6 5-10 3"/>',redo:'<path d="M15 7h4v-4"/><path d="M19 7c-3-3-7-4-10-2-4 2-5 7-3 11 2 3 6 5 10 3"/>',
+ pageplus:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M12 11v6M9 14h6"/>',share:'<path d="M12 15V3M8 7l4-4 4 4"/><path d="M5 11v9h14v-9"/>',more:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
+ lasso:'<path d="M7 5c-4 1-5 5-3 8 2 3 7 4 11 3 5-1 7-4 5-7-2-4-8-5-13-4z" stroke-dasharray="2 2"/><path d="M16 16c0 3-1 5-3 5-1 0-2-1-2-2 0-1 1-2 3-2"/>',
+ pen:'<path d="m4 20 4.5-1 10-10-3.5-3.5-10 10L4 20z"/><path d="m13.5 6.5 3.5 3.5"/>',eraser:'<path d="m4 15 8-10 7 6-7 9H8z"/><path d="m9 20 5-6"/>',highlight:'<path d="m5 18 9-12 5 4-9 12z"/><path d="M3 21h14"/>',
+ shape:'<rect x="4" y="5" width="8" height="8" rx="1"/><circle cx="16" cy="15" r="4"/>',image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 20"/>',text:'<path d="M5 5h14M12 5v14M8 19h8"/>',laser:'<path d="M12 3v4M4.2 6.2 7 9M3 14h4M21 14h-4M19.8 6.2 17 9"/><circle cx="12" cy="14" r="3"/>',
+ folder:'<path d="M3 7h7l2 2h9v10H3z"/>',download:'<path d="M12 3v12M8 11l4 4 4-4"/><path d="M5 19h14"/>',trash:'<path d="M5 7h14M9 7V4h6v3M8 10v8M12 10v8M16 10v8M7 7l1 14h8l1-14"/>'
 };
-$("#menuBtn").onclick=()=>$("#sidebar").classList.toggle("open");
-let timer; function saveDebounced(){clearTimeout(timer);timer=setTimeout(save,250)}
-window.addEventListener("beforeunload",save);
+function svgIcon(name){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]||''}</svg>`}
+document.querySelectorAll('[data-icon]').forEach(el=>{el.insertAdjacentHTML('afterbegin',svgIcon(el.dataset.icon))});
+document.getElementById('searchIcon').innerHTML=svgIcon('search');
 
-renderBooks();$("#docname").textContent=books[0].name;loadPage();updateStatus();
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const uid=()=>crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now();
+const STORE='notecanvas.v2';
+const defaultData={
+  notebooks:[
+    {id:uid(),title:'高中課堂筆記',type:'book',favorite:true,cover:'linear-gradient(155deg,#79a6ff,#3d64c8)',paper:'grid',modified:Date.now()-7200000,pages:[{id:uid(),paper:'grid',image:null,texts:[{x:70,y:72,text:'數學｜第一章複習',color:'#1f2329',size:30,weight:700},{x:72,y:135,text:'• 指數律與對數\n• 重要公式整理\n• 段考易錯題',color:'#314464',size:19,weight:500}]}]},
+    {id:uid(),title:'Daily Study',type:'book',favorite:false,cover:'linear-gradient(155deg,#ffd2a8,#f19d76)',paper:'ruled',modified:Date.now()-86400000,pages:[{id:uid(),paper:'ruled',image:null,texts:[{x:70,y:70,text:'Today',color:'#8a4d32',size:31,weight:700},{x:72,y:132,text:'English · Chemistry · Physics',color:'#5f626b',size:18,weight:500}]}]},
+    {id:uid(),title:'旅行規劃',type:'book',favorite:false,cover:'linear-gradient(155deg,#b9e7d4,#65b99a)',paper:'dot',modified:Date.now()-172800000,pages:[{id:uid(),paper:'dot',image:null,texts:[{x:70,y:74,text:'Trip ideas ✈︎',color:'#275c4c',size:30,weight:700}]}]}
+  ],
+  folders:[{id:uid(),title:'學校',type:'folder',modified:Date.now()-200000},{id:uid(),title:'個人',type:'folder',modified:Date.now()-500000}],
+  sort:'modified'
+};
+let data=JSON.parse(localStorage.getItem(STORE)||'null')||defaultData;
+let currentView='documents', currentBook=null,currentPageIndex=0,tool='pen',color='#1d1f23',penSize=3,penStyle='ball',eraserMode='precision',readOnly=false,zoom=1;
+let drawing=false,last=null,shapeStart=null,shapeBase=null,undo=[],redo=[];
+let currentSideTab='pages';
+const canvas=$('#ink'),ctx=canvas.getContext('2d'),paper=$('#paper'),textLayer=$('#textLayer');
+
+function persist(){ if(currentBook) snapshotPage(); localStorage.setItem(STORE,JSON.stringify(data)); }
+function formatDate(ts){const d=new Date(ts);const now=new Date();if(d.toDateString()===now.toDateString())return '今天 '+d.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});return d.toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'})}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),1600)}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+
+// ---------- library ----------
+function renderLibrary(){
+  const root=$('#libContent'); root.innerHTML='';
+  let books=[...data.notebooks];
+  const q=$('#searchBox').value.trim().toLowerCase();
+  if(q) books=books.filter(b=>b.title.toLowerCase().includes(q));
+  if(currentView==='favorites') books=books.filter(b=>b.favorite);
+  if(data.sort==='name') books.sort((a,b)=>a.title.localeCompare(b.title)); else books.sort((a,b)=>b.modified-a.modified);
+  const title=currentView==='favorites'?'我的最愛':currentView==='shared'?'共享':currentView==='search'?'搜尋':'文件'; $('#libTitle').textContent=title;
+  if(currentView==='shared'){
+    root.innerHTML='<div style="max-width:520px;margin:70px auto;text-align:center;color:#7d838e"><div style="font-size:44px;margin-bottom:12px">◌</div><div style="font-weight:700;color:#30343b;margin-bottom:6px">共享空間</div><div style="font-size:13px;line-height:1.6">這個原型先保留共享入口；部署後可再接 Supabase / Firebase 做多人同步。</div></div>';return;
+  }
+  if(currentView==='documents' && !q){
+    root.insertAdjacentHTML('beforeend','<div class="section-head"><div class="section-title">資料夾</div><div class="grow"></div><div class="subtle">'+data.folders.length+' 個</div></div><div class="grid" id="folderGrid"></div>');
+    const fg=$('#folderGrid');
+    data.folders.forEach(f=>{const el=document.createElement('div');el.className='card';el.innerHTML=`<div class="cover folder"><div class="folder-shape"></div></div><div class="card-title">${esc(f.title)}</div><div class="card-meta">資料夾</div>`;el.onclick=()=>toast('資料夾內容會在下一版加入');fg.appendChild(el)});
+  }
+  root.insertAdjacentHTML('beforeend',`<div class="section-head"><div class="section-title">${q?'搜尋結果':'筆記本'}</div><div class="grow"></div><div class="subtle">${books.length} 本</div></div><div class="grid" id="bookGrid"></div>`);
+  const bg=$('#bookGrid');
+  if(currentView==='documents'&&!q){const n=document.createElement('div');n.className='card new-card';n.innerHTML='<div class="cover"><div class="plus-circle">+</div></div><div class="card-title">新增筆記本</div><div class="card-meta">從範本開始</div>';n.onclick=openNewNotebook;bg.appendChild(n)}
+  books.forEach(b=>{const el=document.createElement('div');el.className='card';el.innerHTML=`<div class="cover book" style="background:${b.cover}"><div class="label">${esc(b.title)}</div></div><button class="star ${b.favorite?'on':''}">${b.favorite?'★':'☆'}</button><div class="card-title">${esc(b.title)}</div><div class="card-meta">${b.pages.length} 頁 · ${formatDate(b.modified)}</div>`;el.querySelector('.star').onclick=e=>{e.stopPropagation();b.favorite=!b.favorite;persist();renderLibrary()};el.onclick=()=>openBook(b.id);bg.appendChild(el)});
+  if(!books.length){bg.innerHTML='<div style="grid-column:1/-1;padding:50px 0;text-align:center;color:#8a8f98">沒有符合的筆記本</div>'}
+}
+$$('.navbtn').forEach(b=>b.onclick=()=>{$$('.navbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentView=b.dataset.view;renderLibrary()});
+$('#searchBox').oninput=renderLibrary;
+$('#sortBtn').onclick=()=>{data.sort=data.sort==='modified'?'name':'modified';persist();toast(data.sort==='name'?'依名稱排序':'依最近修改排序');renderLibrary()};
+$('#newBtn').onclick=e=>showPop(e.currentTarget,[['新增筆記本','book'],['新增資料夾','folder']]);
+function showPop(anchor,items){const p=$('#pop');p.innerHTML='';items.forEach(([label,action])=>{const b=document.createElement('button');b.textContent=label;b.onclick=()=>{p.classList.add('hidden'); if(action==='book')openNewNotebook(); if(action==='folder')newFolder(); if(action==='export')exportPNG(); if(action==='clear')clearPage();};p.appendChild(b)});const r=anchor.getBoundingClientRect();p.style.left=Math.min(innerWidth-210,r.right-190)+'px';p.style.top=(r.bottom+6)+'px';p.classList.remove('hidden');setTimeout(()=>document.addEventListener('pointerdown',closePop,{once:true}),0)}
+function closePop(e){if(!$('#pop').contains(e.target))$('#pop').classList.add('hidden')}
+function newFolder(){const name=prompt('資料夾名稱','新資料夾');if(!name)return;data.folders.push({id:uid(),title:name,type:'folder',modified:Date.now()});persist();renderLibrary()}
+
+function openNewNotebook(){
+ const ov=$('#overlay');ov.innerHTML=`<div class="modal"><div class="modal-head">新增筆記本<div class="grow"></div><button class="iconbtn" id="xModal">×</button></div><div class="modal-body">
+ <div class="field"><label>名稱</label><input id="nbName" value="未命名筆記本"></div>
+ <div class="field"><label>封面</label><div class="cover-picks" id="coverPicks"></div></div>
+ <div class="field"><label>紙張</label><div class="paper-picks"><div class="paperpick active" data-paper="blank"><span>空白</span></div><div class="paperpick ruled" data-paper="ruled"><span>橫線</span></div><div class="paperpick grid" data-paper="grid"><span>方格</span></div><div class="paperpick dot" data-paper="dot"><span>點陣</span></div></div></div>
+ </div><div class="modal-foot"><button class="pillbtn" id="cancelModal">取消</button><button class="pillbtn primary" id="createNb">建立</button></div></div>`;
+ ov.classList.remove('hidden');
+ const covers=['linear-gradient(155deg,#7fa9ff,#3e65c9)','linear-gradient(155deg,#fdc9a6,#e98e6b)','linear-gradient(155deg,#b9e7d4,#5db08f)','linear-gradient(155deg,#d7c3ef,#9b7dc3)','linear-gradient(155deg,#f2d98f,#d3ad45)'];
+ let selectedCover=covers[0], selectedPaper='blank';const cp=$('#coverPicks');covers.forEach((c,i)=>{const d=document.createElement('div');d.className='coverpick'+(i===0?' active':'');d.style.background=c;d.onclick=()=>{$$('.coverpick').forEach(x=>x.classList.remove('active'));d.classList.add('active');selectedCover=c};cp.appendChild(d)});
+ $$('.paperpick').forEach(p=>p.onclick=()=>{$$('.paperpick').forEach(x=>x.classList.remove('active'));p.classList.add('active');selectedPaper=p.dataset.paper});
+ const close=()=>ov.classList.add('hidden');$('#xModal').onclick=close;$('#cancelModal').onclick=close;$('#createNb').onclick=()=>{const title=$('#nbName').value.trim()||'未命名筆記本';const b={id:uid(),title,type:'book',favorite:false,cover:selectedCover,paper:selectedPaper,modified:Date.now(),pages:[{id:uid(),paper:selectedPaper,image:null,texts:[]}]};data.notebooks.unshift(b);persist();close();openBook(b.id)}
+}
+
+// ---------- editor ----------
+function openBook(id){currentBook=data.notebooks.find(b=>b.id===id);if(!currentBook)return;currentPageIndex=0;$('#library').style.display='none';$('#editor').style.display='flex';$('#docTitle').textContent=currentBook.title;loadPage();renderActiveMenu();}
+$('#backBtn').onclick=()=>{persist();currentBook=null;$('#editor').style.display='none';$('#library').style.display='flex';renderLibrary()};
+$('#sidebarBtn').onclick=()=>{$('#pageSide').classList.toggle('closed');$('#sidebarBtn').classList.toggle('active')};
+$('#editMode').onclick=()=>setReadOnly(false);$('#readMode').onclick=()=>setReadOnly(true);
+function setReadOnly(v){readOnly=v;$('#editMode').classList.toggle('active',!v);$('#readMode').classList.toggle('active',v);$('#toolrow').style.opacity=v?.38:1;$('#activeMenu').style.opacity=v?.38:1;toast(v?'閱讀模式':'編輯模式')}
+
+function currentPage(){return currentBook.pages[currentPageIndex]}
+function snapshotPage(){if(!currentBook)return;const p=currentPage();p.image=canvas.toDataURL('image/png');p.texts=[...textLayer.querySelectorAll('.textbox')].map(el=>({x:parseFloat(el.style.left)||0,y:parseFloat(el.style.top)||0,text:el.innerText,color:el.style.color||'#1d1f23',size:parseFloat(el.style.fontSize)||20,weight:parseInt(el.style.fontWeight)||400}));p.paper=paper.dataset.paper;currentBook.modified=Date.now()}
+function loadPage(){
+ const p=currentPage();paper.dataset.paper=p.paper||currentBook.paper||'blank';ctx.clearRect(0,0,canvas.width,canvas.height);textLayer.innerHTML='';
+ if(p.image){const img=new Image();img.onload=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);renderPageSide()};img.src=p.image}
+ (p.texts||[]).forEach(t=>addText(t.x,t.y,t.text,t.color,t.size,t.weight));undo=[];redo=[];renderPageSide();
+}
+function renderPageSide(){
+ const list=$('#pageList');list.innerHTML='';
+ if(currentSideTab==='outline'){list.innerHTML='<div class="outline-empty">尚未建立大綱。<br>之後可把標題加入大綱快速跳頁。</div>';return}
+ if(currentSideTab==='audio'){list.innerHTML='<div class="audio-empty">錄音工作區<br>Web 版可在下一階段加入麥克風錄音與時間標記。</div>';return}
+ currentBook.pages.forEach((p,i)=>{const w=document.createElement('div');w.className='page-thumb-wrap';w.innerHTML=`<div class="page-num">${i+1}</div><div class="page-thumb ${i===currentPageIndex?'active':''}"><canvas width="153" height="204"></canvas></div>`;w.querySelector('.page-thumb').onclick=()=>{snapshotPage();currentPageIndex=i;loadPage();persist()};const tc=w.querySelector('canvas'),tctx=tc.getContext('2d');drawPaper(tctx,153,204,p.paper||'blank');if(p.image){const im=new Image();im.onload=()=>tctx.drawImage(im,0,0,153,204);im.src=p.image}list.appendChild(w)});
+ const add=document.createElement('button');add.className='add-side-page';add.textContent='＋ 新增頁面';add.onclick=()=>addPage();list.appendChild(add)
+}
+$$('.side-tab').forEach(t=>t.onclick=()=>{$$('.side-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');currentSideTab=t.dataset.tab;renderPageSide()});
+function addPage(template=currentPage().paper||'blank'){snapshotPage();currentBook.pages.splice(currentPageIndex+1,0,{id:uid(),paper:template,image:null,texts:[]});currentPageIndex++;loadPage();persist();toast('已新增頁面')}
+$('#addPageTop').onclick=e=>showAddPageMenu(e.currentTarget);
+function showAddPageMenu(anchor){const p=$('#pop');p.innerHTML='<div style="padding:6px 9px 4px;font-size:11px;color:#7c818a;font-weight:650">新增頁面</div>';[['同目前範本','same'],['空白紙','blank'],['橫線紙','ruled'],['方格紙','grid'],['點陣紙','dot']].forEach(([lab,val])=>{const b=document.createElement('button');b.textContent=lab;b.onclick=()=>{p.classList.add('hidden');addPage(val==='same'?currentPage().paper:val)};p.appendChild(b)});const r=anchor.getBoundingClientRect();p.style.left=Math.min(innerWidth-210,r.left-150)+'px';p.style.top=(r.bottom+6)+'px';p.classList.remove('hidden');setTimeout(()=>document.addEventListener('pointerdown',closePop,{once:true}),0)}
+$('#moreBtn').onclick=e=>showPop(e.currentTarget,[['清除目前頁面','clear']]);
+$('#exportBtn').onclick=e=>showPop(e.currentTarget,[['匯出目前頁面 PNG','export']]);
+
+// ---------- tools ----------
+$$('.tool[data-tool]').forEach(b=>b.onclick=()=>{if(readOnly)return;tool=b.dataset.tool;$$('.tool[data-tool]').forEach(x=>x.classList.toggle('active',x===b));if(tool==='image'){$('#imageInput').click();tool='pen';$$('.tool[data-tool]').forEach(x=>x.classList.toggle('active',x.dataset.tool==='pen'))}renderActiveMenu()});
+function renderActiveMenu(){
+ const m=$('#activeMenu');m.innerHTML='';
+ if(tool==='pen'||tool==='highlighter'){
+  m.innerHTML=`<span class="menu-label">${tool==='pen'?'筆尖':'螢光筆'}</span>`;
+  if(tool==='pen') [['ball','原子筆'],['fountain','鋼筆'],['brush','畫筆']].forEach(([v,l])=>{const b=document.createElement('button');b.className='chip'+(penStyle===v?' active':'');b.textContent=l;b.onclick=()=>{penStyle=v;renderActiveMenu()};m.appendChild(b)});
+  const lab=document.createElement('span');lab.className='menu-label';lab.textContent='粗細';m.appendChild(lab);
+  [2,4,7].forEach(v=>{const b=document.createElement('button');b.className='widthchip'+(penSize===v?' active':'');b.innerHTML=`<div class="widthline" style="height:${Math.max(2,v/2)}px"></div>`;b.onclick=()=>{penSize=v;renderActiveMenu()};m.appendChild(b)});
+  addColors(m);
+ } else if(tool==='eraser'){
+  m.innerHTML='<span class="menu-label">橡皮擦</span>';[['precision','精準'],['standard','標準'],['stroke','整筆']].forEach(([v,l])=>{const b=document.createElement('button');b.className='chip'+(eraserMode===v?' active':'');b.textContent=l;b.onclick=()=>{eraserMode=v;renderActiveMenu()};m.appendChild(b)});const c=document.createElement('button');c.className='chip';c.textContent='清除頁面';c.onclick=clearPage;m.appendChild(c)
+ } else if(tool==='shape'){
+  m.innerHTML='<span class="menu-label">圖形</span><button class="chip active">矩形 / 直線</button>';addColors(m)
+ } else if(tool==='text'){
+  m.innerHTML='<span class="menu-label">文字</span><button class="chip active">22 pt</button>';addColors(m)
+ } else if(tool==='lasso'){
+  m.innerHTML='<span class="menu-label">套索</span><button class="chip active">矩形選取</button><span class="subtle">目前可拖曳文字物件；墨跡套索將於下一階段加入</span>'
+ } else if(tool==='laser'){
+  m.innerHTML='<span class="menu-label">雷射指示</span><button class="chip active">點狀</button><span class="subtle">筆跡不會儲存</span>'
+ }
+ $('#quickDot').style.background=color;
+}
+function addColors(m){const lab=document.createElement('span');lab.className='menu-label';lab.textContent='顏色';m.appendChild(lab);['#1d1f23','#2f6fed','#e84b4b','#2f9b68','#a45ad4'].forEach(c=>{const d=document.createElement('button');d.className='colorchip'+(color===c?' active':'');d.style.background=c;d.onclick=()=>{color=c;renderActiveMenu()};m.appendChild(d)});const input=document.createElement('input');input.type='color';input.value=color;input.className='colorchip';input.title='自訂顏色';input.oninput=()=>{color=input.value;renderActiveMenu()};m.appendChild(input)}
+$('#quickColor').onclick=()=>{const idx=['#1d1f23','#2f6fed','#e84b4b','#2f9b68'].indexOf(color);color=['#1d1f23','#2f6fed','#e84b4b','#2f9b68'][(idx+1)%4];renderActiveMenu()};
+
+function pushUndo(){undo.push({image:canvas.toDataURL(),texts:textLayer.innerHTML});if(undo.length>40)undo.shift();redo=[]}
+function restore(s){ctx.clearRect(0,0,canvas.width,canvas.height);textLayer.innerHTML=s.texts;bindTextBoxes();if(s.image){const im=new Image();im.onload=()=>ctx.drawImage(im,0,0);im.src=s.image}}
+$('#undoBtn').onclick=()=>{if(!undo.length)return;redo.push({image:canvas.toDataURL(),texts:textLayer.innerHTML});restore(undo.pop());persist()};
+$('#redoBtn').onclick=()=>{if(!redo.length)return;undo.push({image:canvas.toDataURL(),texts:textLayer.innerHTML});restore(redo.pop());persist()};
+function pos(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height,pressure:e.pressure||.5}}
+canvas.addEventListener('pointerdown',e=>{
+ if(readOnly)return;
+ const p=pos(e);
+ if(tool==='text'){pushUndo();addText(p.x,p.y,'輸入文字',color,22,500,true);persist();return}
+ if(tool==='lasso'){toast('目前套索先保留介面；可直接拖曳文字物件');return}
+ drawing=true;canvas.setPointerCapture?.(e.pointerId);last=p;shapeStart=p;if(tool!=='laser')pushUndo();if(tool==='shape')shapeBase=ctx.getImageData(0,0,canvas.width,canvas.height);
+ if(tool==='laser')drawLaser(p);
+});
+canvas.addEventListener('pointermove',e=>{
+ if(!drawing||readOnly)return;const p=pos(e);
+ if(tool==='laser'){drawLaser(p);last=p;return}
+ if(tool==='shape'){ctx.putImageData(shapeBase,0,0);ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.strokeStyle=color;ctx.lineWidth=penSize;ctx.strokeRect(shapeStart.x,shapeStart.y,p.x-shapeStart.x,p.y-shapeStart.y);return}
+ ctx.lineCap='round';ctx.lineJoin='round';
+ if(tool==='eraser'){ctx.globalCompositeOperation='destination-out';ctx.globalAlpha=1;ctx.lineWidth=eraserMode==='precision'?14:eraserMode==='standard'?28:50}
+ else {ctx.globalCompositeOperation='source-over';ctx.strokeStyle=color;ctx.globalAlpha=tool==='highlighter'?.23:1;let pressure=(e.pointerType==='pen'?Math.max(.25,p.pressure):.75);let mult=penStyle==='fountain'?1.15:penStyle==='brush'?1.5:1;ctx.lineWidth=(tool==='highlighter'?penSize*5:penSize*mult*(.75+pressure*.55))}
+ ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.globalAlpha=1;last=p;
+});
+['pointerup','pointercancel'].forEach(ev=>canvas.addEventListener(ev,e=>{if(!drawing)return;drawing=false;shapeBase=null;if(tool!=='laser')persist()}));
+let laserTimer;function drawLaser(p){ctx.save();ctx.globalCompositeOperation='source-over';ctx.fillStyle='rgba(235,55,55,.85)';ctx.beginPath();ctx.arc(p.x,p.y,8,0,Math.PI*2);ctx.fill();ctx.restore();clearTimeout(laserTimer);laserTimer=setTimeout(()=>loadPage(),120)}
+
+function addText(x,y,text,c,size,weight=400,focus=false){const el=document.createElement('div');el.className='textbox';el.contentEditable='true';el.innerText=text;Object.assign(el.style,{left:x+'px',top:y+'px',color:c,fontSize:size+'px',fontWeight:weight});textLayer.appendChild(el);bindText(el);if(focus){el.focus();document.execCommand?.('selectAll',false,null)}}
+function bindText(el){let sx,sy,ox,oy,moved=false;el.oninput=()=>persist();el.onpointerdown=e=>{if(readOnly)return;if(tool==='lasso'){moved=true;sx=e.clientX;sy=e.clientY;ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;el.setPointerCapture?.(e.pointerId);e.preventDefault()}};el.onpointermove=e=>{if(moved&&tool==='lasso'){el.style.left=ox+(e.clientX-sx)/zoom+'px';el.style.top=oy+(e.clientY-sy)/zoom+'px'}};el.onpointerup=()=>{if(moved){moved=false;persist()}}}
+function bindTextBoxes(){textLayer.querySelectorAll('.textbox').forEach(bindText)}
+
+$('#imageInput').onchange=e=>{const f=e.target.files[0];if(!f)return;pushUndo();const img=new Image();img.onload=()=>{const maxW=520,maxH=650;let w=img.width,h=img.height;const k=Math.min(maxW/w,maxH/h,1);w*=k;h*=k;ctx.drawImage(img,(canvas.width-w)/2,(canvas.height-h)/2,w,h);persist();toast('圖片已加入');URL.revokeObjectURL(img.src)};img.src=URL.createObjectURL(f);e.target.value=''};
+function clearPage(){if(!confirm('清除目前頁面的手寫、文字與圖片？'))return;pushUndo();ctx.clearRect(0,0,canvas.width,canvas.height);textLayer.innerHTML='';persist();renderPageSide()}
+
+function drawPaper(c,w,h,type){c.fillStyle='#fff';c.fillRect(0,0,w,h);c.strokeStyle='#e7ebf1';c.lineWidth=.6;if(type==='grid'){for(let x=0;x<w;x+=10){c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke()}for(let y=0;y<h;y+=10){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke()}}else if(type==='ruled'){for(let y=8;y<h;y+=12){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke()}}else if(type==='dot'){c.fillStyle='#cbd1dc';for(let x=6;x<w;x+=10)for(let y=6;y<h;y+=10){c.beginPath();c.arc(x,y,.45,0,7);c.fill()}}}
+function exportPNG(){snapshotPage();const out=document.createElement('canvas');out.width=canvas.width;out.height=canvas.height;const c=out.getContext('2d');drawPaper(c,out.width,out.height,currentPage().paper);c.drawImage(canvas,0,0);[...textLayer.querySelectorAll('.textbox')].forEach(el=>{c.fillStyle=el.style.color||'#222';c.font=`${el.style.fontWeight||400} ${parseFloat(el.style.fontSize)||20}px -apple-system, sans-serif`;const x=parseFloat(el.style.left)||0;let y=(parseFloat(el.style.top)||0)+(parseFloat(el.style.fontSize)||20);el.innerText.split('\n').forEach(line=>{c.fillText(line,x,y);y+=(parseFloat(el.style.fontSize)||20)*1.25})});const a=document.createElement('a');a.download=(currentBook.title||'note')+'-page-'+(currentPageIndex+1)+'.png';a.href=out.toDataURL('image/png');a.click();toast('已匯出 PNG')}
+
+// zoom
+function setZoom(z){zoom=Math.min(1.5,Math.max(.65,z));$('#stage').style.transform=`scale(${zoom})`;$('#stage').style.marginBottom=((zoom-1)*1088)+'px';$('#zoomLabel').textContent=Math.round(zoom*100)+'%'}
+$('#zoomIn').onclick=()=>setZoom(zoom+.1);$('#zoomOut').onclick=()=>setZoom(zoom-.1);
+
+// mobile menu
+function checkMobile(){if(innerWidth<=900){$('#mobileMenu').classList.remove('hidden')}else{$('#mobileMenu').classList.add('hidden');$('#libSide').classList.remove('open')}}
+window.addEventListener('resize',checkMobile);checkMobile();$('#mobileMenu').onclick=()=>$('#libSide').classList.toggle('open');
+
+// save before leave
+window.addEventListener('beforeunload',persist);
+renderLibrary();renderActiveMenu();
+if('serviceWorker' in navigator && location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>
