@@ -32,7 +32,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 .page.grid{background-image:linear-gradient(#e8ebf0 1px,transparent 1px),linear-gradient(90deg,#e8ebf0 1px,transparent 1px);background-size:28px 28px}
 .page.lines{background-image:linear-gradient(#edf0f4 1px,transparent 1px);background-size:100% 30px}
 .page.dots{background-image:radial-gradient(#d7dbe2 1px,transparent 1px);background-size:24px 24px}
-#pdfBg,#draw,#overlay{position:absolute;inset:0;width:100%;height:100%}#pdfBg{object-fit:fill;pointer-events:none}#draw{touch-action:pan-x pan-y pinch-zoom} body.pen-active #draw{touch-action:none}#overlay{pointer-events:none}
+#pdfBg,#draw,#overlay{position:absolute;inset:0;width:100%;height:100%}#pdfBg{object-fit:fill;pointer-events:none}#draw{touch-action:none;-webkit-user-select:none;user-select:none}#overlay{pointer-events:none}
 .obj{position:absolute;pointer-events:auto;user-select:none}.obj img{width:100%;height:100%;object-fit:contain;display:block}.obj.selected{outline:2px solid var(--blue)}.handle{position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--blue);right:-8px;bottom:-8px}
 .textobj{min-width:120px;min-height:32px;padding:5px 7px;font-size:22px;outline:none;white-space:pre-wrap}.textobj.selected{outline:2px solid var(--blue);border-radius:4px}
 .lassoBox{position:absolute;border:2px dashed var(--blue);background:#3478f614;pointer-events:none}
@@ -121,20 +121,28 @@ function drawStroke(s){
 }
 function pos(e){let r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*768/r.width,y:(e.clientY-r.top)*1024/r.height,p:e.pressure||.5}}
 function allowed(e){return !pencilOnly || e.pointerType==="pen"}
+let activePointer=null, touchPan=null;
+function showPointer(e){
+ const state=$("#pencilState");
+ if(state)state.textContent=e.pointerType==="pen"?"✏️ Apple Pencil 已偵測":`輸入：${e.pointerType}（僅 Pencil 可寫）`;
+}
+// Canvas 必須在 pointerdown 之前就設定 touch-action:none，
+// 否則 Safari 可能接管 Pencil 手勢並發出 pointercancel。
+// 手指平移改由下方的 touch handlers 處理。
 cv.addEventListener("pointerdown",e=>{
- if(!allowed(e)){return} e.preventDefault();document.body.classList.add("pen-active"); cv.setPointerCapture(e.pointerId);
+ showPointer(e);if(!allowed(e)){return} e.preventDefault();activePointer=e.pointerId; try{cv.setPointerCapture(e.pointerId)}catch(_){}
  let q=pos(e);
  if(tool==="pen"||tool==="highlighter"||tool==="eraser"||tool==="shape"||tool==="tape"||tool==="laser"){drawing=true;snapshot();currentStroke={id:uid(),tool,color:tool==="highlighter"?"#f2c94c":color,width:tool==="highlighter"?width*3:width,alpha:tool==="highlighter"?.3:1,pressure:tool==="pen",points:[q]};}
  else if(tool==="lasso"){lassoStart=q;let b=document.createElement("div");b.id="lasso";b.className="lassoBox";ov.appendChild(b)}
  else if(tool==="text"){snapshot();p().objects.push({id:uid(),type:"text",x:q.x,y:q.y,w:220,h:60,text:"輸入文字",color});render();save()}
 });
 cv.addEventListener("pointermove",e=>{
- if(!allowed(e))return;let q=pos(e);
+ if(!allowed(e)||activePointer!==e.pointerId)return;let q=pos(e);
  if(drawing&&currentStroke){currentStroke.points.push(q); if(tool==="laser"){render();drawStroke(currentStroke)}else if(tool==="eraser"){eraseAt(q)}else{render();drawStroke(currentStroke)}}
  if(lassoStart){let x=Math.min(q.x,lassoStart.x),y=Math.min(q.y,lassoStart.y),w=Math.abs(q.x-lassoStart.x),h=Math.abs(q.y-lassoStart.y),b=$("#lasso");Object.assign(b.style,{left:x+"px",top:y+"px",width:w+"px",height:h+"px"});}
 });
 cv.addEventListener("pointerup",e=>{
- document.body.classList.remove("pen-active");if(!allowed(e))return;let q=pos(e);
+ if(!allowed(e)||activePointer!==e.pointerId)return;activePointer=null;let q=pos(e);
  if(drawing&&currentStroke){
    if(tool==="pen"||tool==="highlighter")p().strokes.push(currentStroke);
    if(tool==="shape"){let a=currentStroke.points[0];p().objects.push({id:uid(),type:"shape",x:Math.min(a.x,q.x),y:Math.min(a.y,q.y),w:Math.abs(q.x-a.x),h:Math.abs(q.y-a.y),color})}
@@ -143,7 +151,29 @@ cv.addEventListener("pointerup",e=>{
  }
  if(lassoStart){selectInRect(lassoStart,q);lassoStart=null;$("#lasso")?.remove();render()}
 });
-cv.addEventListener("pointercancel",()=>{drawing=false;currentStroke=null;lassoStart=null;document.body.classList.remove("pen-active");render()});
+cv.addEventListener("pointercancel",e=>{
+ if(activePointer!==e.pointerId)return;
+ // 儲存已經畫出的筆跡，避免 Safari 中斷時整筆消失。
+ if(drawing&&currentStroke&&currentStroke.points.length>1&&["pen","highlighter"].includes(tool))p().strokes.push(currentStroke);
+ activePointer=null;drawing=false;currentStroke=null;lassoStart=null;render();save();
+});
+// 手指只移動頁面；Pencil 仍由 Pointer Events 獨立處理。
+cv.addEventListener("touchstart",e=>{
+ if(!pencilOnly)return;
+ const touches=[...e.touches].filter(t=>t.touchType!=="stylus");
+ if(!touches.length)return;
+ touchPan={x:touches[0].clientX,y:touches[0].clientY,left:$("#viewport").scrollLeft,top:$("#viewport").scrollTop};
+}, {passive:true});
+cv.addEventListener("touchmove",e=>{
+ if(!pencilOnly||!touchPan||!e.touches.length)return;
+ const touches=[...e.touches].filter(t=>t.touchType!=="stylus");
+ if(!touches.length)return;
+ const v=$("#viewport");v.scrollLeft=touchPan.left+touchPan.x-touches[0].clientX;
+ v.scrollTop=touchPan.top+touchPan.y-touches[0].clientY;
+ if(e.cancelable)e.preventDefault();
+}, {passive:false});
+cv.addEventListener("touchend",()=>{touchPan=null},{passive:true});
+cv.addEventListener("touchcancel",()=>{touchPan=null},{passive:true});
 function eraseAt(q){p().strokes=p().strokes.filter(s=>!s.points.some(a=>Math.hypot(a.x-q.x,a.y-q.y)<width*3));render()}
 function selectInRect(a,b){let x1=Math.min(a.x,b.x),x2=Math.max(a.x,b.x),y1=Math.min(a.y,b.y),y2=Math.max(a.y,b.y);selectedIds.clear();for(const o of p().objects){if(o.x>=x1&&o.y>=y1&&o.x+o.w<=x2&&o.y+o.h<=y2)selectedIds.add(o.id)}for(const s of p().strokes){if(s.points.some(q=>q.x>=x1&&q.x<=x2&&q.y>=y1&&q.y<=y2))selectedIds.add(s.id)}toast(selectedIds.size?`已選取 ${selectedIds.size} 個物件`:"沒有選到物件")}
 function renderObject(o){

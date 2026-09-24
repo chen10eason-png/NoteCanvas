@@ -1,1 +1,1 @@
-NoteCanvas V4: Apple Pencil-only handwriting, touch scrolling, PDF import, notebook search, favorites, bookmarks, IndexedDB, PWA registration, PNG and print-to-PDF. Some advanced features remain prototypes; PDF import needs internet. Use HTTPS on iPad.
+NoteCanvas V4.1: Fix Apple Pencil input by setting canvas touch-action:none before pointerdown, handling touch panning separately, and retaining partial strokes on pointercancel. Apple Pencil requires iPad Safari hardware testing.\n
