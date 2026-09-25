@@ -193,6 +193,9 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  .body .sidebar{display:none;position:fixed;top:92px;bottom:0;left:0;width:min(290px,82vw);z-index:40;box-shadow:0 12px 40px #1c2b3c3b}
  .body:not(.pages-collapsed) .sidebar{display:grid;transform:translateX(0)}
 }
+/* Single-finger page-turn gestures are enabled only by user setting. */
+.viewport.swipe-enabled{overscroll-behavior:contain}
+#swipeMode{max-width:175px}
 </style>
 </head>
 <body>
@@ -222,7 +225,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
     <div class="spacer"></div><span id="pencilState"> Pencil Only</span>
    </div>
    <div class="highlighter-settings hidden" id="highlighterSettings"><span>螢光筆</span><button type="button" class="hl-color selected" data-hl="#f2d64b" style="background:#f2d64b" aria-label="黃色"></button><button type="button" class="hl-color" data-hl="#9be3a0" style="background:#9be3a0" aria-label="綠色"></button><button type="button" class="hl-color" data-hl="#f7a4c6" style="background:#f7a4c6" aria-label="粉色"></button><button type="button" class="hl-color" data-hl="#9bc8fc" style="background:#9bc8fc" aria-label="藍色"></button><label>粗細 <input id="hlWidth" type="range" min="8" max="40" value="18"></label><label class="hl-straight"><input type="checkbox" id="hlStraight"> 直線模式</label></div>
-   <div class="viewport" id="viewport">
+   <div class="viewport" id="viewport" aria-label="筆記頁面">
     <div class="canvas-space"><div class="page grid" id="page"><img id="pdfBg" class="hidden"><canvas id="draw" width="768" height="1024"></canvas><div id="overlay"></div></div></div>
     <div class="zoom"><button id="zoomOut">−</button><span id="zoomLabel">100%</span><button id="zoomIn">＋</button></div>
    </div>
@@ -244,7 +247,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 <div class="modal hidden" id="trashModal"><div class="sheet trash-sheet"><h3>最近刪除的頁面</h3><p style="color:#798394;font-size:12px">已刪除頁面會保留在這本筆記本中，可隨時還原。</p><div id="trashItems"></div><div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="btn primary" id="closeTrash">完成</button></div></div></div>
 <div class="modal hidden" id="settings"><div class="sheet"><h3>文件設定</h3>
  <div class="setting"><div><b>Apple Pencil Only</b><div style="font-size:12px;color:#7d8492">手指只負責捲動、平移與縮放，不會留下筆跡。</div></div><div class="switch on" id="pencilSwitch"><i></i></div></div>
- <div class="setting"><span>捲動方向</span><select id="scrollDir"><option>垂直</option><option>水平</option></select></div>
+ <div class="setting"><div><b>滑動切換頁面</b><div style="font-size:12px;color:#7d8492;margin-top:4px">僅手指單指滑動換頁；Apple Pencil 繼續書寫。可隨時關閉。</div></div><select id="swipeMode" aria-label="滑動換頁方向"><option value="off">關閉（自由捲動）</option><option value="horizontal">左右滑動</option><option value="vertical">上下滑動</option></select></div><div class="setting"><span>翻頁方向</span><span id="swipeHint" style="font-size:12px;color:#78859b">尚未啟用</span></div>
  <div class="setting"><span>紙張</span><select id="paperType"><option value="grid">方格</option><option value="lines">橫線</option><option value="dots">點陣</option><option value="">空白</option></select></div>
  <div class="setting"><span>垃圾桶</span><button class="btn" id="openTrash">查看已刪除頁面</button></div><div class="setting"><span>工具列自訂</span><button class="btn" id="customize">調整</button></div>
  <div style="display:flex;justify-content:flex-end;margin-top:16px"><button class="btn primary" id="closeSettings">完成</button></div>
@@ -265,7 +268,7 @@ async function getPDFEngine(){
  pdfjsLib=mod;return mod;
 }
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const APP_VERSION="5.9.0";
+const APP_VERSION="5.10.0";
 document.title=`NoteCanvas V${APP_VERSION}`;
 $("#appVersion").textContent=`v${APP_VERSION}`;
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
@@ -392,6 +395,7 @@ function drawStroke(stroke){
 function pos(e){let r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*768/r.width,y:(e.clientY-r.top)*1024/r.height,p:e.pressure||.5}}
 function allowed(e){return !pencilOnly || e.pointerType==="pen"}
 let activePointer=null, touchPan=null;
+let swipeMode="off", swipeTracking=null;
 function showPointer(e){
  const state=$("#pencilState");
  if(state)state.textContent=e.pointerType==="pen"?"✏️ Apple Pencil 已偵測":`輸入：${e.pointerType}（僅 Pencil 可寫）`;
@@ -439,13 +443,13 @@ cv.addEventListener("pointercancel",e=>{
 });
 // 手指只移動頁面；Pencil 仍由 Pointer Events 獨立處理。
 cv.addEventListener("touchstart",e=>{
- if(!pencilOnly)return;
+ if(!pencilOnly||swipeMode!=="off")return;
  const touches=[...e.touches].filter(t=>t.touchType!=="stylus");
  if(!touches.length)return;
  touchPan={x:touches[0].clientX,y:touches[0].clientY,left:$("#viewport").scrollLeft,top:$("#viewport").scrollTop};
 }, {passive:true});
 cv.addEventListener("touchmove",e=>{
- if(!pencilOnly||!touchPan||!e.touches.length)return;
+ if(!pencilOnly||swipeMode!=="off"||!touchPan||!e.touches.length)return;
  const touches=[...e.touches].filter(t=>t.touchType!=="stylus");
  if(!touches.length)return;
  const v=$("#viewport");v.scrollLeft=touchPan.left+touchPan.x-touches[0].clientX;
@@ -454,6 +458,49 @@ cv.addEventListener("touchmove",e=>{
 }, {passive:false});
 cv.addEventListener("touchend",()=>{touchPan=null},{passive:true});
 cv.addEventListener("touchcancel",()=>{touchPan=null},{passive:true});
+// 單指翻頁：僅追蹤 touchType !== stylus 的手指，兩指縮放不觸發。
+// 門檻包含位移、主方向比例及最長手勢時間，避免誤觸。
+function updateSwipeMode(mode){
+ swipeMode=["off","horizontal","vertical"].includes(mode)?mode:"off";
+ try{localStorage.setItem("notecanvas.swipeMode",swipeMode)}catch(_){}
+ const hint=$("#swipeHint");if(hint)hint.textContent=swipeMode==="horizontal"?"← 上一頁 · 下一頁 →":swipeMode==="vertical"?"↑ 下一頁 · 上一頁 ↓":"尚未啟用";
+ $("#viewport").classList.toggle("swipe-enabled",swipeMode!=="off");
+ $("#swipeMode").value=swipeMode;
+ touchPan=null;swipeTracking=null;
+}
+const viewport=$("#viewport");
+viewport.addEventListener("touchstart",e=>{
+ if(swipeMode==="off"||!book||e.touches.length!==1){swipeTracking=null;return}
+ const t=e.touches[0];if(t.touchType==="stylus"){swipeTracking=null;return}
+ swipeTracking={id:t.identifier,x:t.clientX,y:t.clientY,lastX:t.clientX,lastY:t.clientY,time:performance.now(),multi:false};
+},{passive:true,capture:true});
+viewport.addEventListener("touchmove",e=>{
+ if(!swipeTracking)return;
+ if(e.touches.length!==1){swipeTracking=null;return}
+ const t=e.touches[0];if(t.identifier!==swipeTracking.id)return;
+ swipeTracking.lastX=t.clientX;swipeTracking.lastY=t.clientY;
+ const dx=t.clientX-swipeTracking.x,dy=t.clientY-swipeTracking.y;
+ const primary=swipeMode==="horizontal"?Math.abs(dx):Math.abs(dy);
+ const cross=swipeMode==="horizontal"?Math.abs(dy):Math.abs(dx);
+ // 只有確定是選定方向的手勢才攔截瀏覽器捲動。
+ if(primary>16&&primary>cross*1.35&&e.cancelable)e.preventDefault();
+},{passive:false,capture:true});
+viewport.addEventListener("touchend",e=>{
+ const track=swipeTracking;if(!track)return;
+ if(e.touches.length){swipeTracking=null;return}
+ const t=[...e.changedTouches].find(t=>t.identifier===track.id);
+ swipeTracking=null;if(!t||t.touchType==="stylus")return;
+ const dx=t.clientX-track.x,dy=t.clientY-track.y;
+ const primary=swipeMode==="horizontal"?dx:dy,cross=swipeMode==="horizontal"?dy:dx;
+ if(Math.abs(primary)<75||Math.abs(primary)<Math.abs(cross)*1.35||performance.now()-track.time>1500)return;
+ // 左滑或上滑：下一頁；右滑或下滑：上一頁。
+ const target=pageIndex+(primary<0?1:-1);
+ if(target<0||target>=book.pages.length){toast(target<0?"已經是第一頁":"已經是最後一頁");return}
+ pageIndex=target;loadPage();
+},{passive:true,capture:true});
+viewport.addEventListener("touchcancel",()=>{swipeTracking=null},{passive:true,capture:true});
+try{updateSwipeMode(localStorage.getItem("notecanvas.swipeMode")||"off")}catch(_){updateSwipeMode("off")}
+$("#swipeMode").onchange=e=>{updateSwipeMode(e.target.value);toast(swipeMode==="off"?"已關閉滑動翻頁":swipeMode==="horizontal"?"已開啟左右滑動翻頁":"已開啟上下滑動翻頁")};
 // 區域橡皮擦：依筆尖掃過的圓形範圍切開向量筆跡，而非刪掉整條筆畫。
 function eraseAt(q){
  const radius=Math.max(5,width*3), next=[];
