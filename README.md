@@ -1,2 +1,1 @@
-V5: fixes blocking PDF CDN module import (the entire app failed when offline/CDN blocked), adds missing service worker and manifest, Pencil diagnostics. Pencil hardware must be verified on iPad Safari. Do not overwrite V4 until tested.
-\nV5.1: Region eraser splits vector strokes at the pencil tip radius, preserving untouched stroke portions. Pencil-only remains enabled.\n
+NoteCanvas V5.2: visual refinement of library, covers, notebook editor, thumbnails, toolbar, iPad layout. Pencil and region eraser engine inherited unchanged from V5.1. Added Cmd/Ctrl+Z, Cmd/Ctrl+Shift+Z and Escape shortcuts. No iPad hardware test performed.\n
