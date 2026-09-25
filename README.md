@@ -1,1 +1,1 @@
-NoteCanvas V5.2: visual refinement of library, covers, notebook editor, thumbnails, toolbar, iPad layout. Pencil and region eraser engine inherited unchanged from V5.1. Added Cmd/Ctrl+Z, Cmd/Ctrl+Shift+Z and Escape shortcuts. No iPad hardware test performed.\n
+NoteCanvas V5.3: Goodnotes-inspired document tabs, compact icon+label toolbar, reorganized sidebar, improved document library and notebook covers. V5.1 Pencil-only and area eraser engine retained. No trademark or proprietary assets copied. Test on iPad Safari before replacing existing deployment.\n

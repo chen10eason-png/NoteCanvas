@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=yes">
 <meta name="theme-color" content="#f7f8fb">
 <link rel="manifest" href="manifest.webmanifest">
-<title>NoteCanvas V4</title>
+<title>NoteCanvas V5.3</title>
 <style>
 :root{--bg:#f4f5f8;--card:#fff;--ink:#20242c;--muted:#7d8492;--line:#e3e5ea;--blue:#3478f6;--blue2:#eaf2ff;--shadow:0 8px 28px #1d273514}
 *{box-sizing:border-box}html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI","Noto Sans TC",sans-serif;color:var(--ink);background:var(--bg);overscroll-behavior:none}
@@ -95,6 +95,55 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  .libmain{padding:22px}
  .cards{gap:17px}
 }
+
+/* V5.3 document-tabs / compact tools / notebook polish */
+.app{grid-template-rows:40px 52px minmax(0,1fr)}
+.doc-tabs{display:flex;align-items:stretch;gap:6px;padding:5px 12px 0;background:#e9ebf1;border-bottom:1px solid #dfe2e9;min-width:0}
+.doc-home,.doc-add{border:0;background:transparent;color:#697385;border-radius:8px 8px 0 0;min-width:32px;font-size:20px;cursor:pointer}
+.doc-home:hover,.doc-add:hover{background:#f8f9fb}
+.doc-tab{height:35px;min-width:150px;max-width:240px;padding:0 12px;background:#fff;border-radius:10px 10px 0 0;display:flex;align-items:center;gap:9px;font-size:12px;font-weight:650;color:#3c4554;box-shadow:0 -1px 5px #1d273508}
+.doc-tab #tabTitle{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.doc-tab-dot{color:#377af2;font-size:16px}.doc-tab-close{margin-left:auto;color:#9da4b1}.tab-spacer{flex:1}.tab-appname{font-size:11px;align-self:center;color:#929baa;letter-spacing:.2px}
+.nav{height:52px;box-shadow:0 1px 3px #18273d07}
+.nav .btn{border-radius:8px}
+.nav #back{color:#3777df;font-weight:650}
+.nav #more{font-size:18px}
+.sidebar{background:#f7f8fa}
+.side-tabs{padding:12px 8px 8px}
+.side-tabs button{white-space:nowrap;font-size:11px}
+.side-actions{padding:8px 12px 12px;border-bottom:1px solid #e9ebf0}
+.thumbs{background:#f7f8fa}
+.editor{grid-template-rows:59px 50px minmax(0,1fr)}
+.toolbar{gap:3px;padding:6px 10px;background:#fefefe;box-shadow:0 1px 5px #1b2c4010;justify-content:center}
+.tool[data-tool]{min-width:51px;height:48px;padding:5px 6px;display:flex;flex-direction:column;gap:2px;border-radius:10px}
+.tool-symbol{font-size:21px;line-height:24px;font-weight:450}
+.tool-label{font-size:10px;font-weight:550;line-height:12px;color:#7c8594}
+.tool.active .tool-label{color:#2e71e9}
+.tool[data-tool="pen"] .tool-symbol{font-size:25px}
+.tool[data-tool="text"] .tool-symbol{font-family:Georgia,serif;font-weight:700}
+.subbar{height:50px;gap:10px;background:#fdfdfe}
+.chip{height:32px}
+#width{accent-color:#3979ef}
+.libmain{background:#f8f9fb}
+.lib-section-label{font-size:10px;color:#9aa3b0;letter-spacing:1px;font-weight:800;padding:23px 14px 7px}
+.logo-symbol{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:#3a7bf2;border-radius:9px;color:#fff;margin-right:6px;font-size:20px}
+.libhead{padding-bottom:6px}
+.libhead h1{font-size:30px}
+#librarySearch{background:white}
+.card h4{font-weight:650}
+.cover{border:1px solid #0000000a}
+@media(max-width:1000px){
+ .toolbar{justify-content:flex-start}
+ .tool[data-tool]{min-width:47px}
+ .tool-label{font-size:9px}
+}
+@media(max-width:800px){
+ .sidebar{top:92px}
+ .editor{grid-template-rows:58px 50px minmax(0,1fr)}
+ .tab-appname{display:none}
+ .doc-tab{min-width:120px}
+ .nav #bookmark{display:none}
+}
 </style>
 </head>
 <body>
@@ -104,16 +153,17 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 </div>
 
 <div class="app">
+ <div class="doc-tabs"><button class="doc-home" id="tabHome" title="返回文件庫">▦</button><div class="doc-tab current"><span class="doc-tab-dot">✎</span><span id="tabTitle">我的筆記</span><span class="doc-tab-close" aria-hidden="true">⌄</span></div><button class="doc-add" id="tabAdd" title="開啟其他筆記本">＋</button><div class="tab-spacer"></div><span class="tab-appname">NoteCanvas</span></div>
  <header class="nav"><button class="btn" id="back">‹ 文件</button><button class="btn" id="sideToggle">☷</button><div class="title" id="title">我的筆記</div><div class="spacer"></div><button class="btn" id="readMode">◉ 閱讀</button><button class="btn" id="addPageTop">＋ 頁面</button><button class="btn" id="bookmark">☆ 書籤</button><button class="btn" id="share">↥ 匯出</button><button class="btn" id="more">•••</button></header>
  <div class="body">
   <aside class="sidebar" id="sidebar">
-   <div class="side-tabs"><button class="active">頁面</button><button>大綱</button><button>錄音</button></div>
+   <div class="side-tabs"><button class="active">▦ 頁面</button><button>☷ 大綱</button><button>◉ 錄音</button></div>
    <div class="side-actions"><button class="btn" id="addPage">＋ 頁面</button><button class="btn" id="importPDF">PDF</button><button class="btn" id="pageMenu">⋯</button></div>
    <div class="thumbs" id="thumbs"></div>
   </aside>
   <main class="editor">
    <div class="toolbar" id="toolbar">
-    <button class="tool" data-tool="lasso">◌ 套索</button><button class="tool active" data-tool="pen">✎ 筆</button><button class="tool" data-tool="eraser">⌫ 區域橡皮擦</button><button class="tool" data-tool="highlighter">▰</button><button class="tool" data-tool="shape">◇</button><button class="tool" data-tool="tape">▱ 膠帶</button><button class="tool" data-tool="image">▧ 圖片</button><button class="tool" data-tool="text">T</button><button class="tool" data-tool="element">✦ 元素</button><button class="tool" data-tool="laser">⌁</button><button class="tool" id="exportPDF">PDF ↥</button><div class="spacer"></div><button class="tool" id="undo">↶</button><button class="tool" id="redo">↷</button>
+    <button class="tool" data-tool="lasso"><span class="tool-symbol">◌</span><span class="tool-label">套索</span></button><button class="tool active" data-tool="pen"><span class="tool-symbol">✎</span><span class="tool-label">鋼筆</span></button><button class="tool" data-tool="eraser"><span class="tool-symbol">⌫</span><span class="tool-label">橡皮擦</span></button><button class="tool" data-tool="highlighter"><span class="tool-symbol">▰</span><span class="tool-label">螢光筆</span></button><button class="tool" data-tool="shape"><span class="tool-symbol">◇</span><span class="tool-label">圖形</span></button><button class="tool" data-tool="tape"><span class="tool-symbol">▱</span><span class="tool-label">膠帶</span></button><button class="tool" data-tool="image"><span class="tool-symbol">▧</span><span class="tool-label">圖片</span></button><button class="tool" data-tool="text"><span class="tool-symbol">T</span><span class="tool-label">文字</span></button><button class="tool" data-tool="element"><span class="tool-symbol">✦</span><span class="tool-label">元素</span></button><button class="tool" data-tool="laser"><span class="tool-symbol">⌁</span><span class="tool-label">雷射筆</span></button><button class="tool" id="exportPDF">PDF ↥</button><div class="spacer"></div><button class="tool" id="undo">↶</button><button class="tool" id="redo">↷</button>
    </div>
    <div class="subbar">
     <button class="chip active" data-pen="fountain">鋼筆</button><button class="chip" data-pen="ball">原子筆</button><button class="chip" data-pen="brush">畫筆</button>
@@ -167,7 +217,7 @@ const put=b=>new Promise(res=>{b.updated=Date.now();let r=db.transaction("books"
 async function init(){await openDB();let bs=await getAll();if(!bs.length){await put(defaultBook());bs=await getAll()}renderLibrary(bs)}
 async function renderLibrary(bs){if(!bs)bs=await getAll();const q=($("#librarySearch").value||"").toLowerCase();bs=bs.filter(b=>(libraryFilter!=="favorite"||b.favorite)&&b.title.toLowerCase().includes(q));if($("#librarySort").value==="name")bs.sort((a,b)=>a.title.localeCompare(b.title));else bs.sort((a,b)=>b.updated-a.updated);let box=$("#bookCards");box.innerHTML="";bs.forEach(b=>{let c=document.createElement("div");c.className="card";c.innerHTML=`<div class="cover"><span style="position:absolute;bottom:20px;left:24px;right:16px;color:#fff;font-size:17px;font-weight:700;line-height:1.4;text-shadow:0 1px 3px #0003">${esc(b.title)}</span></div><h4>${esc(b.title)}</h4><small>${b.pages.length} 頁 · ${new Date(b.updated).toLocaleDateString()}</small>`;c.onclick=()=>openBook(b.id);c.oncontextmenu=async e=>{e.preventDefault();const action=prompt("筆記本操作：rename 重新命名、favorite 收藏、duplicate 複製、delete 刪除", "favorite");if(action==="rename"){const name=prompt("新名稱",b.title);if(name)b.title=name}else if(action==="favorite")b.favorite=!b.favorite;else if(action==="duplicate"){let copy=structuredClone(b);copy.id=uid();copy.title+="（副本）";await put(copy)}else if(action==="delete"){if(confirm("確定刪除這本筆記？")){db.transaction("books","readwrite").objectStore("books").delete(b.id);renderLibrary();return}}await put(b);renderLibrary()};box.appendChild(c)})}
 function esc(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-async function openBook(id){book=(await getAll()).find(x=>x.id===id);bookId=id;pageIndex=0;$("#library").classList.add("hidden");$("#title").textContent=book.title;loadPage()}
+async function openBook(id){book=(await getAll()).find(x=>x.id===id);bookId=id;pageIndex=0;$("#library").classList.add("hidden");$("#title").textContent=book.title;$("#tabTitle").textContent=book.title;loadPage()}
 function p(){return book.pages[pageIndex]}
 function snapshot(){history.push(JSON.stringify(p()));if(history.length>40)history.shift();future=[]}
 async function save(){if(book)await put(book)}
@@ -312,6 +362,8 @@ window.addEventListener("keydown",e=>{
  }
  if(e.key==="Escape"&&!$("#settings").classList.contains("hidden"))$("#closeSettings").click();
 });
+$("#tabHome").onclick=()=>$("#back").click();
+$("#tabAdd").onclick=()=>$("#back").click();
 init();
 </script>
 </body></html>
