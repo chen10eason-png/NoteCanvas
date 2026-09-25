@@ -281,7 +281,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 .preset-edit-toggle{white-space:nowrap;border:1px solid #cdddf7!important;background:#f3f7ff!important;border-radius:9px!important;font-weight:700!important;min-height:36px}
 @media(max-width:680px){.preset-manager-row{flex-wrap:wrap}.preset-manager-detail{flex-basis:calc(100% - 50px)}.preset-manager-row .btn{flex:1}}
 
-/* V5.16: calm iPad toolbar and explicit preset editing */
+/* V5.17: calm iPad toolbar and explicit preset editing */
 #toolbar{gap:5px!important;padding:8px 12px!important;background:linear-gradient(180deg,#ffffff,#f7faff)!important;border-bottom:1px solid #dce5f3!important;box-shadow:0 2px 12px #213b620b}
 #toolbar .tool{border-radius:12px!important;transition:background .12s ease,box-shadow .12s ease;min-height:44px}
 #toolbar .tool.active{background:#e9f1ff!important;box-shadow:inset 0 0 0 1px #bcd4ff;color:#2364c9!important}
@@ -313,7 +313,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
   </aside>
   <main class="editor">
    <div class="toolbar" id="toolbar">
-    <button class="tool" data-tool="lasso"><span class="tool-symbol">◌</span><span class="tool-label">套索</span></button><button class="tool active" data-tool="pen"><span class="tool-symbol">✎</span><span class="tool-label">鋼筆</span></button><button class="tool" data-tool="eraser"><span class="tool-symbol">⌫</span><span class="tool-label">橡皮擦</span></button><button class="tool" data-tool="highlighter"><span class="tool-symbol">▰</span><span class="tool-label">螢光筆</span></button><button class="tool" data-tool="shape"><span class="tool-symbol">◇</span><span class="tool-label">圖形</span></button><button class="tool" data-tool="tape"><span class="tool-symbol">▱</span><span class="tool-label">膠帶</span></button><button class="tool" data-tool="image"><span class="tool-symbol">▧</span><span class="tool-label">圖片</span></button><button class="tool" data-tool="text"><span class="tool-symbol">T</span><span class="tool-label">文字</span></button><button class="tool" data-tool="element"><span class="tool-symbol">✦</span><span class="tool-label">元素</span></button><button class="tool" data-tool="laser"><span class="tool-symbol">⌁</span><span class="tool-label">雷射筆</span></button><button class="tool" id="toolbarMore" title="更多工具">⋯<span class="tool-label">更多</span></button><button class="tool" id="exportPDF" title="匯出 PDF"><span class="tool-symbol">↥</span><span class="tool-label">PDF</span></button><button class="tool hidden" id="lassoMove">↔ 移動選取</button><button class="tool hidden" id="lassoCopy">▢ 複製選取</button><button class="tool hidden" id="lassoDelete">⌫ 刪除選取</button><div class="spacer"></div><button class="tool" id="undo">↶</button><button class="tool" id="redo">↷</button>
+    <button class="tool" data-tool="lasso"><span class="tool-symbol">◌</span><span class="tool-label">套索</span></button><button class="tool active" data-tool="pen"><span class="tool-symbol">✎</span><span class="tool-label">鋼筆</span></button><button class="tool" data-tool="eraser"><span class="tool-symbol">⌫</span><span class="tool-label">橡皮擦</span></button><button class="tool" data-tool="highlighter"><span class="tool-symbol">▰</span><span class="tool-label">螢光筆</span></button><button class="tool" data-tool="shape"><span class="tool-symbol">◇</span><span class="tool-label">圖形</span></button><button class="tool" data-tool="tape"><span class="tool-symbol">▱</span><span class="tool-label">膠帶</span></button><button class="tool" data-tool="image"><span class="tool-symbol">▧</span><span class="tool-label">圖片</span></button><button class="tool" data-tool="text"><span class="tool-symbol">T</span><span class="tool-label">文字</span></button><button class="tool" data-tool="element"><span class="tool-symbol">✦</span><span class="tool-label">元素</span></button><button class="tool" data-tool="laser"><span class="tool-symbol">⌁</span><span class="tool-label">雷射筆</span></button><button class="tool" id="toolbarMore" title="更多工具">⋯<span class="tool-label">更多</span></button><button class="tool" id="exportPDF" title="匯出 PDF"><span class="tool-symbol">↥</span><span class="tool-label">PDF</span></button><button class="tool hidden" id="lassoAll">☑ 全選</button><button class="tool hidden" id="lassoMove">↔ 移動選取</button><button class="tool hidden" id="lassoCopy">▢ 複製選取</button><button class="tool hidden" id="lassoDelete">⌫ 刪除選取</button><button class="tool hidden" id="lassoDeselect">✕ 取消選取</button><div class="spacer"></div><button class="tool" id="undo">↶</button><button class="tool" id="redo">↷</button>
    </div>
    <div class="subbar" id="penSettings">
     <span class="setting-caption">筆尖</span>
@@ -331,6 +331,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  <label class="setting-inline"><input type="checkbox" id="selectInk" checked> 手寫</label>
  <label class="setting-inline"><input type="checkbox" id="selectImages" checked> 圖片／文字／圖形</label>
  <span class="setting-hint">框選後可移動、複製或刪除</span></div>
+ <div class="context-settings hidden" id="textSettings"><span class="setting-caption">文字格式</span><label>字體大小 <input type="number" id="textSize" min="10" max="80" value="22" style="width:56px"></label><label>文字顏色 <input type="color" id="textColor" value="#20242c"></label><button class="chip" id="textBold">B 粗體</button><span class="setting-hint">點選頁面加入文字；點文字可直接修改</span></div>
  <div class="highlighter-settings hidden" id="highlighterSettings"><span>螢光筆</span><button type="button" class="hl-color selected" data-hl="#f2d64b" style="background:#f2d64b" aria-label="黃色"></button><button type="button" class="hl-color" data-hl="#9be3a0" style="background:#9be3a0" aria-label="綠色"></button><button type="button" class="hl-color" data-hl="#f7a4c6" style="background:#f7a4c6" aria-label="粉色"></button><button type="button" class="hl-color" data-hl="#9bc8fc" style="background:#9bc8fc" aria-label="藍色"></button><button class="color-custom" id="hlPaletteOpen" title="新增或編輯螢光筆色票">＋</button><label>粗細 <input id="hlWidth" type="range" min="8" max="40" value="18"></label><label class="hl-straight"><input type="checkbox" id="hlStraight"> 直線模式</label></div>
    <div class="viewport" id="viewport" aria-label="筆記頁面">
     <div class="canvas-space" id="continuousPages"><div class="page grid" id="page"><img id="pdfBg" class="hidden"><canvas id="draw" width="768" height="1024"></canvas><div id="overlay"></div></div></div>
@@ -398,7 +399,7 @@ async function getPDFEngine(){
  pdfjsLib=mod;return mod;
 }
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const APP_VERSION="5.16.0";
+const APP_VERSION="5.17.0";
 document.title=`NoteCanvas V${APP_VERSION}`;
 $("#appVersion").textContent=`v${APP_VERSION}`;
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
@@ -547,7 +548,7 @@ cv.addEventListener("pointerdown",e=>{
    snapshot();lassoDrag={start:q,strokes:p().strokes.filter(x=>selectedIds.has(x.id)).map(x=>({ref:x,points:x.points.map(a=>({...a}))})),objects:p().objects.filter(x=>selectedIds.has(x.id)).map(x=>({ref:x,x:x.x,y:x.y}))};
   }else{selectedIds.clear();lassoStart=q;let b=document.createElement("div");b.id="lasso";b.className="lassoBox";ov.appendChild(b)}
  }
- else if(tool==="text"){snapshot();p().objects.push({id:uid(),type:"text",x:q.x,y:q.y,w:220,h:60,text:"輸入文字",color});render();save()}
+ else if(tool==="text"){snapshot();p().objects.push({id:uid(),type:"text",x:q.x,y:q.y,w:220,h:60,text:"輸入文字",color:$("#textColor").value,fontSize:Math.max(10,Math.min(80,+$("#textSize").value||22)),bold:$("#textBold").classList.contains("active")});render();save()}
 });
 cv.addEventListener("pointermove",e=>{
  if(!allowed(e)||activePointer!==e.pointerId)return;let q=pos(e);
@@ -739,8 +740,13 @@ function renderSelection(){
  const el=document.createElement("div");el.className="lassoSelection";
  Object.assign(el.style,{left:(b.x-7)+"px",top:(b.y-7)+"px",width:(b.w+14)+"px",height:(b.h+14)+"px"});ov.appendChild(el);
 }
-function updateLassoActions(){for(const id of ["lassoMove","lassoCopy","lassoDelete"])$("#"+id).classList.toggle("hidden",tool!=="lasso"||!selectedIds.size)}
+function updateLassoActions(){
+ for(const id of ["lassoMove","lassoCopy","lassoDelete","lassoDeselect"])$("#"+id).classList.toggle("hidden",tool!=="lasso"||!selectedIds.size);
+ $("#lassoAll").classList.toggle("hidden",tool!=="lasso");
+}
 function selectInRect(a,b){let x1=Math.min(a.x,b.x),x2=Math.max(a.x,b.x),y1=Math.min(a.y,b.y),y2=Math.max(a.y,b.y);selectedIds.clear();for(const o of p().objects){if(!$("#selectImages").checked)break;if(o.x>=x1&&o.y>=y1&&o.x+o.w<=x2&&o.y+o.h<=y2)selectedIds.add(o.id)}for(const s of p().strokes){if(!$("#selectInk").checked)break;if(s.points.some(q=>q.x>=x1&&q.x<=x2&&q.y>=y1&&q.y<=y2))selectedIds.add(s.id)}updateLassoActions();toast(selectedIds.size?`已選取 ${selectedIds.size} 個物件；拖曳可移動`:"沒有選到物件")}
+$("#lassoAll").onclick=()=>{selectedIds=new Set([...p().strokes.map(x=>x.id),...p().objects.map(x=>x.id)]);render();updateLassoActions();toast(`已選取 ${selectedIds.size} 個物件`)};
+$("#lassoDeselect").onclick=()=>{selectedIds.clear();render();updateLassoActions()};
 $("#lassoMove").onclick=()=>toast("使用 Apple Pencil 拖曳虛線選取框即可移動");
 $("#lassoCopy").onclick=()=>{if(!selectedIds.size)return;snapshot();const ids=new Set();
  for(const st of [...p().strokes])if(selectedIds.has(st.id)){const copy=structuredClone(st);copy.id=uid();copy.points.forEach(pt=>{pt.x+=22;pt.y+=22});p().strokes.push(copy);ids.add(copy.id)}
@@ -750,7 +756,9 @@ $("#lassoDelete").onclick=()=>{if(!selectedIds.size)return;snapshot();p().stroke
 function renderObject(o){
  let d=document.createElement("div");d.className="obj"+(selectedIds.has(o.id)?" selected":"");d.dataset.id=o.id;Object.assign(d.style,{left:o.x+"px",top:o.y+"px",width:o.w+"px",height:o.h+"px"});
  if(o.type==="image")d.innerHTML=`<img src="${o.src}"><i class="handle"></i>`;
- else if(o.type==="text"){d.classList.add("textobj");d.contentEditable=true;d.textContent=o.text;d.style.color=o.color||color;d.oninput=()=>{o.text=d.innerText;save()}}
+ else if(o.type==="text"){d.classList.add("textobj");d.contentEditable=true;d.textContent=o.text;d.style.color=o.color||color;d.style.fontSize=(o.fontSize||22)+"px";d.style.fontWeight=o.bold?"700":"400";
+ d.onclick=()=>{if(tool==="text"){selectedIds=new Set([o.id]);$("#textSize").value=o.fontSize||22;$("#textColor").value=o.color||"#20242c";$("#textBold").classList.toggle("active",!!o.bold);d.focus();}};
+ d.oninput=()=>{o.text=d.innerText;save()}}
  else if(o.type==="shape"){d.style.border=`3px solid ${o.color}`;d.style.borderRadius="4px";d.innerHTML='<i class="handle"></i>'}
  d.onpointerdown=e=>{if(tool!=="lasso")return;if(!allowed(e))return;e.stopPropagation();selectedIds=new Set([o.id]);let sx=e.clientX,sy=e.clientY,ox=o.x,oy=o.y;snapshot();const mv=ev=>{o.x=ox+(ev.clientX-sx)/zoom;o.y=oy+(ev.clientY-sy)/zoom;render()};const up=()=>{window.removeEventListener("pointermove",mv);window.removeEventListener("pointerup",up);save()};window.addEventListener("pointermove",mv);window.addEventListener("pointerup",up);render()};
  const handle=d.querySelector(".handle");if(handle)handle.onpointerdown=e=>{
@@ -783,6 +791,7 @@ async function renderThumbs(){
 function setTool(t){tool=t;
  $("#eraserSettings").classList.toggle("hidden",t!=="eraser");
  $("#lassoSettings").classList.toggle("hidden",t!=="lasso");
+ $("#textSettings").classList.toggle("hidden",t!=="text");
  $("#penSettings").classList.toggle("hidden",t!=="pen");
  $("#highlighterSettings").classList.toggle("hidden",t!=="highlighter");$(".editor").classList.toggle("hl-active",t==="highlighter");document.body.classList.remove("pen-active");$$(".tool[data-tool]").forEach(b=>b.classList.toggle("active",b.dataset.tool===t));$(".subbar").style.opacity=["pen","highlighter","eraser"].includes(t)?"1":".72";updateLassoActions();if(t==="image")$("#fileImage").click();if(t==="element")addElement()}
 $$(".tool[data-tool]").forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$$(".swatch").forEach(b=>b.onclick=()=>{color=b.dataset.color;$$(".swatch").forEach(x=>x.classList.toggle("active",x===b))});$("#width").oninput=e=>width=+e.target.value;
@@ -865,7 +874,7 @@ function applyZoom(){sizeSlots()}
 function imageLoaded(src){return new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src=src})}
 async function composePage(pg){
  const canvas=document.createElement("canvas");canvas.width=768;canvas.height=1024;const c=canvas.getContext("2d");
- c.fillStyle="white";c.fillRect(0,0,768,1024);
+ c.fillStyle=pg.paperColor||"white";c.fillRect(0,0,768,1024);
  if(pg.paper==="grid"||pg.paper==="lines"){
   c.strokeStyle="#e8ebf0";c.lineWidth=1;const step=pg.paper==="grid"?28:30;
   if(pg.paper==="grid")for(let x=0;x<=768;x+=step){c.beginPath();c.moveTo(x,0);c.lineTo(x,1024);c.stroke()}
@@ -889,8 +898,8 @@ async function composePage(pg){
  for(const ob of pg.objects||[]){
   if(ob.type==="image"&&ob.src){try{c.drawImage(await imageLoaded(ob.src),ob.x,ob.y,ob.w,ob.h)}catch(e){console.warn("圖片載入失敗",e)}}
   else if(ob.type==="shape"){c.save();c.strokeStyle=ob.color||"#20242c";c.lineWidth=3;c.strokeRect(ob.x,ob.y,ob.w,ob.h);c.restore()}
-  else if(ob.type==="text"){c.save();c.fillStyle=ob.color||"#20242c";c.font="22px sans-serif";
-   (ob.text||"").split("\n").forEach((line,i)=>c.fillText(line,ob.x+7,ob.y+29+i*27,Math.max(30,ob.w-14)));c.restore()}
+  else if(ob.type==="text"){c.save();c.fillStyle=ob.color||"#20242c";c.font=`${ob.bold?"700 ":""}${ob.fontSize||22}px sans-serif`;
+   (ob.text||"").split("\n").forEach((line,i)=>c.fillText(line,ob.x+7,ob.y+(ob.fontSize||22)+7+i*(ob.fontSize||22)*1.3,Math.max(30,ob.w-14)));c.restore()}
  }
  for(const tape of pg.tapes||[]){c.fillStyle=tape.revealed?"#f2c94c44":"#f2c94c";c.fillRect(tape.x,tape.y,tape.w,tape.h)}
  return canvas;
@@ -1007,7 +1016,7 @@ function updatePresetButtons(){
 }
 function setInkColor(next){if(!validHex(next))return;color=next;$("#customColor").value=next;$$('.swatch').forEach(b=>b.classList.toggle('active',b.dataset.color.toLowerCase()===next.toLowerCase()));updatePresetButtons()}
 function applyPreset(i){const v=penPresets[i];penStyle=v.penStyle;strokePattern=v.pattern||"solid";$("#strokePattern").value=strokePattern;width=v.width;$("#width").value=width;setInkColor(v.color);$$('[data-pen]').forEach(x=>x.classList.toggle('active',x.dataset.pen===penStyle));setTool('pen');toast(`已切換：${v.name}`)}
-function openPresetEditor(i){editingPreset=i;$("presetManagerModal").classList.add("hidden");const v=penPresets[i];$("#penEditorTitle").textContent=`編輯常用筆 ${i+1}`;$("#presetName").value=v.name;$("#presetStyle").value=v.penStyle;$("#presetPattern").value=v.pattern||"solid";$("#presetWidth").value=v.width;$("#presetColor").value=v.color;$("#presetHex").value=v.color;updatePresetPreview();$("#penEditorModal").classList.remove("hidden")}
+function openPresetEditor(i){editingPreset=i;$("#presetManagerModal").classList.add("hidden");const v=penPresets[i];$("#penEditorTitle").textContent=`編輯常用筆 ${i+1}`;$("#presetName").value=v.name;$("#presetStyle").value=v.penStyle;$("#presetPattern").value=v.pattern||"solid";$("#presetWidth").value=v.width;$("#presetColor").value=v.color;$("#presetHex").value=v.color;updatePresetPreview();$("#penEditorModal").classList.remove("hidden")}
 function updatePresetPreview(){const v=$("#presetWidth").value,c=$("#presetColor").value;$("#presetWidthValue").textContent=v;$("#penPreviewStroke").setAttribute("stroke",c);$("#penPreviewStroke").setAttribute("stroke-width",v);$("#penPreviewStroke").setAttribute("stroke-dasharray",$("#presetPattern").value==="dotted"?"0.1 8":$("#presetPattern").value==="dashed"?"12 8":"none")}
 function presetEditorValue(){const c=$("#presetHex").value.trim();if(!validHex(c)){toast("請輸入正確的 HEX 顏色，例如 #3578f6");return null}return {name:$("#presetName").value.trim()||`常用筆 ${editingPreset+1}`,color:c.toLowerCase(),width:+$("#presetWidth").value,penStyle:$("#presetStyle").value,pattern:$("#presetPattern").value}}
 function renderPresetManager(){
@@ -1061,6 +1070,12 @@ $$('[data-pen]').forEach(b=>b.addEventListener('click',updatePresetButtons));
 $$('.paper-color').forEach(b=>b.onclick=()=>{if(!book)return;snapshot();p().paperColor=b.dataset.paperColor;pageEl.style.backgroundColor=p().paperColor;$$('.paper-color').forEach(x=>x.classList.toggle('selected',x===b));save();toast('已更新目前頁面的紙張顏色')});
 renderToolColors();updatePresetButtons();
 
+// V5.17: editable text formatting and selected-object formatting.
+function selectedTextObject(){return book?.pages?.[pageIndex]?.objects?.find(o=>o.type==="text"&&selectedIds.has(o.id))}
+function applyTextFormatting(){const ob=selectedTextObject();if(!ob)return; snapshot();ob.fontSize=Math.max(10,Math.min(80,+$("#textSize").value||22));ob.color=$("#textColor").value;ob.bold=$("#textBold").classList.contains("active");render();save()}
+$("#textSize").onchange=applyTextFormatting;
+$("#textColor").onchange=applyTextFormatting;
+$("#textBold").onclick=()=>{$("#textBold").classList.toggle("active");applyTextFormatting()};
 // Real page outlines, stored on the page itself so moving pages keeps its heading.
 function renderOutline(){
  const root=$("#outlineList");root.replaceChildren();
