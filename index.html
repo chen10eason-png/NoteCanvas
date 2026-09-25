@@ -281,7 +281,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 .preset-edit-toggle{white-space:nowrap;border:1px solid #cdddf7!important;background:#f3f7ff!important;border-radius:9px!important;font-weight:700!important;min-height:36px}
 @media(max-width:680px){.preset-manager-row{flex-wrap:wrap}.preset-manager-detail{flex-basis:calc(100% - 50px)}.preset-manager-row .btn{flex:1}}
 
-/* V5.18: calm iPad toolbar and explicit preset editing */
+/* V5.19: calm iPad toolbar and explicit preset editing */
 #toolbar{gap:5px!important;padding:8px 12px!important;background:linear-gradient(180deg,#ffffff,#f7faff)!important;border-bottom:1px solid #dce5f3!important;box-shadow:0 2px 12px #213b620b}
 #toolbar .tool{border-radius:12px!important;transition:background .12s ease,box-shadow .12s ease;min-height:44px}
 #toolbar .tool.active{background:#e9f1ff!important;box-shadow:inset 0 0 0 1px #bcd4ff;color:#2364c9!important}
@@ -293,7 +293,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 .pen-editor-sheet{max-height:90vh;overflow:auto}
 @media(max-width:800px){#toolbar{gap:3px!important;padding:6px!important}#penSettings{overflow-x:auto;flex-wrap:nowrap!important}#penSettings>*{flex-shrink:0}}
 
-/* V5.18: document navigation and functional paper templates */
+/* V5.19: document navigation and functional paper templates */
 .page-search{width:calc(100% - 20px);margin:10px;border:1px solid #dce5f0;border-radius:12px;background:#fff;padding:10px 12px;font:inherit;font-size:13px;box-sizing:border-box}
 .page-search:focus{outline:2px solid #a9c8ff}
 .thumb-search-match{box-shadow:0 0 0 2px #8fb8ff inset;border-radius:10px}
@@ -347,7 +347,15 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  <label class="setting-inline"><input type="checkbox" id="selectInk" checked> 手寫</label>
  <label class="setting-inline"><input type="checkbox" id="selectImages" checked> 圖片／文字／圖形</label>
  <span class="setting-hint">框選後可移動、複製或刪除</span></div>
- <div class="context-settings hidden" id="textSettings"><span class="setting-caption">文字格式</span><label>字體大小 <input type="number" id="textSize" min="10" max="80" value="22" style="width:56px"></label><label>文字顏色 <input type="color" id="textColor" value="#20242c"></label><button class="chip" id="textBold">B 粗體</button><span class="setting-hint">點選頁面加入文字；點文字可直接修改</span></div>
+    <div class="context-settings hidden" id="shapeSettings" aria-label="圖形設定">
+    <span class="setting-caption">圖形</span>
+    <button class="chip active" data-shape="rectangle">▭ 矩形</button><button class="chip" data-shape="ellipse">◯ 橢圓</button><button class="chip" data-shape="line">╱ 直線</button><button class="chip" data-shape="arrow">↗ 箭頭</button>
+    <span class="setting-caption">線條顏色</span><input id="shapeColor" type="color" value="#3578f6" aria-label="圖形線條顏色">
+    <span class="setting-caption">粗細</span><input id="shapeWidth" type="range" min="1" max="12" value="3" aria-label="圖形粗細"><output id="shapeWidthValue">3</output>
+    <label class="setting-inline"><input id="shapeFill" type="checkbox"> 填滿圖形</label>
+    <span class="setting-hint">用 Apple Pencil 拖曳建立圖形，套索可移動及縮放。</span>
+   </div>
+<div class="context-settings hidden" id="textSettings"><span class="setting-caption">文字格式</span><label>字體大小 <input type="number" id="textSize" min="10" max="80" value="22" style="width:56px"></label><label>文字顏色 <input type="color" id="textColor" value="#20242c"></label><button class="chip" id="textBold">B 粗體</button><span class="setting-hint">點選頁面加入文字；點文字可直接修改</span></div>
  <div class="highlighter-settings hidden" id="highlighterSettings"><span>螢光筆</span><button type="button" class="hl-color selected" data-hl="#f2d64b" style="background:#f2d64b" aria-label="黃色"></button><button type="button" class="hl-color" data-hl="#9be3a0" style="background:#9be3a0" aria-label="綠色"></button><button type="button" class="hl-color" data-hl="#f7a4c6" style="background:#f7a4c6" aria-label="粉色"></button><button type="button" class="hl-color" data-hl="#9bc8fc" style="background:#9bc8fc" aria-label="藍色"></button><button class="color-custom" id="hlPaletteOpen" title="新增或編輯螢光筆色票">＋</button><label>粗細 <input id="hlWidth" type="range" min="8" max="40" value="18"></label><label class="hl-straight"><input type="checkbox" id="hlStraight"> 直線模式</label></div>
    <div class="viewport" id="viewport" aria-label="筆記頁面">
     <div class="canvas-space" id="continuousPages"><div class="page grid" id="page"><img id="pdfBg" class="hidden"><canvas id="draw" width="768" height="1024"></canvas><div id="overlay"></div></div></div>
@@ -416,7 +424,7 @@ async function getPDFEngine(){
  pdfjsLib=mod;return mod;
 }
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const APP_VERSION="5.18.0";
+const APP_VERSION="5.19.0";
 document.title=`NoteCanvas V${APP_VERSION}`;
 $("#appVersion").textContent=`v${APP_VERSION}`;
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
@@ -544,8 +552,21 @@ function drawStroke(stroke){
  }
  for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i];const factor=stroke.pressure?Math.max(.35,b.p||.5)*(stroke.penStyle==='brush'?1.6:1):1;ctx.lineWidth=stroke.width*factor;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}ctx.restore();
 }
+function drawShapeCanvas(g,o){
+ const x=o.x,y=o.y,w=o.w,h=o.h,kind=o.shapeKind||'rectangle';
+ g.save();g.strokeStyle=o.color||'#3578f6';g.fillStyle=o.color||'#3578f6';g.lineWidth=o.lineWidth||3;g.lineJoin='round';g.lineCap='round';g.beginPath();
+ if(kind==='ellipse')g.ellipse(x+w/2,y+h/2,Math.max(.5,Math.abs(w)/2),Math.max(.5,Math.abs(h)/2),0,0,Math.PI*2);
+ else if(kind==='line'||kind==='arrow'){
+  const x1=o.flipX?x+w:x,y1=o.flipY?y+h:y,x2=o.flipX?x:x+w,y2=o.flipY?y:y+h;
+  g.moveTo(x1,y1);g.lineTo(x2,y2);
+  if(kind==='arrow'){const a=Math.atan2(y2-y1,x2-x1),len=Math.max(10,(o.lineWidth||3)*4);g.moveTo(x2-len*Math.cos(a-.55),y2-len*Math.sin(a-.55));g.lineTo(x2,y2);g.lineTo(x2-len*Math.cos(a+.55),y2-len*Math.sin(a+.55))}
+ }else g.rect(x,y,w,h);
+ if(o.filled&&kind!=='line'&&kind!=='arrow')g.fill();g.stroke();g.restore();
+}
+function shapeFromDrag(a,b){return {type:'shape',shapeKind,x:Math.min(a.x,b.x),y:Math.min(a.y,b.y),w:Math.max(1,Math.abs(b.x-a.x)),h:Math.max(1,Math.abs(b.y-a.y)),flipX:b.x<a.x,flipY:b.y<a.y,color:shapeColor,lineWidth:shapeWidth,filled:shapeFill}}
 function pos(e){let r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*768/r.width,y:(e.clientY-r.top)*1024/r.height,p:e.pressure||.5}}
 function allowed(e){return !pencilOnly || e.pointerType==="pen"}
+let shapeKind="rectangle",shapeColor="#3578f6",shapeWidth=3,shapeFill=false;
 let activePointer=null, touchPan=null;
 let swipeMode="off", swipeTracking=null;
 function showPointer(e){
@@ -569,7 +590,7 @@ cv.addEventListener("pointerdown",e=>{
 });
 cv.addEventListener("pointermove",e=>{
  if(!allowed(e)||activePointer!==e.pointerId)return;let q=pos(e);
- if(drawing&&currentStroke){currentStroke.points.push(q);if(tool==="highlighter"&&highlighterStraight)currentStroke.points=[currentStroke.points[0],q]; if(tool==="laser"){render();drawStroke(currentStroke)}else if(tool==="eraser"){let pts=currentStroke.points,a=pts[pts.length-2]||q,d=Math.hypot(q.x-a.x,q.y-a.y),n=Math.max(1,Math.ceil(d/Math.max(2,width*1.5)));for(let i=1;i<=n;i++){let t=i/n;eraseAt({x:a.x+(q.x-a.x)*t,y:a.y+(q.y-a.y)*t})}}else{render();drawStroke(currentStroke);if(tool==="highlighter")for(const ink of p().strokes.filter(x=>x.tool!=="highlighter"))drawStroke(ink)}}
+ if(drawing&&currentStroke){currentStroke.points.push(q);if(tool==="highlighter"&&highlighterStraight)currentStroke.points=[currentStroke.points[0],q]; if(tool==="laser"){render();drawStroke(currentStroke)}else if(tool==="eraser"){let pts=currentStroke.points,a=pts[pts.length-2]||q,d=Math.hypot(q.x-a.x,q.y-a.y),n=Math.max(1,Math.ceil(d/Math.max(2,width*1.5)));for(let i=1;i<=n;i++){let t=i/n;eraseAt({x:a.x+(q.x-a.x)*t,y:a.y+(q.y-a.y)*t})}}else if(tool==="shape"){render();drawShapeCanvas(ctx,shapeFromDrag(currentStroke.points[0],q))}else{render();drawStroke(currentStroke);if(tool==="highlighter")for(const ink of p().strokes.filter(x=>x.tool!=="highlighter"))drawStroke(ink)}}
  if(lassoDrag){const dx=q.x-lassoDrag.start.x,dy=q.y-lassoDrag.start.y;
   for(const item of lassoDrag.strokes)item.ref.points=item.points.map(pt=>({...pt,x:pt.x+dx,y:pt.y+dy}));
   for(const item of lassoDrag.objects){item.ref.x=item.x+dx;item.ref.y=item.y+dy}render();
@@ -580,7 +601,7 @@ cv.addEventListener("pointerup",e=>{
  if(!allowed(e)||activePointer!==e.pointerId)return;activePointer=null;let q=pos(e);
  if(drawing&&currentStroke){
    if(tool==="pen"||tool==="highlighter")p().strokes.push(currentStroke);
-   if(tool==="shape"){let a=currentStroke.points[0];p().objects.push({id:uid(),type:"shape",x:Math.min(a.x,q.x),y:Math.min(a.y,q.y),w:Math.abs(q.x-a.x),h:Math.abs(q.y-a.y),color})}
+   if(tool==="shape"){let a=currentStroke.points[0];if(Math.hypot(q.x-a.x,q.y-a.y)>3)p().objects.push({id:uid(),...shapeFromDrag(a,q)})}
    if(tool==="tape"){let a=currentStroke.points[0];p().tapes.push({id:uid(),x:Math.min(a.x,q.x),y:Math.min(a.y,q.y),w:Math.max(50,Math.abs(q.x-a.x)),h:Math.max(28,Math.abs(q.y-a.y)),revealed:false})}
    currentStroke=null;drawing=false;render();save();if(tool==="eraser"&&autoPenAfterErase)setTool("pen")
  }
@@ -776,7 +797,12 @@ function renderObject(o){
  else if(o.type==="text"){d.classList.add("textobj");d.contentEditable=true;d.textContent=o.text;d.style.color=o.color||color;d.style.fontSize=(o.fontSize||22)+"px";d.style.fontWeight=o.bold?"700":"400";
  d.onclick=()=>{if(tool==="text"){selectedIds=new Set([o.id]);$("#textSize").value=o.fontSize||22;$("#textColor").value=o.color||"#20242c";$("#textBold").classList.toggle("active",!!o.bold);d.focus();}};
  d.oninput=()=>{o.text=d.innerText;save()}}
- else if(o.type==="shape"){d.style.border=`3px solid ${o.color}`;d.style.borderRadius="4px";d.innerHTML='<i class="handle"></i>'}
+ else if(o.type==="shape"){
+ const c=document.createElement('canvas');c.width=Math.max(1,Math.ceil(o.w+20));c.height=Math.max(1,Math.ceil(o.h+20));
+ c.style.cssText='width:100%;height:100%;pointer-events:none;overflow:visible';
+ const g=c.getContext('2d');g.scale(c.width/Math.max(1,o.w),c.height/Math.max(1,o.h));drawShapeCanvas(g,{...o,x:0,y:0});
+ d.append(c);const handle=document.createElement('i');handle.className='handle';d.append(handle);
+}
  d.onpointerdown=e=>{if(tool!=="lasso")return;if(!allowed(e))return;e.stopPropagation();selectedIds=new Set([o.id]);let sx=e.clientX,sy=e.clientY,ox=o.x,oy=o.y;snapshot();const mv=ev=>{o.x=ox+(ev.clientX-sx)/zoom;o.y=oy+(ev.clientY-sy)/zoom;render()};const up=()=>{window.removeEventListener("pointermove",mv);window.removeEventListener("pointerup",up);save()};window.addEventListener("pointermove",mv);window.addEventListener("pointerup",up);render()};
  const handle=d.querySelector(".handle");if(handle)handle.onpointerdown=e=>{
   if(tool!=="lasso"||!allowed(e))return;e.stopPropagation();e.preventDefault();snapshot();
@@ -810,7 +836,7 @@ function setTool(t){tool=t;
  $("#lassoSettings").classList.toggle("hidden",t!=="lasso");
  $("#textSettings").classList.toggle("hidden",t!=="text");
  $("#penSettings").classList.toggle("hidden",t!=="pen");
- $("#highlighterSettings").classList.toggle("hidden",t!=="highlighter");$(".editor").classList.toggle("hl-active",t==="highlighter");document.body.classList.remove("pen-active");$$(".tool[data-tool]").forEach(b=>b.classList.toggle("active",b.dataset.tool===t));$(".subbar").style.opacity=["pen","highlighter","eraser"].includes(t)?"1":".72";updateLassoActions();if(t==="image")$("#fileImage").click();if(t==="element")addElement()}
+ $("#shapeSettings").classList.toggle("hidden",t!=="shape");$("#highlighterSettings").classList.toggle("hidden",t!=="highlighter");$(".editor").classList.toggle("hl-active",t==="highlighter");document.body.classList.remove("pen-active");$$(".tool[data-tool]").forEach(b=>b.classList.toggle("active",b.dataset.tool===t));$(".subbar").style.opacity=["pen","highlighter","eraser"].includes(t)?"1":".72";updateLassoActions();if(t==="image")$("#fileImage").click();if(t==="element")addElement()}
 $$(".tool[data-tool]").forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$$(".swatch").forEach(b=>b.onclick=()=>{color=b.dataset.color;$$(".swatch").forEach(x=>x.classList.toggle("active",x===b))});$("#width").oninput=e=>width=+e.target.value;
 $$("[data-pen]").forEach(b=>b.onclick=()=>{penStyle=b.dataset.pen;$$("[data-pen]").forEach(x=>x.classList.toggle("active",x===b))});
 $$(".hl-color").forEach(b=>b.onclick=()=>{highlighterColor=b.dataset.hl;$$(".hl-color").forEach(x=>x.classList.toggle("selected",x===b))});
@@ -914,7 +940,7 @@ async function composePage(pg){
  }
  for(const ob of pg.objects||[]){
   if(ob.type==="image"&&ob.src){try{c.drawImage(await imageLoaded(ob.src),ob.x,ob.y,ob.w,ob.h)}catch(e){console.warn("圖片載入失敗",e)}}
-  else if(ob.type==="shape"){c.save();c.strokeStyle=ob.color||"#20242c";c.lineWidth=3;c.strokeRect(ob.x,ob.y,ob.w,ob.h);c.restore()}
+  else if(ob.type==="shape")drawShapeCanvas(c,ob)
   else if(ob.type==="text"){c.save();c.fillStyle=ob.color||"#20242c";c.font=`${ob.bold?"700 ":""}${ob.fontSize||22}px sans-serif`;
    (ob.text||"").split("\n").forEach((line,i)=>c.fillText(line,ob.x+7,ob.y+(ob.fontSize||22)+7+i*(ob.fontSize||22)*1.3,Math.max(30,ob.w-14)));c.restore()}
  }
@@ -1087,7 +1113,7 @@ $$('[data-pen]').forEach(b=>b.addEventListener('click',updatePresetButtons));
 $$('.paper-color').forEach(b=>b.onclick=()=>{if(!book)return;snapshot();p().paperColor=b.dataset.paperColor;pageEl.style.backgroundColor=p().paperColor;$$('.paper-color').forEach(x=>x.classList.toggle('selected',x===b));save();toast('已更新目前頁面的紙張顏色')});
 renderToolColors();updatePresetButtons();
 
-// V5.18: editable text formatting and selected-object formatting.
+// V5.19: editable text formatting and selected-object formatting.
 function selectedTextObject(){return book?.pages?.[pageIndex]?.objects?.find(o=>o.type==="text"&&selectedIds.has(o.id))}
 function applyTextFormatting(){const ob=selectedTextObject();if(!ob)return; snapshot();ob.fontSize=Math.max(10,Math.min(80,+$("#textSize").value||22));ob.color=$("#textColor").value;ob.bold=$("#textBold").classList.contains("active");render();save()}
 $("#textSize").onchange=applyTextFormatting;
@@ -1136,7 +1162,7 @@ $('#eraserSize').oninput=e=>{eraserSize=+e.target.value;$('#eraserSizeValue').te
 $('#autoPenAfterErase').onchange=e=>autoPenAfterErase=e.target.checked;
 
 
-// V5.18: navigable page search, explicit page jump, and reusable paper templates.
+// V5.19: navigable page search, explicit page jump, and reusable paper templates.
 const templateKinds=[['grid','方格'],['lines','橫線'],['dots','點陣'],['','空白']];
 const templateColors=['#ffffff','#fff9e9','#f0f6ff','#f3f5f7','#fff1f2','#f1fff4'];
 let templatePaper='grid',templateColor='#ffffff',pageSearchQuery='';
@@ -1176,6 +1202,12 @@ renderThumbs=async function(){await renderThumbsBeforeSearch();if(!book)return;
  let msg=$('#pageSearchEmpty');if(!msg){msg=document.createElement('p');msg.id='pageSearchEmpty';msg.className='outline-empty';$('#pagesPanel').append(msg)}
  msg.textContent='找不到符合的頁面（可搜尋輸入文字、大綱或頁碼）';msg.classList.toggle('hidden',!pageSearchQuery||count>0);
 };
+
+// V5.19: shape palette and tool state
+$$('[data-shape]').forEach(b=>b.onclick=()=>{shapeKind=b.dataset.shape;$$('[data-shape]').forEach(x=>x.classList.toggle('active',x===b))});
+$('#shapeColor').oninput=e=>shapeColor=e.target.value;
+$('#shapeWidth').oninput=e=>{shapeWidth=Number(e.target.value);$('#shapeWidthValue').textContent=shapeWidth};
+$('#shapeFill').onchange=e=>shapeFill=e.target.checked;
 
 init();
 </script>
