@@ -182,6 +182,17 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 .trash-item{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #e7eaf1}
 .trash-item button{margin-left:auto}
 @media(max-width:850px){.save-state{display:none}.page-count{font-size:10px}}
+
+/* v5.9: Goodnotes-like distraction-free default; thumbnails on demand */
+.body.pages-collapsed{grid-template-columns:minmax(0,1fr)}
+.body.pages-collapsed .sidebar{display:none}
+#sideToggle[aria-expanded="true"]{background:#eaf1ff;color:#236be4}
+#sideToggle{min-width:39px;font-size:19px}
+@media(max-width:800px){
+ .body,.body.pages-collapsed{grid-template-columns:minmax(0,1fr)}
+ .body .sidebar{display:none;position:fixed;top:92px;bottom:0;left:0;width:min(290px,82vw);z-index:40;box-shadow:0 12px 40px #1c2b3c3b}
+ .body:not(.pages-collapsed) .sidebar{display:grid;transform:translateX(0)}
+}
 </style>
 </head>
 <body>
@@ -193,8 +204,8 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 
 <div class="app">
  <div class="doc-tabs"><button class="doc-home" id="tabHome" title="返回文件庫">▦</button><div class="doc-tab current"><span class="doc-tab-dot">✎</span><span id="tabTitle">我的筆記</span><span class="doc-tab-close" aria-hidden="true">⌄</span></div><button class="doc-add" id="tabAdd" title="開啟其他筆記本">＋</button><div class="tab-spacer"></div><span class="tab-appname">NoteCanvas</span></div>
- <header class="nav"><button class="btn" id="back">‹ 文件</button><button class="btn" id="sideToggle">☷</button><div class="title" id="title">我的筆記</div><div class="spacer"></div><span id="saveState" class="save-state" aria-live="polite">✓ 已儲存</span><span id="pageCount" class="page-count">1 / 1</span><button class="btn" id="readMode">◉ 閱讀</button><button class="btn" id="addPageTop">＋ 頁面</button><button class="btn" id="bookmark">☆ 書籤</button><button class="btn" id="share">↥ 匯出</button><button class="btn" id="more">•••</button></header>
- <div class="body">
+ <header class="nav"><button class="btn" id="back">‹ 文件</button><button class="btn" id="sideToggle" title="顯示頁面縮圖" aria-label="顯示頁面縮圖" aria-expanded="false" aria-controls="sidebar">☷</button><div class="title" id="title">我的筆記</div><div class="spacer"></div><span id="saveState" class="save-state" aria-live="polite">✓ 已儲存</span><span id="pageCount" class="page-count">1 / 1</span><button class="btn" id="readMode">◉ 閱讀</button><button class="btn" id="addPageTop">＋ 頁面</button><button class="btn" id="bookmark">☆ 書籤</button><button class="btn" id="share">↥ 匯出</button><button class="btn" id="more">•••</button></header>
+ <div class="body pages-collapsed" id="bookBody">
   <aside class="sidebar" id="sidebar">
    <div class="side-tabs"><button class="active">▦ 頁面</button><button>☷ 大綱</button><button>◉ 錄音</button></div>
    <div class="side-actions"><button class="btn" id="addPage">＋ 頁面</button><button class="btn" id="importPDF">PDF</button><button class="btn" id="pageMenu">⋯</button></div>
@@ -254,7 +265,7 @@ async function getPDFEngine(){
  pdfjsLib=mod;return mod;
 }
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const APP_VERSION="5.8.0";
+const APP_VERSION="5.9.0";
 document.title=`NoteCanvas V${APP_VERSION}`;
 $("#appVersion").textContent=`v${APP_VERSION}`;
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
@@ -335,7 +346,7 @@ async function renderLibrary(bs){
  }
 }
 function esc(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-async function openBook(id){book=(await getAll()).find(x=>x.id===id);bookId=id;pageTrash=book.trash||[];pageIndex=0;$("#library").classList.add("hidden");$("#title").textContent=book.title;$("#tabTitle").textContent=book.title;loadPage()}
+async function openBook(id){setPageSidebar(false);book=(await getAll()).find(x=>x.id===id);bookId=id;pageTrash=book.trash||[];pageIndex=0;$("#library").classList.add("hidden");$("#title").textContent=book.title;$("#tabTitle").textContent=book.title;loadPage()}
 function p(){return book.pages[pageIndex]}
 function snapshot(){history.push(JSON.stringify(p()));if(history.length>40)history.shift();future=[]}
 async function save(){
@@ -517,7 +528,7 @@ async function renderThumbs(){
  book.pages.forEach((pg,i)=>{if(thumbFilter==="bookmarks"&&!pg.bookmark)return;
   const row=document.createElement("div");row.className="thumbrow";
   row.innerHTML=`<div class="pageno">${pg.bookmark?"★ ":""}${i+1}</div><div class="thumb ${i===pageIndex?"active":""}">${pg.bg?`<img src="${pg.bg}" alt="PDF 底圖">`:""}<button class="thumb-more" type="button" aria-label="第 ${i+1} 頁更多操作">⋯</button></div>`;
-  row.querySelector(".thumb").onclick=()=>{closePagePop();pageIndex=i;loadPage()};
+  row.querySelector(".thumb").onclick=()=>{closePagePop();pageIndex=i;loadPage();if(matchMedia("(max-width:800px)").matches)setPageSidebar(false)};
   row.querySelector(".thumb-more").onclick=e=>{e.stopPropagation();openPagePop(i,e.currentTarget)};
   row.draggable=true;row.ondragstart=e=>{e.dataTransfer.setData("text/plain",String(i));e.dataTransfer.effectAllowed="move"};
   row.ondragover=e=>{e.preventDefault();row.classList.add("drag-over")};
@@ -572,7 +583,16 @@ $$("[data-page-action]").forEach(btn=>btn.onclick=()=>{
 });
 document.addEventListener("pointerdown",e=>{if(!$("#pagePop").classList.contains("hidden")&&!$("#pagePop").contains(e.target)&&!e.target.closest(".thumb-more")&&!e.target.closest("#addPage,#addPageTop,#pageMenu"))closePagePop()});
 $("#bookmark").onclick=()=>{p().bookmark=!p().bookmark;$("#bookmark").textContent=p().bookmark?"★ 已收藏":"☆ 書籤";renderThumbs();save()};
-$("#back").onclick=async()=>{await save();$("#library").classList.remove("hidden");renderLibrary()};$("#sideToggle").onclick=()=>$("#sidebar").classList.toggle("open");
+function setPageSidebar(open){
+ const body=$("#bookBody"),button=$("#sideToggle");
+ body.classList.toggle("pages-collapsed",!open);
+ $("#sidebar").classList.toggle("open",open);
+ button.setAttribute("aria-expanded",String(open));
+ button.setAttribute("aria-label",open?"隱藏頁面縮圖":"顯示頁面縮圖");
+ button.title=open?"隱藏頁面縮圖":"顯示頁面縮圖";
+}
+$("#back").onclick=async()=>{setPageSidebar(false);await save();$("#library").classList.remove("hidden");renderLibrary()};
+$("#sideToggle").onclick=()=>setPageSidebar($("#bookBody").classList.contains("pages-collapsed"));
 function showTrash(){
  const box=$("#trashItems");box.replaceChildren();
  if(!pageTrash.length){box.textContent="垃圾桶是空的";$("#trashModal").classList.remove("hidden");return}
