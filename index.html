@@ -226,6 +226,26 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 #pencilState{background:#eaf6f0;border-color:#d6e9de;color:#398166}
 .viewport{background:#e8ebf0}
 @media(max-width:950px){.toolbar{margin:4px 7px 5px;max-width:calc(100% - 14px)}.subbar{justify-content:flex-start}.setting-caption{display:none}}
+
+/* v5.13: official-guide-inspired active tool panels and working outline */
+.context-settings{display:flex;align-items:center;justify-content:center;gap:12px;min-height:48px;padding:7px 16px;background:#fff;border-top:1px solid #eef0f4;box-shadow:0 3px 10px #192b4110;flex-wrap:wrap}
+.context-settings .chip{border:1px solid #e5e9f1;background:#f8f9fc;padding:7px 12px}
+.context-settings .chip.active{background:#e8f1ff;border-color:#a7c7ff;color:#2169d7}
+.context-settings input[type=range]{width:120px;accent-color:#3277ef}
+.setting-inline{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#48556a;white-space:nowrap}
+.setting-inline input{accent-color:#3778ef}.setting-hint{font-size:11px;color:#7e8a9a}
+.editor{grid-template-rows:auto auto minmax(0,1fr)}
+.editor>.toolbar{grid-row:1}.editor>.subbar,.editor>.highlighter-settings,.editor>.context-settings{grid-row:2}
+.editor>.viewport{grid-row:3;min-height:0}
+#outlinePanel{overflow-y:auto;padding:12px}
+.outline-head{display:flex;flex-direction:column;gap:10px;padding:9px 5px 15px}
+.outline-head strong{font-size:14px}.outline-head .btn{font-size:11px;background:#eaf1ff;color:#286bd5}
+.outline-row{display:flex;align-items:center;gap:7px;padding:7px 4px;border-bottom:1px solid #edf0f5}
+.outline-go{flex:1;text-align:left;border:0;background:none;font-size:12px;color:#344054;overflow-wrap:anywhere;cursor:pointer;padding:6px}
+.outline-row span{font-size:10px;color:#8a95a5}.outline-edit{border:0;background:none;color:#77849a;cursor:pointer;font-size:17px}
+.outline-empty{font-size:12px;line-height:1.7;color:#8490a1;padding:12px 6px}
+.side-tabs button:disabled{opacity:.42;cursor:not-allowed}
+@media(max-width:800px){.context-settings{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto}}
 </style>
 </head>
 <body>
@@ -240,9 +260,10 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  <header class="nav"><button class="btn" id="back">‹ 文件</button><button class="btn" id="sideToggle" title="顯示頁面縮圖" aria-label="顯示頁面縮圖" aria-expanded="false" aria-controls="sidebar">☷</button><div class="title" id="title">我的筆記</div><div class="spacer"></div><span id="saveState" class="save-state" aria-live="polite">✓ 已儲存</span><span id="pageCount" class="page-count">1 / 1</span><button class="btn" id="readMode">◉ 閱讀</button><button class="btn" id="addPageTop">＋ 頁面</button><button class="btn" id="bookmark">☆ 書籤</button><button class="btn" id="share">↥ 匯出</button><button class="btn" id="more">•••</button></header>
  <div class="body pages-collapsed" id="bookBody">
   <aside class="sidebar" id="sidebar">
-   <div class="side-tabs"><button class="active">▦ 頁面</button><button>☷ 大綱</button><button>◉ 錄音</button></div>
+   <div class="side-tabs"><button class="active" data-sidebar-tab="pages">▦ 頁面</button><button data-sidebar-tab="outline">☷ 大綱</button><button data-sidebar-tab="audio" title="尚未支援錄音" disabled>◉ 錄音</button></div>
    <div class="side-actions"><button class="btn" id="addPage">＋ 頁面</button><button class="btn" id="importPDF">PDF</button><button class="btn" id="pageMenu">⋯</button></div>
-   <div class="thumb-filter"><button class="active" data-thumb-filter="all">全部頁面</button><button data-thumb-filter="bookmarks">★ 書籤</button></div><div class="thumbs" id="thumbs"></div>
+   <div id="pagesPanel"><div class="thumb-filter"><button class="active" data-thumb-filter="all">全部頁面</button><button data-thumb-filter="bookmarks">★ 書籤</button></div><div class="thumbs" id="thumbs"></div></div>
+ <div id="outlinePanel" class="hidden"><div class="outline-head"><strong>文件大綱</strong><button class="btn" id="addOutline">＋ 加入目前頁面</button></div><div id="outlineList"></div></div>
   </aside>
   <main class="editor">
    <div class="toolbar" id="toolbar">
@@ -255,7 +276,16 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
     <button class="swatch active" data-color="#20242c" style="background:#20242c"></button><button class="swatch" data-color="#3578f6" style="background:#3578f6"></button><button class="swatch" data-color="#ef5a5a" style="background:#ef5a5a"></button><button class="swatch" data-color="#28a66a" style="background:#28a66a"></button><button class="swatch" data-color="#f2c94c" style="background:#f2c94c"></button>
     <button class="color-custom" id="customColorBtn" title="自訂筆色" aria-label="自訂筆色">＋</button><input type="color" id="customColor" value="#20242c" class="hidden" aria-label="選擇自訂顏色"><span class="subbar-divider"></span><span class="setting-caption">常用筆</span><button class="pen-preset" data-preset="0" title="儲存或套用常用筆 1"><i></i><span>1</span></button><button class="pen-preset" data-preset="1" title="儲存或套用常用筆 2"><i></i><span>2</span></button><button class="pen-preset" data-preset="2" title="儲存或套用常用筆 3"><i></i><span>3</span></button><div class="spacer"></div><span id="pencilState"> Pencil Only</span>
    </div>
-   <div class="highlighter-settings hidden" id="highlighterSettings"><span>螢光筆</span><button type="button" class="hl-color selected" data-hl="#f2d64b" style="background:#f2d64b" aria-label="黃色"></button><button type="button" class="hl-color" data-hl="#9be3a0" style="background:#9be3a0" aria-label="綠色"></button><button type="button" class="hl-color" data-hl="#f7a4c6" style="background:#f7a4c6" aria-label="粉色"></button><button type="button" class="hl-color" data-hl="#9bc8fc" style="background:#9bc8fc" aria-label="藍色"></button><label>粗細 <input id="hlWidth" type="range" min="8" max="40" value="18"></label><label class="hl-straight"><input type="checkbox" id="hlStraight"> 直線模式</label></div>
+   <div class="context-settings hidden" id="eraserSettings">
+ <span class="setting-caption">橡皮擦</span><button class="chip active" data-eraser-mode="region">區域擦除</button><button class="chip" data-eraser-mode="stroke">整筆擦除</button>
+ <span class="setting-caption">大小</span><input type="range" id="eraserSize" min="2" max="22" value="4" aria-label="橡皮擦大小"><output id="eraserSizeValue">4</output>
+ <label class="setting-inline"><input id="autoPenAfterErase" type="checkbox"> 抬筆後切回鋼筆</label>
+ </div>
+ <div class="context-settings hidden" id="lassoSettings"><span class="setting-caption">選取內容</span>
+ <label class="setting-inline"><input type="checkbox" id="selectInk" checked> 手寫</label>
+ <label class="setting-inline"><input type="checkbox" id="selectImages" checked> 圖片／文字／圖形</label>
+ <span class="setting-hint">框選後可移動、複製或刪除</span></div>
+ <div class="highlighter-settings hidden" id="highlighterSettings"><span>螢光筆</span><button type="button" class="hl-color selected" data-hl="#f2d64b" style="background:#f2d64b" aria-label="黃色"></button><button type="button" class="hl-color" data-hl="#9be3a0" style="background:#9be3a0" aria-label="綠色"></button><button type="button" class="hl-color" data-hl="#f7a4c6" style="background:#f7a4c6" aria-label="粉色"></button><button type="button" class="hl-color" data-hl="#9bc8fc" style="background:#9bc8fc" aria-label="藍色"></button><label>粗細 <input id="hlWidth" type="range" min="8" max="40" value="18"></label><label class="hl-straight"><input type="checkbox" id="hlStraight"> 直線模式</label></div>
    <div class="viewport" id="viewport" aria-label="筆記頁面">
     <div class="canvas-space" id="continuousPages"><div class="page grid" id="page"><img id="pdfBg" class="hidden"><canvas id="draw" width="768" height="1024"></canvas><div id="overlay"></div></div></div>
 
@@ -300,11 +330,11 @@ async function getPDFEngine(){
  pdfjsLib=mod;return mod;
 }
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const APP_VERSION="5.12.0";
+const APP_VERSION="5.13.0";
 document.title=`NoteCanvas V${APP_VERSION}`;
 $("#appVersion").textContent=`v${APP_VERSION}`;
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
-let tool="pen",color="#20242c",width=4,penStyle="fountain",pencilOnly=true,zoom=1;let highlighterColor="#f2d64b",highlighterWidth=18,highlighterStraight=false;
+let eraserMode="region",eraserSize=4,autoPenAfterErase=false;let tool="pen",color="#20242c",width=4,penStyle="fountain",pencilOnly=true,zoom=1;let highlighterColor="#f2d64b",highlighterWidth=18,highlighterStraight=false;
 let drawing=false,currentStroke=null,lassoStart=null,lassoDrag=null,selectedIds=new Set(),history=[],future=[];
 let db, bookId=null,pageIndex=0, book=null, libraryFilter="all";let pageMenuIndex=null, pageClipboard=null, pageTrash=[];let savePending=0;
 const uid=()=>crypto.randomUUID(), toast=t=>{let x=$("#toast");x.textContent=t;x.classList.remove("hidden");setTimeout(()=>x.classList.add("hidden"),1600)};
@@ -462,7 +492,7 @@ cv.addEventListener("pointerup",e=>{
    if(tool==="pen"||tool==="highlighter")p().strokes.push(currentStroke);
    if(tool==="shape"){let a=currentStroke.points[0];p().objects.push({id:uid(),type:"shape",x:Math.min(a.x,q.x),y:Math.min(a.y,q.y),w:Math.abs(q.x-a.x),h:Math.abs(q.y-a.y),color})}
    if(tool==="tape"){let a=currentStroke.points[0];p().tapes.push({id:uid(),x:Math.min(a.x,q.x),y:Math.min(a.y,q.y),w:Math.max(50,Math.abs(q.x-a.x)),h:Math.max(28,Math.abs(q.y-a.y)),revealed:false})}
-   currentStroke=null;drawing=false;render();save()
+   currentStroke=null;drawing=false;render();save();if(tool==="eraser"&&autoPenAfterErase)setTool("pen")
  }
  if(lassoStart){selectInRect(lassoStart,q);lassoStart=null;$("#lasso")?.remove();render()}
  if(lassoDrag){lassoDrag=null;save()}
@@ -584,7 +614,19 @@ try{updateSwipeMode(localStorage.getItem("notecanvas.swipeMode")||"vertical")}ca
 $("#swipeMode").onchange=e=>{updateSwipeMode(e.target.value);toast(swipeMode==="off"?"已切換單頁模式":swipeMode==="horizontal"?"已切換左右連續捲動":"已切換上下連續捲動")};
 // 區域橡皮擦：依筆尖掃過的圓形範圍切開向量筆跡，而非刪掉整條筆畫。
 function eraseAt(q){
- const radius=Math.max(5,width*3), next=[];
+ const radius=Math.max(5,eraserSize*3), next=[];
+ if(eraserMode==="stroke"){
+  const distanceToSegment=(a,b)=>{
+   const dx=b.x-a.x,dy=b.y-a.y,den=dx*dx+dy*dy;
+   const t=den?Math.max(0,Math.min(1,((q.x-a.x)*dx+(q.y-a.y)*dy)/den)):0;
+   return Math.hypot(q.x-a.x-t*dx,q.y-a.y-t*dy);
+  };
+  p().strokes=p().strokes.filter(st=>{
+   const pts=st.points||[];
+   return !pts.some((pt,i)=>i===0?Math.hypot(q.x-pt.x,q.y-pt.y)<radius:distanceToSegment(pts[i-1],pt)<radius);
+  });
+  render();return;
+ }
  for(const stroke of p().strokes){
   const pts=stroke.points||[];
   if(!pts.length)continue;
@@ -626,7 +668,7 @@ function renderSelection(){
  Object.assign(el.style,{left:(b.x-7)+"px",top:(b.y-7)+"px",width:(b.w+14)+"px",height:(b.h+14)+"px"});ov.appendChild(el);
 }
 function updateLassoActions(){for(const id of ["lassoMove","lassoCopy","lassoDelete"])$("#"+id).classList.toggle("hidden",tool!=="lasso"||!selectedIds.size)}
-function selectInRect(a,b){let x1=Math.min(a.x,b.x),x2=Math.max(a.x,b.x),y1=Math.min(a.y,b.y),y2=Math.max(a.y,b.y);selectedIds.clear();for(const o of p().objects){if(o.x>=x1&&o.y>=y1&&o.x+o.w<=x2&&o.y+o.h<=y2)selectedIds.add(o.id)}for(const s of p().strokes){if(s.points.some(q=>q.x>=x1&&q.x<=x2&&q.y>=y1&&q.y<=y2))selectedIds.add(s.id)}updateLassoActions();toast(selectedIds.size?`已選取 ${selectedIds.size} 個物件；拖曳可移動`:"沒有選到物件")}
+function selectInRect(a,b){let x1=Math.min(a.x,b.x),x2=Math.max(a.x,b.x),y1=Math.min(a.y,b.y),y2=Math.max(a.y,b.y);selectedIds.clear();for(const o of p().objects){if(!$("#selectImages").checked)break;if(o.x>=x1&&o.y>=y1&&o.x+o.w<=x2&&o.y+o.h<=y2)selectedIds.add(o.id)}for(const s of p().strokes){if(!$("#selectInk").checked)break;if(s.points.some(q=>q.x>=x1&&q.x<=x2&&q.y>=y1&&q.y<=y2))selectedIds.add(s.id)}updateLassoActions();toast(selectedIds.size?`已選取 ${selectedIds.size} 個物件；拖曳可移動`:"沒有選到物件")}
 $("#lassoMove").onclick=()=>toast("使用 Apple Pencil 拖曳虛線選取框即可移動");
 $("#lassoCopy").onclick=()=>{if(!selectedIds.size)return;snapshot();const ids=new Set();
  for(const st of [...p().strokes])if(selectedIds.has(st.id)){const copy=structuredClone(st);copy.id=uid();copy.points.forEach(pt=>{pt.x+=22;pt.y+=22});p().strokes.push(copy);ids.add(copy.id)}
@@ -664,8 +706,13 @@ async function renderThumbs(){
   row.ondrop=e=>{e.preventDefault();row.classList.remove("drag-over");const from=Number(e.dataTransfer.getData("text/plain"));if(Number.isInteger(from)&&from>=0&&from<book.pages.length&&from!==i){const id=p().id;const [moved]=book.pages.splice(from,1);book.pages.splice(i,0,moved);pageIndex=book.pages.findIndex(pg=>pg.id===id);loadPage();toast("頁面順序已更新")}};
   box.appendChild(row);
  });
+ renderOutline();
 }
-function setTool(t){tool=t;$("#highlighterSettings").classList.toggle("hidden",t!=="highlighter");$(".editor").classList.toggle("hl-active",t==="highlighter");document.body.classList.remove("pen-active");$$(".tool[data-tool]").forEach(b=>b.classList.toggle("active",b.dataset.tool===t));$(".subbar").style.opacity=["pen","highlighter","eraser"].includes(t)?"1":".72";updateLassoActions();if(t==="image")$("#fileImage").click();if(t==="element")addElement()}
+function setTool(t){tool=t;
+ $("#eraserSettings").classList.toggle("hidden",t!=="eraser");
+ $("#lassoSettings").classList.toggle("hidden",t!=="lasso");
+ $("#penSettings").classList.toggle("hidden",t!=="pen");
+ $("#highlighterSettings").classList.toggle("hidden",t!=="highlighter");$(".editor").classList.toggle("hl-active",t==="highlighter");document.body.classList.remove("pen-active");$$(".tool[data-tool]").forEach(b=>b.classList.toggle("active",b.dataset.tool===t));$(".subbar").style.opacity=["pen","highlighter","eraser"].includes(t)?"1":".72";updateLassoActions();if(t==="image")$("#fileImage").click();if(t==="element")addElement()}
 $$(".tool[data-tool]").forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$$(".swatch").forEach(b=>b.onclick=()=>{color=b.dataset.color;$$(".swatch").forEach(x=>x.classList.toggle("active",x===b))});$("#width").oninput=e=>width=+e.target.value;
 $$("[data-pen]").forEach(b=>b.onclick=()=>{penStyle=b.dataset.pen;$$("[data-pen]").forEach(x=>x.classList.toggle("active",x===b))});
 $$(".hl-color").forEach(b=>b.onclick=()=>{highlighterColor=b.dataset.hl;$$(".hl-color").forEach(x=>x.classList.toggle("selected",x===b))});
@@ -896,6 +943,49 @@ $$('.swatch').forEach(b=>b.addEventListener('click',updatePresetButtons));
 $$('[data-pen]').forEach(b=>b.addEventListener('click',updatePresetButtons));
 $$('.paper-color').forEach(b=>b.onclick=()=>{if(!book)return;snapshot();p().paperColor=b.dataset.paperColor;pageEl.style.backgroundColor=p().paperColor;$$('.paper-color').forEach(x=>x.classList.toggle('selected',x===b));save();toast('已更新目前頁面的紙張顏色')});
 updatePresetButtons();
+
+
+// Real page outlines, stored on the page itself so moving pages keeps its heading.
+function renderOutline(){
+ const root=$("#outlineList");root.replaceChildren();
+ if(!book)return;
+ let count=0;
+ book.pages.forEach((pg,i)=>{
+  if(!pg.outlineTitle)return;count++;
+  const row=document.createElement("div");row.className="outline-row";
+  const go=document.createElement("button");go.className="outline-go";
+  go.textContent=pg.outlineTitle;go.title=`跳至第 ${i+1} 頁`;
+  go.onclick=()=>{pageIndex=i;loadPage();if(matchMedia('(max-width:800px)').matches)setPageSidebar(false)};
+  const num=document.createElement("span");num.textContent=String(i+1);
+  const edit=document.createElement("button");edit.className="outline-edit";edit.textContent="⋯";edit.title="編輯大綱";
+  edit.onclick=()=>{
+   const next=prompt("大綱標題（留空可移除）",pg.outlineTitle);
+   if(next===null)return;pg.outlineTitle=next.trim().slice(0,80);save();renderOutline();
+  };
+  row.append(go,num,edit);root.append(row);
+ });
+ if(!count){const empty=document.createElement('p');empty.className='outline-empty';empty.textContent='尚無大綱。點「加入目前頁面」建立第一個章節。';root.append(empty)}
+}
+let sidebarTab='pages';
+$$('[data-sidebar-tab]').forEach(b=>b.onclick=()=>{
+ if(b.disabled)return;sidebarTab=b.dataset.sidebarTab;
+ $$('[data-sidebar-tab]').forEach(x=>x.classList.toggle('active',x===b));
+ $('#pagesPanel').classList.toggle('hidden',sidebarTab!=='pages');
+ $('#outlinePanel').classList.toggle('hidden',sidebarTab!=='outline');
+ $('.side-actions').classList.toggle('hidden',sidebarTab!=='pages');
+ if(sidebarTab==='outline')renderOutline();
+});
+$('#addOutline').onclick=()=>{
+ if(!book)return;const old=p().outlineTitle||'';
+ const name=prompt('目前頁面的章節標題',old);
+ if(name===null)return;p().outlineTitle=name.trim().slice(0,80);save();renderOutline();
+};
+$$('[data-eraser-mode]').forEach(b=>b.onclick=()=>{
+ eraserMode=b.dataset.eraserMode;
+ $$('[data-eraser-mode]').forEach(x=>x.classList.toggle('active',x===b));
+});
+$('#eraserSize').oninput=e=>{eraserSize=+e.target.value;$('#eraserSizeValue').textContent=String(eraserSize)};
+$('#autoPenAfterErase').onchange=e=>autoPenAfterErase=e.target.checked;
 
 init();
 </script>
