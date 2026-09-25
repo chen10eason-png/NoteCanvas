@@ -144,13 +144,18 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  .doc-tab{min-width:120px}
  .nav #bookmark{display:none}
 }
+
+/* V5.4: touch-friendly per-document action menu */
+.version-badge{display:inline-flex;vertical-align:middle;margin-left:5px;padding:4px 7px;background:#e9f0ff;color:#3675e7;border-radius:7px;font-size:11px;font-weight:800;letter-spacing:.1px}
+.card{position:relative;min-width:0}.card-head{position:relative}.card-more{position:absolute;top:10px;right:10px;z-index:3;display:flex;align-items:center;justify-content:center;width:35px;height:35px;background:#fffefa;border:1px solid #e5e8ee;border-radius:11px;color:#3c475a;font-size:23px;font-weight:800;box-shadow:0 2px 10px #0f244026;cursor:pointer;touch-action:manipulation}.card-more:active{background:#e9f0ff}.card-meta{display:flex;align-items:center;gap:5px}.card-fav{color:#e9a532;font-size:14px}.book-menu{position:fixed;z-index:1200;width:215px;padding:6px;background:#fff;border:1px solid #e8ebf0;border-radius:15px;box-shadow:0 16px 42px #14213833;max-height:min(410px,70vh);overflow-y:auto}.book-menu button{display:flex;align-items:center;gap:12px;width:100%;border:0;background:transparent;padding:12px 13px;text-align:left;border-radius:10px;font-size:14px;color:#293443;cursor:pointer}.book-menu button:hover,.book-menu button:focus-visible{background:#f1f5fc}.book-menu .danger{color:#d73d47}.book-menu hr{border:0;border-top:1px solid #edf0f5;margin:5px 4px}.book-menu .menu-icon{font-size:18px;width:21px;text-align:center}.library-empty{margin-top:48px;text-align:center;color:#8993a1}.card h4{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.card-more:focus-visible{outline:3px solid #90b4ff}
 </style>
 </head>
 <body>
 <div id="library" class="library">
- <aside class="libside"><div class="logo">NoteCanvas <small style="font-size:11px;color:#7d8492">V4</small></div><div class="libitem active" data-filter="all">▣ 文件</div><div class="libitem" data-filter="favorite">☆ 我的最愛</div><div class="libitem" data-filter="search">⌕ 搜尋</div><div class="libitem">▤ Study Sets</div><div class="libitem">♧ 範本</div></aside>
- <main class="libmain"><div class="libhead"><h1>文件</h1><div class="spacer"></div><button class="btn" id="importHome">匯入 PDF</button><button class="btn primary" id="newBook">＋ 新筆記本</button></div><div style="margin-top:18px;display:flex;gap:10px"><input id="librarySearch" placeholder="搜尋筆記本名稱" style="border:1px solid #e3e5ea;border-radius:12px;padding:10px;flex:1"><select id="librarySort" style="border:1px solid #e3e5ea;border-radius:12px;padding:10px"><option value="recent">最近編輯</option><option value="name">名稱</option></select></div><div class="cards" id="bookCards"></div></main>
+ <aside class="libside"><div class="logo">NoteCanvas <small id="appVersion" class="version-badge"></small></div><div class="libitem active" data-filter="all">▣ 文件</div><div class="libitem" data-filter="favorite">☆ 我的最愛</div><div class="libitem" data-filter="search">⌕ 搜尋</div><div class="libitem">▤ Study Sets</div><div class="libitem">♧ 範本</div></aside>
+ <main class="libmain"><div class="libhead"><h1>文件</h1><div class="spacer"></div><button class="btn" id="importHome">匯入 PDF</button><button class="btn primary" id="newBook">＋ 新筆記本</button></div><div style="margin-top:18px;display:flex;gap:10px"><input id="librarySearch" placeholder="搜尋筆記本名稱" style="border:1px solid #e3e5ea;border-radius:12px;padding:10px;flex:1"><select id="librarySort" style="border:1px solid #e3e5ea;border-radius:12px;padding:10px"><option value="recent">最近編輯</option><option value="name">名稱</option></select></div><div class="cards" id="bookCards"></div><p id="libraryEmpty" class="library-empty hidden">沒有符合條件的筆記本</p></main>
 </div>
+<div id="bookMenu" class="book-menu hidden" role="menu" aria-label="筆記本操作"></div>
 
 <div class="app">
  <div class="doc-tabs"><button class="doc-home" id="tabHome" title="返回文件庫">▦</button><div class="doc-tab current"><span class="doc-tab-dot">✎</span><span id="tabTitle">我的筆記</span><span class="doc-tab-close" aria-hidden="true">⌄</span></div><button class="doc-add" id="tabAdd" title="開啟其他筆記本">＋</button><div class="tab-spacer"></div><span class="tab-appname">NoteCanvas</span></div>
@@ -203,6 +208,9 @@ async function getPDFEngine(){
  pdfjsLib=mod;return mod;
 }
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const APP_VERSION="5.4.0";
+document.title=`NoteCanvas V${APP_VERSION}`;
+$("#appVersion").textContent=`v${APP_VERSION}`;
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
 let tool="pen",color="#20242c",width=4,penStyle="fountain",pencilOnly=true,zoom=1;
 let drawing=false,currentStroke=null,lassoStart=null,selectedIds=new Set(),history=[],future=[];
@@ -215,7 +223,70 @@ function openDB(){return new Promise((res,rej)=>{let r=indexedDB.open("NoteCanva
 const getAll=()=>new Promise(res=>{let r=db.transaction("books").objectStore("books").getAll();r.onsuccess=()=>res(r.result)});
 const put=b=>new Promise(res=>{b.updated=Date.now();let r=db.transaction("books","readwrite").objectStore("books").put(b);r.onsuccess=res});
 async function init(){await openDB();let bs=await getAll();if(!bs.length){await put(defaultBook());bs=await getAll()}renderLibrary(bs)}
-async function renderLibrary(bs){if(!bs)bs=await getAll();const q=($("#librarySearch").value||"").toLowerCase();bs=bs.filter(b=>(libraryFilter!=="favorite"||b.favorite)&&b.title.toLowerCase().includes(q));if($("#librarySort").value==="name")bs.sort((a,b)=>a.title.localeCompare(b.title));else bs.sort((a,b)=>b.updated-a.updated);let box=$("#bookCards");box.innerHTML="";bs.forEach(b=>{let c=document.createElement("div");c.className="card";c.innerHTML=`<div class="cover"><span style="position:absolute;bottom:20px;left:24px;right:16px;color:#fff;font-size:17px;font-weight:700;line-height:1.4;text-shadow:0 1px 3px #0003">${esc(b.title)}</span></div><h4>${esc(b.title)}</h4><small>${b.pages.length} 頁 · ${new Date(b.updated).toLocaleDateString()}</small>`;c.onclick=()=>openBook(b.id);c.oncontextmenu=async e=>{e.preventDefault();const action=prompt("筆記本操作：rename 重新命名、favorite 收藏、duplicate 複製、delete 刪除", "favorite");if(action==="rename"){const name=prompt("新名稱",b.title);if(name)b.title=name}else if(action==="favorite")b.favorite=!b.favorite;else if(action==="duplicate"){let copy=structuredClone(b);copy.id=uid();copy.title+="（副本）";await put(copy)}else if(action==="delete"){if(confirm("確定刪除這本筆記？")){db.transaction("books","readwrite").objectStore("books").delete(b.id);renderLibrary();return}}await put(b);renderLibrary()};box.appendChild(c)})}
+const bookMenu=$("#bookMenu");
+let menuBookId=null;
+function closeBookMenu(){bookMenu.classList.add("hidden");menuBookId=null}
+function openBookMenu(b,anchor){
+ menuBookId=b.id;
+ const actions=[
+  ["✎","重新命名","rename"],
+  [b.favorite?"★":"☆",b.favorite?"取消我的最愛":"加入我的最愛","favorite"],
+  ["▣","製作副本","duplicate"],
+  ["⇩","備份筆記本（JSON）","backup"],
+  ["🗑","刪除筆記本","delete"]
+ ];
+ bookMenu.replaceChildren();
+ for(const [icon,label,action] of actions){
+  if(action==="delete")bookMenu.appendChild(document.createElement("hr"));
+  const btn=document.createElement("button");btn.type="button";btn.setAttribute("role","menuitem");btn.className=action==="delete"?"danger":"";
+  const sym=document.createElement("span");sym.className="menu-icon";sym.textContent=icon;
+  const text=document.createElement("span");text.textContent=label;btn.append(sym,text);
+  btn.onclick=async e=>{e.stopPropagation();closeBookMenu();await bookAction(b.id,action)};
+  bookMenu.appendChild(btn);
+ }
+ bookMenu.classList.remove("hidden");
+ const r=anchor.getBoundingClientRect(),w=215,h=bookMenu.getBoundingClientRect().height;
+ bookMenu.style.left=Math.max(8,Math.min(innerWidth-w-8,r.right-w))+"px";
+ bookMenu.style.top=Math.max(8,Math.min(innerHeight-h-8,r.bottom+5))+"px";
+}
+async function bookAction(id,action){
+ const b=(await getAll()).find(x=>x.id===id);if(!b)return;
+ if(action==="rename"){
+  const title=prompt("重新命名筆記本",b.title)?.trim();if(!title||title===b.title)return;
+  b.title=title;await put(b);if(bookId===id&&book){book.title=title;$("#title").textContent=title;$("#tabTitle").textContent=title}
+ }else if(action==="favorite"){
+  b.favorite=!b.favorite;await put(b);toast(b.favorite?"已加入我的最愛":"已取消我的最愛");
+ }else if(action==="duplicate"){
+  const copy=structuredClone(b);copy.id=uid();copy.title=b.title+"（副本）";
+  copy.pages=copy.pages.map(pg=>({...pg,id:uid()}));await put(copy);toast("已製作副本");
+ }else if(action==="backup"){
+  const blob=new Blob([JSON.stringify({format:"NoteCanvas",version:APP_VERSION,exportedAt:new Date().toISOString(),book:b},null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=(b.title.replace(/[\/:*?"<>|]/g,"_")||"筆記本")+".notecanvas.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ }else if(action==="delete"){
+  if(!confirm(`確定刪除「${b.title}」？此操作無法復原，建議先備份。`))return;
+  await new Promise((resolve,reject)=>{const tx=db.transaction("books","readwrite");tx.objectStore("books").delete(id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});
+  if(bookId===id){book=null;bookId=null}toast("已刪除筆記本");
+ }
+ await renderLibrary();
+}
+document.addEventListener("pointerdown",e=>{if(!bookMenu.classList.contains("hidden")&&!bookMenu.contains(e.target)&&!e.target.closest(".card-more"))closeBookMenu()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeBookMenu()});
+window.addEventListener("resize",closeBookMenu);
+async function renderLibrary(bs){
+ if(!bs)bs=await getAll();
+ const q=($("#librarySearch").value||"").trim().toLowerCase();
+ bs=bs.filter(b=>(libraryFilter!=="favorite"||b.favorite)&&b.title.toLowerCase().includes(q));
+ if($("#librarySort").value==="name")bs.sort((a,b)=>a.title.localeCompare(b.title));else bs.sort((a,b)=>b.updated-a.updated);
+ const box=$("#bookCards");box.replaceChildren();$("#libraryEmpty").classList.toggle("hidden",bs.length!==0);
+ for(const b of bs){
+  const c=document.createElement("article");c.className="card";
+  c.innerHTML=`<div class="card-head"><div class="cover"><span style="position:absolute;bottom:20px;left:24px;right:16px;color:#fff;font-size:17px;font-weight:700;line-height:1.4;text-shadow:0 1px 3px #0003">${esc(b.title)}</span></div><button class="card-more" type="button" aria-label="${esc(b.title)}的更多操作" aria-haspopup="menu" title="更多操作">⋯</button></div><h4>${b.favorite?'<span class="card-fav">★ </span>':''}${esc(b.title)}</h4><small>${b.pages.length} 頁 · ${new Date(b.updated).toLocaleDateString()}</small>`;
+  c.onclick=e=>{if(!e.target.closest(".card-more")){closeBookMenu();openBook(b.id)}};
+  const more=c.querySelector(".card-more");more.onclick=e=>{e.stopPropagation();if(menuBookId===b.id){closeBookMenu()}else openBookMenu(b,more)};
+  c.oncontextmenu=e=>{e.preventDefault();openBookMenu(b,more)};
+  box.appendChild(c);
+ }
+}
 function esc(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 async function openBook(id){book=(await getAll()).find(x=>x.id===id);bookId=id;pageIndex=0;$("#library").classList.add("hidden");$("#title").textContent=book.title;$("#tabTitle").textContent=book.title;loadPage()}
 function p(){return book.pages[pageIndex]}
