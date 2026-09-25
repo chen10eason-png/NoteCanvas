@@ -1,1 +1,7 @@
-NoteCanvas V5.7: Lasso selection move/copy/delete of strokes and objects; Pencil resize of image/shape using bottom-right handle; composed PNG and print-to-PDF include PDF background, paper, handwriting, highlights, images, text and tape. No native PDF engine; PDF export uses iPad Safari Print > Save to Files. Apple Pencil and region eraser logic preserved. Browser hardware testing required.
+NoteCanvas V5.8
+- Goodnotes-inspired toolbar customization: show/hide/reorder tools, overflow menu, reset; stored locally.
+- Sidebar All Pages / Bookmarks filter.
+- Proper manifest and service worker files restored for PWA installation and cache versioning.
+- Pencil-only, area eraser, highlighter, page editing and notebook data model inherited from V5.7.
+- Goodnotes branding and proprietary artwork are not copied.
+- Test Apple Pencil, highlighter, export, sidebar, toolbar, and PWA on iPad before replacing live site.

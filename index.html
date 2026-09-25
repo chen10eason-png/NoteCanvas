@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=yes">
 <meta name="theme-color" content="#f7f8fb">
 <link rel="manifest" href="manifest.webmanifest">
-<title>NoteCanvas V5.3</title>
+<title>NoteCanvas V5.8</title>
 <style>
 :root{--bg:#f4f5f8;--card:#fff;--ink:#20242c;--muted:#7d8492;--line:#e3e5ea;--blue:#3478f6;--blue2:#eaf2ff;--shadow:0 8px 28px #1d273514}
 *{box-sizing:border-box}html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI","Noto Sans TC",sans-serif;color:var(--ink);background:var(--bg);overscroll-behavior:none}
@@ -162,6 +162,19 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 .highlighter-settings.hidden{display:none}.hl-color{width:24px;height:24px;flex:none;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #d2d4dc;cursor:pointer}.hl-color.selected{box-shadow:0 0 0 2px #3d79ef}
 .highlighter-settings label{display:flex;align-items:center;gap:6px}.highlighter-settings input[type=range]{width:95px;accent-color:#d5a82d}
 @media(max-width:800px){.editor.hl-active{grid-template-rows:58px 50px 44px minmax(0,1fr)}.highlighter-settings{justify-content:flex-start}}
+.thumb-filter{display:flex;gap:5px;padding:5px 12px 8px;border-bottom:1px solid #e6eaf0}
+.thumb-filter button{border:0;border-radius:8px;padding:8px 10px;background:transparent;font-size:11px;color:#7b8493;cursor:pointer}
+.thumb-filter button.active{background:#e6eeff;color:#286fe4;font-weight:750}
+.sidebar{grid-template-rows:auto auto auto minmax(0,1fr)}
+.tool-overflow{position:fixed;z-index:155;min-width:175px;background:#fff;border:1px solid #e4e8f0;border-radius:13px;box-shadow:0 16px 45px #23304b28;padding:7px}
+.tool-overflow button{display:flex;align-items:center;gap:9px;width:100%;border:0;border-radius:8px;background:transparent;padding:11px 12px;text-align:left;font-size:13px}
+.tool-overflow button:active{background:#eaf1ff}
+.customize-sheet{max-width:480px}.setting-help{font-size:12px;color:#7a8493;line-height:1.5}
+.customize-row{display:flex;align-items:center;gap:12px;padding:10px 3px;border-bottom:1px solid #edf0f5}
+.customize-row label{flex:1;display:flex;align-items:center;gap:12px;font-size:14px}
+.customize-row input{width:19px;height:19px;accent-color:#3478f6}
+.customize-row .btn{min-width:34px;padding:0 7px;border:1px solid #e6eaf0}
+.customize-actions{display:flex;gap:10px;margin-top:20px}
 .save-state,.page-count{font-size:11px;color:#78859b;white-space:nowrap;font-weight:600}
 .save-state.saving{color:#b17a19}.save-state.failed{color:#b33c3c}
 #restoreHome{background:#fff;border:1px solid #e4e7ee}
@@ -185,11 +198,11 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
   <aside class="sidebar" id="sidebar">
    <div class="side-tabs"><button class="active">▦ 頁面</button><button>☷ 大綱</button><button>◉ 錄音</button></div>
    <div class="side-actions"><button class="btn" id="addPage">＋ 頁面</button><button class="btn" id="importPDF">PDF</button><button class="btn" id="pageMenu">⋯</button></div>
-   <div class="thumbs" id="thumbs"></div>
+   <div class="thumb-filter"><button class="active" data-thumb-filter="all">全部頁面</button><button data-thumb-filter="bookmarks">★ 書籤</button></div><div class="thumbs" id="thumbs"></div>
   </aside>
   <main class="editor">
    <div class="toolbar" id="toolbar">
-    <button class="tool" data-tool="lasso"><span class="tool-symbol">◌</span><span class="tool-label">套索</span></button><button class="tool active" data-tool="pen"><span class="tool-symbol">✎</span><span class="tool-label">鋼筆</span></button><button class="tool" data-tool="eraser"><span class="tool-symbol">⌫</span><span class="tool-label">橡皮擦</span></button><button class="tool" data-tool="highlighter"><span class="tool-symbol">▰</span><span class="tool-label">螢光筆</span></button><button class="tool" data-tool="shape"><span class="tool-symbol">◇</span><span class="tool-label">圖形</span></button><button class="tool" data-tool="tape"><span class="tool-symbol">▱</span><span class="tool-label">膠帶</span></button><button class="tool" data-tool="image"><span class="tool-symbol">▧</span><span class="tool-label">圖片</span></button><button class="tool" data-tool="text"><span class="tool-symbol">T</span><span class="tool-label">文字</span></button><button class="tool" data-tool="element"><span class="tool-symbol">✦</span><span class="tool-label">元素</span></button><button class="tool" data-tool="laser"><span class="tool-symbol">⌁</span><span class="tool-label">雷射筆</span></button><button class="tool" id="exportPDF">PDF ↥</button><button class="tool hidden" id="lassoMove">↔ 移動選取</button><button class="tool hidden" id="lassoCopy">▢ 複製選取</button><button class="tool hidden" id="lassoDelete">⌫ 刪除選取</button><div class="spacer"></div><button class="tool" id="undo">↶</button><button class="tool" id="redo">↷</button>
+    <button class="tool" data-tool="lasso"><span class="tool-symbol">◌</span><span class="tool-label">套索</span></button><button class="tool active" data-tool="pen"><span class="tool-symbol">✎</span><span class="tool-label">鋼筆</span></button><button class="tool" data-tool="eraser"><span class="tool-symbol">⌫</span><span class="tool-label">橡皮擦</span></button><button class="tool" data-tool="highlighter"><span class="tool-symbol">▰</span><span class="tool-label">螢光筆</span></button><button class="tool" data-tool="shape"><span class="tool-symbol">◇</span><span class="tool-label">圖形</span></button><button class="tool" data-tool="tape"><span class="tool-symbol">▱</span><span class="tool-label">膠帶</span></button><button class="tool" data-tool="image"><span class="tool-symbol">▧</span><span class="tool-label">圖片</span></button><button class="tool" data-tool="text"><span class="tool-symbol">T</span><span class="tool-label">文字</span></button><button class="tool" data-tool="element"><span class="tool-symbol">✦</span><span class="tool-label">元素</span></button><button class="tool" data-tool="laser"><span class="tool-symbol">⌁</span><span class="tool-label">雷射筆</span></button><button class="tool" id="toolbarMore" title="更多工具">⋯<span class="tool-label">更多</span></button><button class="tool" id="exportPDF">PDF ↥</button><button class="tool hidden" id="lassoMove">↔ 移動選取</button><button class="tool hidden" id="lassoCopy">▢ 複製選取</button><button class="tool hidden" id="lassoDelete">⌫ 刪除選取</button><div class="spacer"></div><button class="tool" id="undo">↶</button><button class="tool" id="redo">↷</button>
    </div>
    <div class="subbar">
     <button class="chip active" data-pen="fountain">鋼筆</button><button class="chip" data-pen="ball">原子筆</button><button class="chip" data-pen="brush">畫筆</button>
@@ -215,6 +228,8 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  <div class="page-pop-separator"></div><button data-page-action="bookmark">☆ 加入／取消書籤</button><button data-page-action="delete" class="danger">♧ 移至垃圾桶</button><button data-page-action="restore">↶ 還原最近刪除的頁面</button>
  </div>
  <div class="toast hidden" id="toast"></div>
+<div id="toolOverflow" class="tool-overflow hidden" role="menu" aria-label="更多工具"></div>
+<div id="customizeModal" class="modal hidden"><div class="sheet customize-sheet"><h3>自訂工具列</h3><p class="setting-help">勾選常用工具，使用上下箭頭調整順序。套索工具固定顯示。</p><div id="customizeList"></div><div class="customize-actions"><button class="btn" id="resetToolbar">還原預設</button><div class="spacer"></div><button class="btn primary" id="finishCustomize">完成</button></div></div></div>
 <div class="modal hidden" id="trashModal"><div class="sheet trash-sheet"><h3>最近刪除的頁面</h3><p style="color:#798394;font-size:12px">已刪除頁面會保留在這本筆記本中，可隨時還原。</p><div id="trashItems"></div><div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="btn primary" id="closeTrash">完成</button></div></div></div>
 <div class="modal hidden" id="settings"><div class="sheet"><h3>文件設定</h3>
  <div class="setting"><div><b>Apple Pencil Only</b><div style="font-size:12px;color:#7d8492">手指只負責捲動、平移與縮放，不會留下筆跡。</div></div><div class="switch on" id="pencilSwitch"><i></i></div></div>
@@ -239,7 +254,7 @@ async function getPDFEngine(){
  pdfjsLib=mod;return mod;
 }
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const APP_VERSION="5.7.0";
+const APP_VERSION="5.8.0";
 document.title=`NoteCanvas V${APP_VERSION}`;
 $("#appVersion").textContent=`v${APP_VERSION}`;
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
@@ -336,7 +351,7 @@ async function save(){
   toast("儲存失敗，請先備份筆記本");console.error(err);
  }
 }
-function loadPage(){$("#pageCount").textContent=`${pageIndex+1} / ${book.pages.length}`;document.body.classList.remove("pen-active");selectedIds.clear();updateLassoActions();history=[];future=[];pageEl.className="page "+(p().paper||"");$("#pdfBg").classList.toggle("hidden",!p().bg);if(p().bg)$("#pdfBg").src=p().bg;render();renderThumbs();$("#bookmark").textContent=p().bookmark?"★ 已收藏":"☆ 書籤";save()}
+function loadPage(){$("#pageCount").textContent=`${pageIndex+1} / ${book.pages.length}`;document.body.classList.remove("pen-active");selectedIds.clear();updateLassoActions();history=[];future=[];pageEl.className="page "+(p().paper||"");$("#pdfBg").classList.toggle("hidden",!p().bg);if(p().bg)$("#pdfBg").src=p().bg;render();renderThumbs();$("#bookmark").textContent=p().bookmark?"★ 已收藏":"☆ 書籤";renderThumbs();save()}
 function render(){
  ctx.clearRect(0,0,768,1024);
  // 螢光筆先繪製，再畫一般墨水，讓字跡清楚浮在標記上方。
@@ -496,9 +511,10 @@ function renderObject(o){
  ov.appendChild(d)
 }
 function renderTape(t){let d=document.createElement("div");d.className="obj";Object.assign(d.style,{left:t.x+"px",top:t.y+"px",width:t.w+"px",height:t.h+"px",background:t.revealed?"#f2c94c44":"#f2c94c",borderRadius:"5px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"11px",color:"#745f00"});d.textContent=t.revealed?"再點一下遮住":"點一下顯示";d.onclick=()=>{t.revealed=!t.revealed;render();save()};ov.appendChild(d)}
+let thumbFilter="all";
 async function renderThumbs(){
  const box=$("#thumbs");box.replaceChildren();
- book.pages.forEach((pg,i)=>{
+ book.pages.forEach((pg,i)=>{if(thumbFilter==="bookmarks"&&!pg.bookmark)return;
   const row=document.createElement("div");row.className="thumbrow";
   row.innerHTML=`<div class="pageno">${pg.bookmark?"★ ":""}${i+1}</div><div class="thumb ${i===pageIndex?"active":""}">${pg.bg?`<img src="${pg.bg}" alt="PDF 底圖">`:""}<button class="thumb-more" type="button" aria-label="第 ${i+1} 頁更多操作">⋯</button></div>`;
   row.querySelector(".thumb").onclick=()=>{closePagePop();pageIndex=i;loadPage()};
@@ -555,7 +571,7 @@ $$("[data-page-action]").forEach(btn=>btn.onclick=()=>{
  }
 });
 document.addEventListener("pointerdown",e=>{if(!$("#pagePop").classList.contains("hidden")&&!$("#pagePop").contains(e.target)&&!e.target.closest(".thumb-more")&&!e.target.closest("#addPage,#addPageTop,#pageMenu"))closePagePop()});
-$("#bookmark").onclick=()=>{p().bookmark=!p().bookmark;$("#bookmark").textContent=p().bookmark?"★ 已收藏":"☆ 書籤";save()};
+$("#bookmark").onclick=()=>{p().bookmark=!p().bookmark;$("#bookmark").textContent=p().bookmark?"★ 已收藏":"☆ 書籤";renderThumbs();save()};
 $("#back").onclick=async()=>{await save();$("#library").classList.remove("hidden");renderLibrary()};$("#sideToggle").onclick=()=>$("#sidebar").classList.toggle("open");
 function showTrash(){
  const box=$("#trashItems");box.replaceChildren();
@@ -646,7 +662,52 @@ $("#fileBackup").onchange=async e=>{
 $("#importHome").onclick=()=>$("#filePDF").click();$("#importPDF").onclick=()=>$("#filePDF").click();
 $("#filePDF").onchange=async e=>{let f=e.target.files[0];if(!f)return;toast("正在匯入 PDF…");let engine;try{engine=await getPDFEngine()}catch(err){toast('PDF 元件無法載入，請檢查網路');return}
 let data=new Uint8Array(await f.arrayBuffer()),pdf=await engine.getDocument({data}).promise,pages=[];for(let i=1;i<=pdf.numPages;i++){let pg=await pdf.getPage(i),vp=pg.getViewport({scale:1.5}),c=document.createElement("canvas");c.width=vp.width;c.height=vp.height;await pg.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;let np=newPage();np.paper="";np.bg=c.toDataURL("image/jpeg",.88);pages.push(np)}if(book){book.pages.splice(pageIndex+1,0,...pages);pageIndex++;loadPage()}else{let b=defaultBook();b.title=f.name.replace(/\.pdf$/i,"");b.pages=pages;await put(b);renderLibrary()}toast(`已匯入 ${pages.length} 頁 PDF`)};
-$("#customize").onclick=()=>toast("工具列可依常用工具排序；此版本先保留完整工具列");
+// Toolbar visibility and order are local UI preferences; document data stays unchanged.
+const toolbarButtons=()=>$$('#toolbar .tool[data-tool]');
+const toolbarDefaults=toolbarButtons().map(b=>b.dataset.tool);
+const toolbarLabels=Object.fromEntries(toolbarButtons().map(b=>[b.dataset.tool,b.querySelector('.tool-label')?.textContent||b.dataset.tool]));
+let toolbarPrefs;
+try{toolbarPrefs=JSON.parse(localStorage.getItem('notecanvas-toolbar-v1')||'null')}catch(_){}
+if(!toolbarPrefs||!Array.isArray(toolbarPrefs.order)||!Array.isArray(toolbarPrefs.visible))toolbarPrefs={order:[...toolbarDefaults],visible:[...toolbarDefaults]};
+if(!toolbarPrefs.visible.includes("lasso"))toolbarPrefs.visible.unshift("lasso");
+function applyToolbarPrefs(){
+ const tools=toolbarButtons(),byName=new Map(tools.map(b=>[b.dataset.tool,b]));
+ const order=[...new Set([...toolbarPrefs.order,...toolbarDefaults])].filter(k=>byName.has(k));
+ const anchor=$('#toolbarMore');
+ for(const name of order){const el=byName.get(name);anchor.before(el);el.classList.toggle('hidden',!toolbarPrefs.visible.includes(name));}
+ // The selected tool is always available in the overflow menu if hidden.
+ localStorage.setItem('notecanvas-toolbar-v1',JSON.stringify(toolbarPrefs));
+}
+function showToolOverflow(){
+ const pop=$('#toolOverflow');pop.replaceChildren();
+ const hidden=toolbarPrefs.order.filter(k=>!toolbarPrefs.visible.includes(k)&&toolbarLabels[k]);
+ if(!hidden.length){const hint=document.createElement('button');hint.textContent='自訂工具列';hint.onclick=()=>{$('#toolOverflow').classList.add('hidden');showCustomize()};pop.append(hint)}
+ for(const key of hidden){const b=document.createElement('button');b.textContent=toolbarLabels[key];b.onclick=()=>{setTool(key);pop.classList.add('hidden')};pop.append(b)}
+ const r=$('#toolbarMore').getBoundingClientRect();pop.style.top=Math.min(innerHeight-20,r.bottom+6)+'px';pop.style.left=Math.max(8,Math.min(innerWidth-190,r.left-120))+'px';pop.classList.remove('hidden');
+}
+function showCustomize(){
+ const box=$('#customizeList');box.replaceChildren();
+ const order=[...new Set([...toolbarPrefs.order,...toolbarDefaults])].filter(k=>toolbarLabels[k]);
+ for(let i=0;i<order.length;i++){
+  const key=order[i],row=document.createElement('div');row.className='customize-row';
+  const label=document.createElement('label'),cb=document.createElement('input');cb.type='checkbox';cb.checked=toolbarPrefs.visible.includes(key);cb.disabled=key==='lasso';
+  cb.onchange=()=>{toolbarPrefs.visible=cb.checked?[...new Set([...toolbarPrefs.visible,key])]:toolbarPrefs.visible.filter(x=>x!==key);applyToolbarPrefs()};
+  label.append(cb,document.createTextNode(toolbarLabels[key]));row.append(label);
+  for(const [delta,glyph] of [[-1,'↑'],[1,'↓']]){
+   const btn=document.createElement('button');btn.className='btn';btn.textContent=glyph;btn.disabled=key==='lasso'||i+delta<=0||i+delta>=order.length;
+   btn.onclick=()=>{const to=i+delta;[order[i],order[to]]=[order[to],order[i]];toolbarPrefs.order=order;applyToolbarPrefs();showCustomize()};row.append(btn)
+  }
+  box.append(row)
+ }
+ $('#customizeModal').classList.remove('hidden')
+}
+$('#toolbarMore').onclick=showToolOverflow;
+$('#customize').onclick=()=>{$('#settings').classList.add('hidden');showCustomize()};
+$('#finishCustomize').onclick=()=>$('#customizeModal').classList.add('hidden');
+$('#resetToolbar').onclick=()=>{toolbarPrefs={order:[...toolbarDefaults],visible:[...toolbarDefaults]};applyToolbarPrefs();showCustomize()};
+$$('[data-thumb-filter]').forEach(btn=>btn.onclick=()=>{thumbFilter=btn.dataset.thumbFilter;$$('[data-thumb-filter]').forEach(x=>x.classList.toggle('active',x===btn));renderThumbs()});
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#toolOverflow,#toolbarMore'))$('#toolOverflow').classList.add('hidden')});
+applyToolbarPrefs();
 $("#librarySearch").oninput=()=>renderLibrary();$("#librarySort").onchange=()=>renderLibrary();$$('[data-filter]').forEach(el=>el.onclick=()=>{libraryFilter=el.dataset.filter;$$('[data-filter]').forEach(x=>x.classList.toggle('active',x===el));if(libraryFilter==='search')$("#librarySearch").focus();renderLibrary()});
 if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
 window.addEventListener("keydown",e=>{
