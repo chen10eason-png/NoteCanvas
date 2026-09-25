@@ -309,8 +309,10 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 .template-actions{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}
 @media(max-width:640px){.template-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.template-actions>.btn{flex:1 1 100%}}
 
-/* V5.20: functional study-card workspace */
+/* V5.21: functional study-card workspace */
 .study-sheet{width:min(680px,94vw);max-height:90dvh;overflow:auto}.study-head,.study-tabs,.study-actions,.study-review-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.study-head{justify-content:space-between}.study-tabs{margin:16px 0}.study-tabs .active{background:#e7efff;color:#246ad5;border-color:#a8c6fb}.study-form{display:grid;gap:12px;padding:15px;border:1px solid #e3eaf5;background:#f8faff;border-radius:15px}.study-form label{display:grid;gap:6px;font-weight:650;font-size:13px}.study-form textarea{resize:vertical;box-sizing:border-box;width:100%;padding:12px;border:1px solid #d7e2f0;border-radius:10px;font:inherit;font-size:15px;background:white}.study-actions{justify-content:flex-end}.study-list{display:grid;gap:10px;margin-top:16px}.study-item{display:grid;grid-template-columns:1fr auto;gap:8px;padding:13px;border:1px solid #e3e9f3;border-radius:13px}.study-item strong{display:block;margin-bottom:6px}.study-item p{margin:4px 0;white-space:pre-wrap;overflow-wrap:anywhere;color:#5b677b}.study-item .study-item-actions{display:flex;gap:5px;align-items:start}.study-progress{color:#68758b;font-size:13px;margin:14px 0}.study-flashcard{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;width:100%;min-height:260px;padding:25px;background:linear-gradient(145deg,#fff,#f0f6ff);border:1px solid #cbdcf5;border-radius:20px;box-shadow:0 8px 22px #203c7012;cursor:pointer;white-space:pre-wrap;overflow-wrap:anywhere;text-align:center}.study-flashcard span{font-size:13px;color:#5980bb}.study-flashcard strong{font-size:clamp(19px,3vw,27px);line-height:1.55}.study-flashcard small{color:#8a97aa}.study-review-actions{justify-content:center;margin:16px 0}.study-review-actions button:disabled{opacity:.45;cursor:not-allowed}@media(max-width:700px){.study-sheet{max-height:94dvh}.study-item{grid-template-columns:1fr}.study-flashcard{min-height:210px}}
+/* V5.21 recording workspace */
+#audioPanel{padding:14px;overflow:auto;min-width:0}.audio-head{display:flex;flex-direction:column;gap:5px}.audio-head small,.audio-note{font-size:12px;color:#718098;line-height:1.5}.audio-actions{display:flex;align-items:center;gap:8px;margin:14px 0}.audio-actions .btn{white-space:nowrap}#audioClock{font-size:13px;color:#dc4253;font-variant-numeric:tabular-nums}.audio-list{display:grid;gap:12px;margin-top:16px}.audio-item{display:grid;gap:9px;padding:12px;background:white;border:1px solid #e0e8f4;border-radius:13px;min-width:0}.audio-item strong{font-size:13px;overflow-wrap:anywhere}.audio-item small{font-size:11px;color:#718098}.audio-item audio{width:100%;max-width:100%}.audio-item-actions{display:flex;gap:5px;flex-wrap:wrap}.audio-item-actions .btn{font-size:11px;padding:6px 8px}.audio-empty{font-size:12px;color:#718098;line-height:1.6}
 </style>
 </head>
 <body>
@@ -322,13 +324,14 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 
 <div class="app">
  <div class="doc-tabs"><button class="doc-home" id="tabHome" title="返回文件庫">▦</button><div class="doc-tab current"><span class="doc-tab-dot">✎</span><span id="tabTitle">我的筆記</span><span class="doc-tab-close" aria-hidden="true">⌄</span></div><button class="doc-add" id="tabAdd" title="開啟其他筆記本">＋</button><div class="tab-spacer"></div><span class="tab-appname">NoteCanvas</span></div>
- <header class="nav"><button class="btn" id="back">‹ 文件</button><button class="btn" id="sideToggle" title="顯示頁面縮圖" aria-label="顯示頁面縮圖" aria-expanded="false" aria-controls="sidebar">☷</button><div class="title" id="title">我的筆記</div><div class="spacer"></div><span id="saveState" class="save-state" aria-live="polite">✓ 已儲存</span><span id="pageCount" class="page-count">1 / 1</span><button class="btn" id="studyCardsOpen" title="學習卡片">▤ 學習卡片</button><button class="btn" id="readMode">◉ 閱讀</button><button class="btn" id="jumpPage" title="跳至指定頁面">⌕ 跳頁</button><button class="btn" id="addPageTop">＋ 頁面</button><button class="btn" id="bookmark">☆ 書籤</button><button class="btn" id="share">↥ 匯出</button><button class="btn" id="more">•••</button></header>
+ <header class="nav"><button class="btn" id="back">‹ 文件</button><button class="btn" id="sideToggle" title="顯示頁面縮圖" aria-label="顯示頁面縮圖" aria-expanded="false" aria-controls="sidebar">☷</button><div class="title" id="title">我的筆記</div><div class="spacer"></div><span id="saveState" class="save-state" aria-live="polite">✓ 已儲存</span><span id="pageCount" class="page-count">1 / 1</span><button class="btn" id="audioOpen" title="錄音筆記">◉ 錄音</button><button class="btn" id="studyCardsOpen" title="學習卡片">▤ 學習卡片</button><button class="btn" id="readMode">◉ 閱讀</button><button class="btn" id="jumpPage" title="跳至指定頁面">⌕ 跳頁</button><button class="btn" id="addPageTop">＋ 頁面</button><button class="btn" id="bookmark">☆ 書籤</button><button class="btn" id="share">↥ 匯出</button><button class="btn" id="more">•••</button></header>
  <div class="body pages-collapsed" id="bookBody">
   <aside class="sidebar" id="sidebar">
-   <div class="side-tabs"><button class="active" data-sidebar-tab="pages">▦ 頁面</button><button data-sidebar-tab="outline">☷ 大綱</button><button data-sidebar-tab="audio" title="尚未支援錄音" disabled>◉ 錄音</button></div>
+   <div class="side-tabs"><button class="active" data-sidebar-tab="pages">▦ 頁面</button><button data-sidebar-tab="outline">☷ 大綱</button><button data-sidebar-tab="audio" title="錄音管理">◉ 錄音</button></div>
    <div class="side-actions"><button class="btn" id="templatePicker" title="選擇紙張範本">▦ 紙張</button><button class="btn" id="addPage">＋ 頁面</button><button class="btn" id="importPDF">PDF</button><button class="btn" id="pageMenu">⋯</button></div>
    <div id="pagesPanel"><input id="pageSearch" class="page-search" placeholder="搜尋文字、頁碼或大綱…" aria-label="搜尋目前筆記本"/><div class="thumb-filter"><button class="active" data-thumb-filter="all">全部頁面</button><button data-thumb-filter="bookmarks">★ 書籤</button></div><div class="thumbs" id="thumbs"></div></div>
  <div id="outlinePanel" class="hidden"><div class="outline-head"><strong>文件大綱</strong><button class="btn" id="addOutline">＋ 加入目前頁面</button></div><div id="outlineList"></div></div>
+ <div id="audioPanel" class="hidden"><div class="audio-head"><strong>錄音筆記</strong><small>錄音儲存在這台裝置</small></div><div class="audio-actions"><button class="btn primary" id="audioStart">● 開始錄音</button><button class="btn hidden" id="audioStop">■ 停止</button><span id="audioClock" aria-live="polite">00:00</span></div><div class="audio-note">錄音期間可繼續書寫。請保持此頁開啟；錄音不會與筆跡同步重播。</div><div id="audioList" class="audio-list"></div></div>
   </aside>
   <main class="editor">
    <div class="toolbar" id="toolbar">
@@ -434,7 +437,7 @@ async function getPDFEngine(){
  pdfjsLib=mod;return mod;
 }
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const APP_VERSION="5.20.0";
+const APP_VERSION="5.21.0";
 document.title=`NoteCanvas V${APP_VERSION}`;
 $("#appVersion").textContent=`v${APP_VERSION}`;
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
@@ -445,7 +448,7 @@ const uid=()=>crypto.randomUUID(), toast=t=>{let x=$("#toast");x.textContent=t;x
 const defaultBook=()=>({id:uid(),title:"我的筆記",favorite:false,updated:Date.now(),pages:[newPage()]});
 const newPage=()=>({id:uid(),paper:"grid",bg:null,strokes:[],objects:[],tapes:[],bookmark:false});
 
-function openDB(){return new Promise((res,rej)=>{let r=indexedDB.open("NoteCanvasDB",1);r.onupgradeneeded=()=>r.result.createObjectStore("books",{keyPath:"id"});r.onsuccess=()=>{db=r.result;res()};r.onerror=rej})}
+function openDB(){return new Promise((res,rej)=>{let r=indexedDB.open("NoteCanvasDB",2);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains("books"))r.result.createObjectStore("books",{keyPath:"id"});if(!r.result.objectStoreNames.contains("audio")){const a=r.result.createObjectStore("audio",{keyPath:"id"});a.createIndex("bookId","bookId")}};r.onsuccess=()=>{db=r.result;res()};r.onerror=rej})}
 const getAll=()=>new Promise(res=>{let r=db.transaction("books").objectStore("books").getAll();r.onsuccess=()=>res(r.result)});
 const put=b=>new Promise(res=>{b.updated=Date.now();let r=db.transaction("books","readwrite").objectStore("books").put(b);r.onsuccess=res});
 async function init(){await openDB();let bs=await getAll();if(!bs.length){await put(defaultBook());bs=await getAll()}renderLibrary(bs)}
@@ -1156,8 +1159,10 @@ $$('[data-sidebar-tab]').forEach(b=>b.onclick=()=>{
  $$('[data-sidebar-tab]').forEach(x=>x.classList.toggle('active',x===b));
  $('#pagesPanel').classList.toggle('hidden',sidebarTab!=='pages');
  $('#outlinePanel').classList.toggle('hidden',sidebarTab!=='outline');
+ $('#audioPanel').classList.toggle('hidden',sidebarTab!=='audio');
  $('.side-actions').classList.toggle('hidden',sidebarTab!=='pages');
  if(sidebarTab==='outline')renderOutline();
+ if(sidebarTab==='audio')renderAudioList();
 });
 $('#addOutline').onclick=()=>{
  if(!book)return;const old=p().outlineTitle||'';
@@ -1219,7 +1224,7 @@ $('#shapeColor').oninput=e=>shapeColor=e.target.value;
 $('#shapeWidth').oninput=e=>{shapeWidth=Number(e.target.value);$('#shapeWidthValue').textContent=shapeWidth};
 $('#shapeFill').onchange=e=>shapeFill=e.target.checked;
 
-// V5.20: per-notebook study cards, persisted through the existing IndexedDB book record.
+// V5.21: per-notebook study cards, persisted through the existing IndexedDB book record.
 let studyEditId=null,studyTab="manage",studyDeck=[],studyCursor=0,studyRevealed=false;
 const studyCards=()=>{if(!book)return [];if(!Array.isArray(book.studyCards))book.studyCards=[];return book.studyCards};
 const studySaveBook=()=>{if(book)save()};
@@ -1242,6 +1247,20 @@ function rateStudyCard(weak){const c=studyCards().find(x=>x.id===studyDeck[study
 $("#studyAgain").onclick=()=>rateStudyCard(true);$("#studyKnow").onclick=()=>rateStudyCard(false);
 $("#studyShuffle").onclick=buildStudyDeck;$("#studyOnlyWeak").onchange=buildStudyDeck;
 
+// V5.21: audio recordings live in a separate IndexedDB object store (not inside the book JSON).
+let audioRecorder=null,audioStream=null,audioChunks=[],audioStarted=0,audioTimer=null,audioUrls=[];
+const audioStore=(mode='readonly')=>db.transaction('audio',mode).objectStore('audio');
+const getBookAudio=()=>new Promise((resolve,reject)=>{if(!db||!bookId)return resolve([]);const q=audioStore().index('bookId').getAll(bookId);q.onsuccess=()=>resolve(q.result.sort((a,b)=>b.created-a.created));q.onerror=()=>reject(q.error)});
+const saveAudio=x=>new Promise((resolve,reject)=>{const q=audioStore('readwrite').put(x);q.onsuccess=resolve;q.onerror=()=>reject(q.error)});
+const deleteAudio=id=>new Promise((resolve,reject)=>{const q=audioStore('readwrite').delete(id);q.onsuccess=resolve;q.onerror=()=>reject(q.error)});
+function audioTime(sec){return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(Math.floor(sec%60)).padStart(2,'0')}
+function audioUi(active){$('#audioStart').classList.toggle('hidden',active);$('#audioStop').classList.toggle('hidden',!active);$('#audioClock').textContent=active?'● 00:00':'00:00'}
+function stopAudioTracks(){if(audioStream){audioStream.getTracks().forEach(t=>t.stop());audioStream=null}if(audioTimer){clearInterval(audioTimer);audioTimer=null}}
+async function renderAudioList(){if(!book)return;const id=bookId,root=$('#audioList');audioUrls.forEach(u=>URL.revokeObjectURL(u));audioUrls=[];root.replaceChildren();try{const clips=await getBookAudio();if(id!==bookId)return;if(!clips.length){const p=document.createElement('p');p.className='audio-empty';p.textContent='目前沒有錄音。點「開始錄音」，允許麥克風後即可錄製。';root.append(p)}for(const clip of clips){const item=document.createElement('article');item.className='audio-item';const title=document.createElement('strong');title.textContent=clip.name||'錄音';const info=document.createElement('small');info.textContent=new Date(clip.created).toLocaleString()+' · '+audioTime(clip.duration)+' · 第 '+clip.page+' 頁';const player=document.createElement('audio');player.controls=true;player.preload='none';const url=URL.createObjectURL(clip.blob);audioUrls.push(url);player.src=url;const actions=document.createElement('div');actions.className='audio-item-actions';const rename=document.createElement('button');rename.className='btn';rename.textContent='重新命名';rename.onclick=async()=>{const name=prompt('錄音名稱',clip.name||'錄音');if(name===null||!name.trim())return;clip.name=name.trim().slice(0,80);await saveAudio(clip);renderAudioList()};const go=document.createElement('button');go.className='btn';go.textContent='跳至頁面';go.onclick=()=>{const idx=book.pages.findIndex(x=>x.id===clip.pageId);if(idx<0){toast('原始頁面已刪除');return}pageIndex=idx;loadPage()};const dl=document.createElement('a');dl.className='btn';dl.textContent='下載';dl.href=url;dl.download=(clip.name||'NoteCanvas錄音').replace(/[\/:*?"<>|]/g,'_')+(clip.blob.type.includes('mp4')?'.m4a':'.webm');const del=document.createElement('button');del.className='btn';del.textContent='刪除';del.onclick=async()=>{if(!confirm('確定永久刪除這段錄音？'))return;await deleteAudio(clip.id);renderAudioList()};actions.append(rename,go,dl,del);item.append(title,info,player,actions);root.append(item)}}catch(e){console.error(e);root.textContent='無法讀取錄音，請確認裝置儲存空間。'}}
+$('#audioOpen').onclick=()=>{if(!book)return;setPageSidebar(true);$('[data-sidebar-tab="audio"]').click()};
+$('#audioStart').onclick=async()=>{if(audioRecorder||!book)return;if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){toast('此瀏覽器不支援錄音');return}try{audioStream=await navigator.mediaDevices.getUserMedia({audio:true});const type=['audio/mp4','audio/webm;codecs=opus','audio/webm'].find(t=>MediaRecorder.isTypeSupported(t));audioRecorder=new MediaRecorder(audioStream,type?{mimeType:type}:undefined);audioChunks=[];const id=bookId,pageId=p().id,page=pageIndex+1;audioRecorder.ondataavailable=e=>{if(e.data.size)audioChunks.push(e.data)};audioRecorder.onerror=e=>{console.error(e);toast('錄音發生錯誤');stopAudioTracks();audioRecorder=null;audioUi(false)};audioRecorder.onstop=async()=>{const duration=Math.round((Date.now()-audioStarted)/1000);const blob=new Blob(audioChunks,{type:audioRecorder?.mimeType||audioChunks[0]?.type||'audio/webm'});audioRecorder=null;audioChunks=[];stopAudioTracks();audioUi(false);if(blob.size){try{await saveAudio({id:uid(),bookId:id,pageId,page,created:Date.now(),duration,blob,name:'錄音 '+new Date().toLocaleString()});if(bookId===id)renderAudioList();toast('錄音已儲存')}catch(e){console.error(e);toast('錄音儲存失敗，請確認空間')}}};audioRecorder.start(1000);audioStarted=Date.now();audioUi(true);audioTimer=setInterval(()=>$('#audioClock').textContent='● '+audioTime((Date.now()-audioStarted)/1000),500)}catch(e){stopAudioTracks();audioRecorder=null;toast(e.name==='NotAllowedError'?'請允許使用麥克風':'無法開始錄音')}};
+$('#audioStop').onclick=()=>{if(audioRecorder&&audioRecorder.state!=='inactive')audioRecorder.stop()};
+window.addEventListener('beforeunload',e=>{if(audioRecorder&&audioRecorder.state==='recording'){e.preventDefault();e.returnValue='錄音尚未儲存，確定離開？'}});
 init();
 </script>
 </body></html>
