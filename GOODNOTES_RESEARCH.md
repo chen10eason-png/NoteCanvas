@@ -29,3 +29,5 @@ This is a source inventory, not a claim that all content has been watched, teste
 ## Implementation tracking
 - Implemented in v5.15: clearly labeled Manage Favorite Pens, per-pen Use/Edit buttons, explicit save-vs-temporary action, independent pen/highlighter color palettes inherited from v5.14.
 - Not yet verified or implemented: all latest Goodnotes features, 100-source research milestone, Apple Pencil hardware regression on v5.15, true iCloud sync, audio recording, native handwriting OCR, proprietary AI features.
+
+- Implemented in v5.18: page-template chooser, per-page and non-PDF bulk apply, page number jump, typed-text/outline/page-number navigation. Handwriting OCR remains unavailable.
