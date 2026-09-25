@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=yes">
 <meta name="theme-color" content="#f7f8fb">
 <link rel="manifest" href="manifest.webmanifest">
-<title>NoteCanvas V5.12</title>
+<title>NoteCanvas V5.22</title>
 <style>
 :root{--bg:#f4f5f8;--card:#fff;--ink:#20242c;--muted:#7d8492;--line:#e3e5ea;--blue:#3478f6;--blue2:#eaf2ff;--shadow:0 8px 28px #1d273514}
 *{box-sizing:border-box}html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI","Noto Sans TC",sans-serif;color:var(--ink);background:var(--bg);overscroll-behavior:none}
@@ -313,6 +313,16 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 .study-sheet{width:min(680px,94vw);max-height:90dvh;overflow:auto}.study-head,.study-tabs,.study-actions,.study-review-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.study-head{justify-content:space-between}.study-tabs{margin:16px 0}.study-tabs .active{background:#e7efff;color:#246ad5;border-color:#a8c6fb}.study-form{display:grid;gap:12px;padding:15px;border:1px solid #e3eaf5;background:#f8faff;border-radius:15px}.study-form label{display:grid;gap:6px;font-weight:650;font-size:13px}.study-form textarea{resize:vertical;box-sizing:border-box;width:100%;padding:12px;border:1px solid #d7e2f0;border-radius:10px;font:inherit;font-size:15px;background:white}.study-actions{justify-content:flex-end}.study-list{display:grid;gap:10px;margin-top:16px}.study-item{display:grid;grid-template-columns:1fr auto;gap:8px;padding:13px;border:1px solid #e3e9f3;border-radius:13px}.study-item strong{display:block;margin-bottom:6px}.study-item p{margin:4px 0;white-space:pre-wrap;overflow-wrap:anywhere;color:#5b677b}.study-item .study-item-actions{display:flex;gap:5px;align-items:start}.study-progress{color:#68758b;font-size:13px;margin:14px 0}.study-flashcard{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;width:100%;min-height:260px;padding:25px;background:linear-gradient(145deg,#fff,#f0f6ff);border:1px solid #cbdcf5;border-radius:20px;box-shadow:0 8px 22px #203c7012;cursor:pointer;white-space:pre-wrap;overflow-wrap:anywhere;text-align:center}.study-flashcard span{font-size:13px;color:#5980bb}.study-flashcard strong{font-size:clamp(19px,3vw,27px);line-height:1.55}.study-flashcard small{color:#8a97aa}.study-review-actions{justify-content:center;margin:16px 0}.study-review-actions button:disabled{opacity:.45;cursor:not-allowed}@media(max-width:700px){.study-sheet{max-height:94dvh}.study-item{grid-template-columns:1fr}.study-flashcard{min-height:210px}}
 /* V5.21 recording workspace */
 #audioPanel{padding:14px;overflow:auto;min-width:0}.audio-head{display:flex;flex-direction:column;gap:5px}.audio-head small,.audio-note{font-size:12px;color:#718098;line-height:1.5}.audio-actions{display:flex;align-items:center;gap:8px;margin:14px 0}.audio-actions .btn{white-space:nowrap}#audioClock{font-size:13px;color:#dc4253;font-variant-numeric:tabular-nums}.audio-list{display:grid;gap:12px;margin-top:16px}.audio-item{display:grid;gap:9px;padding:12px;background:white;border:1px solid #e0e8f4;border-radius:13px;min-width:0}.audio-item strong{font-size:13px;overflow-wrap:anywhere}.audio-item small{font-size:11px;color:#718098}.audio-item audio{width:100%;max-width:100%}.audio-item-actions{display:flex;gap:5px;flex-wrap:wrap}.audio-item-actions .btn{font-size:11px;padding:6px 8px}.audio-empty{font-size:12px;color:#718098;line-height:1.6}
+/* V5.22 writing focus: stronger active state and touch-friendly settings */
+#toolbar{gap:7px!important;padding:7px 13px!important;min-height:55px}
+#toolbar .tool{min-width:46px;min-height:42px;border:1px solid transparent;border-radius:13px;transition:background .12s,border-color .12s}
+#toolbar .tool.active{border-color:#b6cdfb;background:#e9f1ff;box-shadow:inset 0 0 0 1px #e2ecff}
+#penSettings{min-height:53px!important;gap:10px!important}
+#penSettings .swatch{width:28px;height:28px;flex:none}
+#penSettings .pen-preset{height:40px;min-width:54px;border-radius:12px}
+#penSettings input[type=range]{min-width:90px}
+#pencilState{white-space:nowrap}
+@media(max-width:800px){#toolbar{justify-content:flex-start!important}#penSettings{overflow-x:auto;scrollbar-width:none}}
 </style>
 </head>
 <body>
@@ -437,7 +447,7 @@ async function getPDFEngine(){
  pdfjsLib=mod;return mod;
 }
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const APP_VERSION="5.21.0";
+const APP_VERSION="5.22.0";
 document.title=`NoteCanvas V${APP_VERSION}`;
 $("#appVersion").textContent=`v${APP_VERSION}`;
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
@@ -545,25 +555,56 @@ function render(){
  for(const t of p().tapes)renderTape(t);
  renderSelection();
 }
+// V5.22: One renderer for the editor, preview, and PNG/PDF export.
+// Quadratic midpoint smoothing reduces sharp corners without altering saved points.
+const highlighterBuffer=document.createElement("canvas");
+highlighterBuffer.width=768;highlighterBuffer.height=1024;
+function inkWidth(st,point){
+ const base=st.width||4;
+ if(!st.pressure)return base;
+ const pressure=Number.isFinite(point.p)?point.p:.5;
+ const range=st.penStyle==="brush"?1.65:.95;
+ return Math.max(.45,base*(.44+Math.max(.05,Math.min(1,pressure))*range));
+}
+function paintInk(g,st){
+ const pts=st.points||[];if(!pts.length)return;
+ const hl=st.tool==="highlighter";
+ g.save();g.strokeStyle=st.color||"#20242c";g.fillStyle=g.strokeStyle;
+ g.lineCap="round";g.lineJoin="round";
+ if(!hl&&(st.pattern==="dashed"||st.pattern==="dotted")){
+  g.lineWidth=st.width||4;
+  g.setLineDash(st.pattern==="dotted"?[.1,Math.max(3,g.lineWidth*1.8)]:[Math.max(5,g.lineWidth*3),Math.max(3,g.lineWidth*1.8)]);
+  g.lineCap=st.pattern==="dotted"?"round":"butt";
+  g.beginPath();g.moveTo(pts[0].x,pts[0].y);
+  for(let i=1;i<pts.length;i++)g.lineTo(pts[i].x,pts[i].y);
+  if(pts.length===1)g.lineTo(pts[0].x+.01,pts[0].y);
+  g.stroke();g.restore();return;
+ }
+ if(pts.length===1){g.beginPath();g.arc(pts[0].x,pts[0].y,inkWidth(st,pts[0])/2,0,Math.PI*2);g.fill();g.restore();return}
+ if(hl||!st.pressure){
+  g.lineWidth=st.width||4;g.beginPath();g.moveTo(pts[0].x,pts[0].y);
+  if(hl&&st.straight){g.lineTo(pts[pts.length-1].x,pts[pts.length-1].y)}
+  else {for(let i=1;i<pts.length-1;i++){const a=pts[i],b=pts[i+1];g.quadraticCurveTo(a.x,a.y,(a.x+b.x)/2,(a.y+b.y)/2)}g.lineTo(pts[pts.length-1].x,pts[pts.length-1].y)}
+  g.stroke();g.restore();return;
+ }
+ // Pressure-sensitive stroke: overlapping short capsules are smooth at changing widths.
+ for(let i=1;i<pts.length;i++){
+  const a=pts[i-1],b=pts[i];const distance=Math.hypot(b.x-a.x,b.y-a.y);
+  const steps=Math.max(1,Math.ceil(distance/1.5));
+  for(let k=0;k<=steps;k++){
+   const t=k/steps;const x=a.x+(b.x-a.x)*t,y=a.y+(b.y-a.y)*t;
+   const radius=(inkWidth(st,a)+(inkWidth(st,b)-inkWidth(st,a))*t)/2;
+   g.beginPath();g.arc(x,y,radius,0,Math.PI*2);g.fill();
+  }
+ }
+ g.restore();
+}
 function drawStroke(stroke){
- const pts=stroke.points||[];if(!pts.length)return;
  if(stroke.tool==="highlighter"){
-  // 一整筆先畫到離屏 canvas，再以單一透明度合成，消除折點疊色。
-  const off=document.createElement("canvas");off.width=768;off.height=1024;
-  const h=off.getContext("2d");h.strokeStyle=stroke.color||"#f2d64b";
-  h.lineWidth=stroke.width||18;h.lineCap="round";h.lineJoin="round";
-  h.beginPath();h.moveTo(pts[0].x,pts[0].y);
-  for(let i=1;i<pts.length;i++)h.lineTo(pts[i].x,pts[i].y);
-  if(pts.length===1)h.lineTo(pts[0].x+.01,pts[0].y);
-  h.stroke();ctx.save();ctx.globalAlpha=stroke.alpha??.34;ctx.drawImage(off,0,0);ctx.restore();return;
+  const h=highlighterBuffer.getContext("2d");h.clearRect(0,0,768,1024);
+  paintInk(h,stroke);ctx.save();ctx.globalAlpha=stroke.alpha??.34;ctx.drawImage(highlighterBuffer,0,0);ctx.restore();return;
  }
- if(pts.length<2)return;
- ctx.save();ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle=stroke.color;ctx.globalAlpha=stroke.alpha??1;
- if(stroke.pattern==='dashed'||stroke.pattern==='dotted'){
-  ctx.lineWidth=stroke.width;ctx.setLineDash(stroke.pattern==='dotted'?[.1,Math.max(3,stroke.width*1.8)]:[Math.max(5,stroke.width*3),Math.max(3,stroke.width*1.8)]);
-  ctx.lineCap=stroke.pattern==='dotted'?'round':'butt';ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y);ctx.stroke();ctx.restore();return;
- }
- for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i];const factor=stroke.pressure?Math.max(.35,b.p||.5)*(stroke.penStyle==='brush'?1.6:1):1;ctx.lineWidth=stroke.width*factor;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}ctx.restore();
+ ctx.save();ctx.globalAlpha=stroke.alpha??1;paintInk(ctx,stroke);ctx.restore();
 }
 function drawShapeCanvas(g,o){
  const x=o.x,y=o.y,w=o.w,h=o.h,kind=o.shapeKind||'rectangle';
@@ -602,8 +643,31 @@ cv.addEventListener("pointerdown",e=>{
  else if(tool==="text"){snapshot();p().objects.push({id:uid(),type:"text",x:q.x,y:q.y,w:220,h:60,text:"輸入文字",color:$("#textColor").value,fontSize:Math.max(10,Math.min(80,+$("#textSize").value||22)),bold:$("#textBold").classList.contains("active")});render();save()}
 });
 cv.addEventListener("pointermove",e=>{
- if(!allowed(e)||activePointer!==e.pointerId)return;let q=pos(e);
- if(drawing&&currentStroke){currentStroke.points.push(q);if(tool==="highlighter"&&highlighterStraight)currentStroke.points=[currentStroke.points[0],q]; if(tool==="laser"){render();drawStroke(currentStroke)}else if(tool==="eraser"){let pts=currentStroke.points,a=pts[pts.length-2]||q,d=Math.hypot(q.x-a.x,q.y-a.y),n=Math.max(1,Math.ceil(d/Math.max(2,width*1.5)));for(let i=1;i<=n;i++){let t=i/n;eraseAt({x:a.x+(q.x-a.x)*t,y:a.y+(q.y-a.y)*t})}}else if(tool==="shape"){render();drawShapeCanvas(ctx,shapeFromDrag(currentStroke.points[0],q))}else{render();drawStroke(currentStroke);if(tool==="highlighter")for(const ink of p().strokes.filter(x=>x.tool!=="highlighter"))drawStroke(ink)}}
+ if(!allowed(e)||activePointer!==e.pointerId)return;
+ const samples=typeof e.getCoalescedEvents==="function"?e.getCoalescedEvents():[];
+ const events=samples.length?samples:[e];
+ const q=pos(e);
+ if(drawing&&currentStroke){
+  const prevLength=currentStroke.points.length;
+  if(tool==="highlighter"&&highlighterStraight){currentStroke.points=[currentStroke.points[0],q];currentStroke.straight=true}
+  else for(const sample of events){const pt=pos(sample),last=currentStroke.points[currentStroke.points.length-1];if(Math.hypot(pt.x-last.x,pt.y-last.y)>.18)currentStroke.points.push(pt)}
+  if(tool==="eraser"){
+   const pts=currentStroke.points;
+   for(let j=Math.max(1,prevLength);j<pts.length;j++){
+    const a=pts[j-1],b=pts[j],d=Math.hypot(b.x-a.x,b.y-a.y),n=Math.max(1,Math.ceil(d/Math.max(2,eraserSize*1.5)));
+    for(let i=1;i<=n;i++){const t=i/n;eraseAt({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t})}
+   }
+  }else if(tool==="shape"){render();drawShapeCanvas(ctx,shapeFromDrag(currentStroke.points[0],q))}
+  else if(tool==="pen"&&currentStroke.pattern==="solid"){
+   // Avoid expensive object DOM rebuilding on every Pencil event.
+   // Repaint canvas ink only; the finished stroke uses the same paintInk engine.
+   ctx.clearRect(0,0,768,1024);
+   for(const st of p().strokes.filter(x=>x.tool==="highlighter"))drawStroke(st);
+   for(const st of p().strokes.filter(x=>x.tool!=="highlighter"))drawStroke(st);
+   drawStroke(currentStroke);
+  }else if(tool==="laser"){render();drawStroke(currentStroke)}
+  else{render();drawStroke(currentStroke);if(tool==="highlighter")for(const ink of p().strokes.filter(x=>x.tool!=="highlighter"))drawStroke(ink)}
+ }
  if(lassoDrag){const dx=q.x-lassoDrag.start.x,dy=q.y-lassoDrag.start.y;
   for(const item of lassoDrag.strokes)item.ref.points=item.points.map(pt=>({...pt,x:pt.x+dx,y:pt.y+dy}));
   for(const item of lassoDrag.objects){item.ref.x=item.x+dx;item.ref.y=item.y+dy}render();
@@ -613,7 +677,7 @@ cv.addEventListener("pointermove",e=>{
 cv.addEventListener("pointerup",e=>{
  if(!allowed(e)||activePointer!==e.pointerId)return;activePointer=null;let q=pos(e);
  if(drawing&&currentStroke){
-   if(tool==="pen"||tool==="highlighter")p().strokes.push(currentStroke);
+   if(tool==="pen"||tool==="highlighter"){if(currentStroke.points.length===1)currentStroke.points.push({...currentStroke.points[0],x:currentStroke.points[0].x+.01});p().strokes.push(currentStroke)}
    if(tool==="shape"){let a=currentStroke.points[0];if(Math.hypot(q.x-a.x,q.y-a.y)>3)p().objects.push({id:uid(),...shapeFromDrag(a,q)})}
    if(tool==="tape"){let a=currentStroke.points[0];p().tapes.push({id:uid(),x:Math.min(a.x,q.x),y:Math.min(a.y,q.y),w:Math.max(50,Math.abs(q.x-a.x)),h:Math.max(28,Math.abs(q.y-a.y)),revealed:false})}
    currentStroke=null;drawing=false;render();save();if(tool==="eraser"&&autoPenAfterErase)setTool("pen")
@@ -940,16 +1004,10 @@ async function composePage(pg){
  }
  if(pg.bg){try{c.drawImage(await imageLoaded(pg.bg),0,0,768,1024)}catch(e){console.warn("背景載入失敗",e)}}
  for(const st of [...pg.strokes.filter(x=>x.tool==="highlighter"),...pg.strokes.filter(x=>x.tool!=="highlighter")]){
-  if(!st.points?.length)continue;
-  const target=st.tool==="highlighter"?document.createElement("canvas"):canvas;
-  if(target!==canvas){target.width=768;target.height=1024}
-  const g=target===canvas?c:target.getContext("2d");g.save();g.strokeStyle=st.color||"#20242c";
-  g.lineWidth=st.width||4;g.lineCap="round";g.lineJoin="round";g.beginPath();g.moveTo(st.points[0].x,st.points[0].y);
-  for(const pt of st.points.slice(1))g.lineTo(pt.x,pt.y);
-  if(st.points.length===1)g.lineTo(st.points[0].x+.01,st.points[0].y);
-  if(target===canvas)g.globalAlpha=st.alpha??1;
-  g.stroke();g.restore();
-  if(target!==canvas){c.save();c.globalAlpha=st.alpha??.34;c.drawImage(target,0,0);c.restore()}
+  if(st.tool==="highlighter"){
+   const off=document.createElement("canvas");off.width=768;off.height=1024;
+   paintInk(off.getContext("2d"),st);c.save();c.globalAlpha=st.alpha??.34;c.drawImage(off,0,0);c.restore();
+  }else{c.save();c.globalAlpha=st.alpha??1;paintInk(c,st);c.restore()}
  }
  for(const ob of pg.objects||[]){
   if(ob.type==="image"&&ob.src){try{c.drawImage(await imageLoaded(ob.src),ob.x,ob.y,ob.w,ob.h)}catch(e){console.warn("圖片載入失敗",e)}}
