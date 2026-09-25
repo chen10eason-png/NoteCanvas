@@ -308,6 +308,9 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 .template-color.selected{outline:3px solid #4586ef;outline-offset:2px}
 .template-actions{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}
 @media(max-width:640px){.template-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.template-actions>.btn{flex:1 1 100%}}
+
+/* V5.20: functional study-card workspace */
+.study-sheet{width:min(680px,94vw);max-height:90dvh;overflow:auto}.study-head,.study-tabs,.study-actions,.study-review-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.study-head{justify-content:space-between}.study-tabs{margin:16px 0}.study-tabs .active{background:#e7efff;color:#246ad5;border-color:#a8c6fb}.study-form{display:grid;gap:12px;padding:15px;border:1px solid #e3eaf5;background:#f8faff;border-radius:15px}.study-form label{display:grid;gap:6px;font-weight:650;font-size:13px}.study-form textarea{resize:vertical;box-sizing:border-box;width:100%;padding:12px;border:1px solid #d7e2f0;border-radius:10px;font:inherit;font-size:15px;background:white}.study-actions{justify-content:flex-end}.study-list{display:grid;gap:10px;margin-top:16px}.study-item{display:grid;grid-template-columns:1fr auto;gap:8px;padding:13px;border:1px solid #e3e9f3;border-radius:13px}.study-item strong{display:block;margin-bottom:6px}.study-item p{margin:4px 0;white-space:pre-wrap;overflow-wrap:anywhere;color:#5b677b}.study-item .study-item-actions{display:flex;gap:5px;align-items:start}.study-progress{color:#68758b;font-size:13px;margin:14px 0}.study-flashcard{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;width:100%;min-height:260px;padding:25px;background:linear-gradient(145deg,#fff,#f0f6ff);border:1px solid #cbdcf5;border-radius:20px;box-shadow:0 8px 22px #203c7012;cursor:pointer;white-space:pre-wrap;overflow-wrap:anywhere;text-align:center}.study-flashcard span{font-size:13px;color:#5980bb}.study-flashcard strong{font-size:clamp(19px,3vw,27px);line-height:1.55}.study-flashcard small{color:#8a97aa}.study-review-actions{justify-content:center;margin:16px 0}.study-review-actions button:disabled{opacity:.45;cursor:not-allowed}@media(max-width:700px){.study-sheet{max-height:94dvh}.study-item{grid-template-columns:1fr}.study-flashcard{min-height:210px}}
 </style>
 </head>
 <body>
@@ -319,7 +322,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 
 <div class="app">
  <div class="doc-tabs"><button class="doc-home" id="tabHome" title="返回文件庫">▦</button><div class="doc-tab current"><span class="doc-tab-dot">✎</span><span id="tabTitle">我的筆記</span><span class="doc-tab-close" aria-hidden="true">⌄</span></div><button class="doc-add" id="tabAdd" title="開啟其他筆記本">＋</button><div class="tab-spacer"></div><span class="tab-appname">NoteCanvas</span></div>
- <header class="nav"><button class="btn" id="back">‹ 文件</button><button class="btn" id="sideToggle" title="顯示頁面縮圖" aria-label="顯示頁面縮圖" aria-expanded="false" aria-controls="sidebar">☷</button><div class="title" id="title">我的筆記</div><div class="spacer"></div><span id="saveState" class="save-state" aria-live="polite">✓ 已儲存</span><span id="pageCount" class="page-count">1 / 1</span><button class="btn" id="readMode">◉ 閱讀</button><button class="btn" id="jumpPage" title="跳至指定頁面">⌕ 跳頁</button><button class="btn" id="addPageTop">＋ 頁面</button><button class="btn" id="bookmark">☆ 書籤</button><button class="btn" id="share">↥ 匯出</button><button class="btn" id="more">•••</button></header>
+ <header class="nav"><button class="btn" id="back">‹ 文件</button><button class="btn" id="sideToggle" title="顯示頁面縮圖" aria-label="顯示頁面縮圖" aria-expanded="false" aria-controls="sidebar">☷</button><div class="title" id="title">我的筆記</div><div class="spacer"></div><span id="saveState" class="save-state" aria-live="polite">✓ 已儲存</span><span id="pageCount" class="page-count">1 / 1</span><button class="btn" id="studyCardsOpen" title="學習卡片">▤ 學習卡片</button><button class="btn" id="readMode">◉ 閱讀</button><button class="btn" id="jumpPage" title="跳至指定頁面">⌕ 跳頁</button><button class="btn" id="addPageTop">＋ 頁面</button><button class="btn" id="bookmark">☆ 書籤</button><button class="btn" id="share">↥ 匯出</button><button class="btn" id="more">•••</button></header>
  <div class="body pages-collapsed" id="bookBody">
   <aside class="sidebar" id="sidebar">
    <div class="side-tabs"><button class="active" data-sidebar-tab="pages">▦ 頁面</button><button data-sidebar-tab="outline">☷ 大綱</button><button data-sidebar-tab="audio" title="尚未支援錄音" disabled>◉ 錄音</button></div>
@@ -399,7 +402,14 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 <div id="toolOverflow" class="tool-overflow hidden" role="menu" aria-label="更多工具"></div>
 <div id="customizeModal" class="modal hidden"><div class="sheet customize-sheet"><h3>自訂工具列</h3><p class="setting-help">勾選常用工具，使用上下箭頭調整順序。套索工具固定顯示。</p><div id="customizeList"></div><div class="customize-actions"><button class="btn" id="resetToolbar">還原預設</button><div class="spacer"></div><button class="btn primary" id="finishCustomize">完成</button></div></div></div>
 <div class="modal hidden" id="templateModal"><div class="sheet template-sheet" role="dialog" aria-modal="true" aria-labelledby="templateHeading"><div class="template-head"><h3 id="templateHeading">紙張範本</h3><button class="btn" id="closeTemplate" aria-label="關閉">✕</button></div><p class="setting-help">選擇紙張樣式及底色。已寫的內容不會被清除。</p><div class="template-grid" id="templateGrid"></div><div class="template-colors" id="templateColors"></div><div class="template-actions"><button class="btn" id="templateCurrent">套用至目前頁面</button><button class="btn" id="templateNew">＋ 使用範本新增一頁</button><button class="btn primary" id="templateAll">套用至所有非 PDF 頁面</button></div></div></div>
-<div class="modal hidden" id="trashModal"><div class="sheet trash-sheet"><h3>最近刪除的頁面</h3><p style="color:#798394;font-size:12px">已刪除頁面會保留在這本筆記本中，可隨時還原。</p><div id="trashItems"></div><div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="btn primary" id="closeTrash">完成</button></div></div></div>
+<div class="modal hidden" id="studyModal" role="dialog" aria-modal="true" aria-labelledby="studyHeading"><div class="sheet study-sheet">
+ <div class="study-head"><h3 id="studyHeading">▤ 學習卡片</h3><button class="btn" id="studyClose" aria-label="關閉學習卡片">✕</button></div>
+ <p class="setting-help">每本筆記本各自保存學習卡片。建立題目與答案後，可翻卡、自我評估並複習不熟悉的題目。</p>
+ <div class="study-tabs"><button class="chip active" data-study-tab="manage">管理卡片</button><button class="chip" data-study-tab="review">開始複習</button></div>
+ <div id="studyManage"><div class="study-form"><label>題目／正面<textarea id="studyFront" rows="2" maxlength="1000" placeholder="例如：二次函數的頂點公式？"></textarea></label><label>答案／背面<textarea id="studyBack" rows="3" maxlength="2000" placeholder="輸入答案或解釋"></textarea></label><div class="study-actions"><button class="btn" id="studyClear">清除</button><button class="btn primary" id="studySave">＋ 新增卡片</button></div></div><div class="study-list" id="studyList"></div></div>
+ <div id="studyReview" class="hidden"><div class="study-progress" id="studyProgress"></div><button id="studyFlip" class="study-flashcard" aria-label="翻轉學習卡片"><span id="studyCardSide">題目</span><strong id="studyCardText"></strong><small>點一下翻面</small></button><div class="study-review-actions"><button class="btn" id="studyAgain">還不熟悉</button><button class="btn primary" id="studyKnow">已經記住</button><button class="btn" id="studyNext">下一張 →</button></div><div class="study-actions"><label class="setting-inline"><input type="checkbox" id="studyOnlyWeak">只複習不熟悉的卡片</label><button class="btn" id="studyShuffle">重新洗牌</button></div></div>
+ </div></div>
+ <div class="modal hidden" id="trashModal"><div class="sheet trash-sheet"><h3>最近刪除的頁面</h3><p style="color:#798394;font-size:12px">已刪除頁面會保留在這本筆記本中，可隨時還原。</p><div id="trashItems"></div><div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="btn primary" id="closeTrash">完成</button></div></div></div>
 <div class="modal hidden" id="settings"><div class="sheet"><h3>文件設定</h3>
  <div class="setting"><div><b>Apple Pencil Only</b><div style="font-size:12px;color:#7d8492">手指只負責捲動、平移與縮放，不會留下筆跡。</div></div><div class="switch on" id="pencilSwitch"><i></i></div></div>
  <div class="setting"><div><b>滑動切換頁面</b><div style="font-size:12px;color:#7d8492;margin-top:4px">手指連續捲動多頁；雙指捏合縮放。Apple Pencil 繼續書寫。</div></div><select id="swipeMode" aria-label="滑動換頁方向"><option value="off">單頁（自由移動）</option><option value="horizontal">左右連續捲動</option><option value="vertical">上下連續捲動</option></select></div><div class="setting"><span>翻頁方向</span><span id="swipeHint" style="font-size:12px;color:#78859b">尚未啟用</span></div>
@@ -424,7 +434,7 @@ async function getPDFEngine(){
  pdfjsLib=mod;return mod;
 }
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const APP_VERSION="5.19.0";
+const APP_VERSION="5.20.0";
 document.title=`NoteCanvas V${APP_VERSION}`;
 $("#appVersion").textContent=`v${APP_VERSION}`;
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
@@ -1208,6 +1218,29 @@ $$('[data-shape]').forEach(b=>b.onclick=()=>{shapeKind=b.dataset.shape;$$('[data
 $('#shapeColor').oninput=e=>shapeColor=e.target.value;
 $('#shapeWidth').oninput=e=>{shapeWidth=Number(e.target.value);$('#shapeWidthValue').textContent=shapeWidth};
 $('#shapeFill').onchange=e=>shapeFill=e.target.checked;
+
+// V5.20: per-notebook study cards, persisted through the existing IndexedDB book record.
+let studyEditId=null,studyTab="manage",studyDeck=[],studyCursor=0,studyRevealed=false;
+const studyCards=()=>{if(!book)return [];if(!Array.isArray(book.studyCards))book.studyCards=[];return book.studyCards};
+const studySaveBook=()=>{if(book)save()};
+function renderStudyList(){const root=$("#studyList");root.replaceChildren();const cards=studyCards();if(!cards.length){const e=document.createElement("p");e.className="setting-help";e.textContent="還沒有卡片。輸入題目和答案，建立第一張學習卡片。";root.append(e);return}
+ for(const c of cards){const row=document.createElement("div");row.className="study-item";const body=document.createElement("div");const title=document.createElement("strong");title.textContent=c.front;const ans=document.createElement("p");ans.textContent=c.back;const status=document.createElement("small");status.textContent=c.weak?"◌ 需要再複習":"✓ 已記住";body.append(title,ans,status);const actions=document.createElement("div");actions.className="study-item-actions";const edit=document.createElement("button");edit.className="btn";edit.textContent="編輯";edit.onclick=()=>{studyEditId=c.id;$("#studyFront").value=c.front;$("#studyBack").value=c.back;$("#studySave").textContent="儲存修改";$("#studyFront").focus()};const del=document.createElement("button");del.className="btn";del.textContent="刪除";del.onclick=()=>{if(!confirm("確定刪除這張學習卡片？"))return;book.studyCards=studyCards().filter(x=>x.id!==c.id);if(studyEditId===c.id)resetStudyForm();studySaveBook();renderStudyList()};actions.append(edit,del);row.append(body,actions);root.append(row)}
+}
+function resetStudyForm(){studyEditId=null;$("#studyFront").value="";$("#studyBack").value="";$("#studySave").textContent="＋ 新增卡片"}
+function showStudyTab(tab){studyTab=tab;$$('[data-study-tab]').forEach(b=>b.classList.toggle('active',b.dataset.studyTab===tab));$("#studyManage").classList.toggle("hidden",tab!=="manage");$("#studyReview").classList.toggle("hidden",tab!=="review");if(tab==="review")buildStudyDeck()}
+function buildStudyDeck(){studyDeck=studyCards().filter(c=>!$("#studyOnlyWeak").checked||c.weak).map(c=>c.id);for(let i=studyDeck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[studyDeck[i],studyDeck[j]]=[studyDeck[j],studyDeck[i]]}studyCursor=0;studyRevealed=false;renderStudyReview()}
+function renderStudyReview(){const c=studyCards().find(x=>x.id===studyDeck[studyCursor]);$("#studyProgress").textContent=c?`第 ${studyCursor+1} / ${studyDeck.length} 張 · ${studyCards().filter(x=>x.weak).length} 張需要複習`:(studyCards().length?"本輪複習完成，或沒有符合條件的卡片。":"請先建立學習卡片。");$("#studyCardSide").textContent=studyRevealed?"答案":"題目";$("#studyCardText").textContent=c?(studyRevealed?c.back:c.front):"沒有待複習的卡片";$("#studyFlip").disabled=!c;$("#studyKnow").disabled=!c||!studyRevealed;$("#studyAgain").disabled=!c||!studyRevealed;$("#studyNext").disabled=!c}
+$("#studyCardsOpen").onclick=()=>{if(!book)return;resetStudyForm();renderStudyList();showStudyTab("manage");$("#studyModal").classList.remove("hidden")};
+$("#studyClose").onclick=()=>$("#studyModal").classList.add("hidden");
+$("#studyModal").addEventListener("click",e=>{if(e.target.id==="studyModal")$("#studyModal").classList.add("hidden")});
+$$('[data-study-tab]').forEach(b=>b.onclick=()=>showStudyTab(b.dataset.studyTab));
+$("#studyClear").onclick=resetStudyForm;
+$("#studySave").onclick=()=>{const front=$("#studyFront").value.trim(),back=$("#studyBack").value.trim();if(!front||!back){toast("請填寫題目和答案");return}if(studyEditId){const c=studyCards().find(x=>x.id===studyEditId);if(c){c.front=front;c.back=back}}else studyCards().push({id:uid(),front,back,weak:true});studySaveBook();resetStudyForm();renderStudyList();toast("學習卡片已儲存")};
+$("#studyFlip").onclick=()=>{studyRevealed=!studyRevealed;renderStudyReview()};
+$("#studyNext").onclick=()=>{studyCursor++;studyRevealed=false;renderStudyReview()};
+function rateStudyCard(weak){const c=studyCards().find(x=>x.id===studyDeck[studyCursor]);if(!c||!studyRevealed)return;c.weak=weak;studySaveBook();studyCursor++;studyRevealed=false;renderStudyReview()}
+$("#studyAgain").onclick=()=>rateStudyCard(true);$("#studyKnow").onclick=()=>rateStudyCard(false);
+$("#studyShuffle").onclick=buildStudyDeck;$("#studyOnlyWeak").onchange=buildStudyDeck;
 
 init();
 </script>
