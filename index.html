@@ -59,7 +59,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
   </aside>
   <main class="editor">
    <div class="toolbar" id="toolbar">
-    <button class="tool" data-tool="lasso">◌ 套索</button><button class="tool active" data-tool="pen">✎ 筆</button><button class="tool" data-tool="eraser">⌫</button><button class="tool" data-tool="highlighter">▰</button><button class="tool" data-tool="shape">◇</button><button class="tool" data-tool="tape">▱ 膠帶</button><button class="tool" data-tool="image">▧ 圖片</button><button class="tool" data-tool="text">T</button><button class="tool" data-tool="element">✦ 元素</button><button class="tool" data-tool="laser">⌁</button><button class="tool" id="exportPDF">PDF ↥</button><div class="spacer"></div><button class="tool" id="undo">↶</button><button class="tool" id="redo">↷</button>
+    <button class="tool" data-tool="lasso">◌ 套索</button><button class="tool active" data-tool="pen">✎ 筆</button><button class="tool" data-tool="eraser">⌫ 區域橡皮擦</button><button class="tool" data-tool="highlighter">▰</button><button class="tool" data-tool="shape">◇</button><button class="tool" data-tool="tape">▱ 膠帶</button><button class="tool" data-tool="image">▧ 圖片</button><button class="tool" data-tool="text">T</button><button class="tool" data-tool="element">✦ 元素</button><button class="tool" data-tool="laser">⌁</button><button class="tool" id="exportPDF">PDF ↥</button><div class="spacer"></div><button class="tool" id="undo">↶</button><button class="tool" id="redo">↷</button>
    </div>
    <div class="subbar">
     <button class="chip active" data-pen="fountain">鋼筆</button><button class="chip" data-pen="ball">原子筆</button><button class="chip" data-pen="brush">畫筆</button>
@@ -142,13 +142,13 @@ function showPointer(e){
 cv.addEventListener("pointerdown",e=>{
  showPointer(e);if(!allowed(e)){return} e.preventDefault();activePointer=e.pointerId; try{cv.setPointerCapture(e.pointerId)}catch(_){}
  let q=pos(e);
- if(tool==="pen"||tool==="highlighter"||tool==="eraser"||tool==="shape"||tool==="tape"||tool==="laser"){drawing=true;snapshot();currentStroke={id:uid(),tool,color:tool==="highlighter"?"#f2c94c":color,width:tool==="highlighter"?width*3:width,alpha:tool==="highlighter"?.3:1,pressure:tool==="pen",points:[q]};}
+ if(tool==="pen"||tool==="highlighter"||tool==="eraser"||tool==="shape"||tool==="tape"||tool==="laser"){drawing=true;snapshot();currentStroke={id:uid(),tool,color:tool==="highlighter"?"#f2c94c":color,width:tool==="highlighter"?width*3:width,alpha:tool==="highlighter"?.3:1,pressure:tool==="pen",points:[q]};if(tool==="eraser")eraseAt(q);}
  else if(tool==="lasso"){lassoStart=q;let b=document.createElement("div");b.id="lasso";b.className="lassoBox";ov.appendChild(b)}
  else if(tool==="text"){snapshot();p().objects.push({id:uid(),type:"text",x:q.x,y:q.y,w:220,h:60,text:"輸入文字",color});render();save()}
 });
 cv.addEventListener("pointermove",e=>{
  if(!allowed(e)||activePointer!==e.pointerId)return;let q=pos(e);
- if(drawing&&currentStroke){currentStroke.points.push(q); if(tool==="laser"){render();drawStroke(currentStroke)}else if(tool==="eraser"){eraseAt(q)}else{render();drawStroke(currentStroke)}}
+ if(drawing&&currentStroke){currentStroke.points.push(q); if(tool==="laser"){render();drawStroke(currentStroke)}else if(tool==="eraser"){let pts=currentStroke.points,a=pts[pts.length-2]||q,d=Math.hypot(q.x-a.x,q.y-a.y),n=Math.max(1,Math.ceil(d/Math.max(2,width*1.5)));for(let i=1;i<=n;i++){let t=i/n;eraseAt({x:a.x+(q.x-a.x)*t,y:a.y+(q.y-a.y)*t})}}else{render();drawStroke(currentStroke)}}
  if(lassoStart){let x=Math.min(q.x,lassoStart.x),y=Math.min(q.y,lassoStart.y),w=Math.abs(q.x-lassoStart.x),h=Math.abs(q.y-lassoStart.y),b=$("#lasso");Object.assign(b.style,{left:x+"px",top:y+"px",width:w+"px",height:h+"px"});}
 });
 cv.addEventListener("pointerup",e=>{
@@ -184,7 +184,37 @@ cv.addEventListener("touchmove",e=>{
 }, {passive:false});
 cv.addEventListener("touchend",()=>{touchPan=null},{passive:true});
 cv.addEventListener("touchcancel",()=>{touchPan=null},{passive:true});
-function eraseAt(q){p().strokes=p().strokes.filter(s=>!s.points.some(a=>Math.hypot(a.x-q.x,a.y-q.y)<width*3));render()}
+// 區域橡皮擦：依筆尖掃過的圓形範圍切開向量筆跡，而非刪掉整條筆畫。
+function eraseAt(q){
+ const radius=Math.max(5,width*3), next=[];
+ for(const stroke of p().strokes){
+  const pts=stroke.points||[];
+  if(!pts.length)continue;
+  // 將筆跡細分，避免快速畫出的長線只檢查端點而擦不掉中段。
+  const samples=[pts[0]];
+  for(let i=1;i<pts.length;i++){
+   const a=pts[i-1],b=pts[i],dist=Math.hypot(b.x-a.x,b.y-a.y);
+   const count=Math.max(1,Math.ceil(dist/2));
+   for(let k=1;k<=count;k++){
+    const t=k/count;
+    samples.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t,p:(a.p||.5)+((b.p||.5)-(a.p||.5))*t});
+   }
+  }
+  let run=[],changed=false;
+  function flush(){
+   if(run.length>=2)next.push({...stroke,id:uid(),points:run});
+   run=[];
+  }
+  for(const pt of samples){
+   const hit=Math.hypot(pt.x-q.x,pt.y-q.y)<=radius+(stroke.width||1)*.35;
+   if(hit){changed=true;flush()}else run.push(pt);
+  }
+  if(changed)flush();
+  else next.push(stroke); // 保留原始資料，避免未碰到的筆跡被重新取樣
+ }
+ p().strokes=next;
+ render();
+}
 function selectInRect(a,b){let x1=Math.min(a.x,b.x),x2=Math.max(a.x,b.x),y1=Math.min(a.y,b.y),y2=Math.max(a.y,b.y);selectedIds.clear();for(const o of p().objects){if(o.x>=x1&&o.y>=y1&&o.x+o.w<=x2&&o.y+o.h<=y2)selectedIds.add(o.id)}for(const s of p().strokes){if(s.points.some(q=>q.x>=x1&&q.x<=x2&&q.y>=y1&&q.y<=y2))selectedIds.add(s.id)}toast(selectedIds.size?`已選取 ${selectedIds.size} 個物件`:"沒有選到物件")}
 function renderObject(o){
  let d=document.createElement("div");d.className="obj"+(selectedIds.has(o.id)?" selected":"");d.dataset.id=o.id;Object.assign(d.style,{left:o.x+"px",top:o.y+"px",width:o.w+"px",height:o.h+"px"});

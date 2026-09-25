@@ -1,1 +1,2 @@
 V5: fixes blocking PDF CDN module import (the entire app failed when offline/CDN blocked), adds missing service worker and manifest, Pencil diagnostics. Pencil hardware must be verified on iPad Safari. Do not overwrite V4 until tested.
+\nV5.1: Region eraser splits vector strokes at the pencil tip radius, preserving untouched stroke portions. Pencil-only remains enabled.\n
