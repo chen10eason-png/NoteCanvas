@@ -1,1 +1,1 @@
-NoteCanvas V4.1: Fix Apple Pencil input by setting canvas touch-action:none before pointerdown, handling touch panning separately, and retaining partial strokes on pointercancel. Apple Pencil requires iPad Safari hardware testing.\n
+V5: fixes blocking PDF CDN module import (the entire app failed when offline/CDN blocked), adds missing service worker and manifest, Pencil diagnostics. Pencil hardware must be verified on iPad Safari. Do not overwrite V4 until tested.

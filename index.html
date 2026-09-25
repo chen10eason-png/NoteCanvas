@@ -85,9 +85,19 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 </div></div>
 
 
+<script>
+window.addEventListener('error', e=>{let n=document.getElementById('pencilState');if(n)n.textContent='程式錯誤：'+e.message;});
+window.addEventListener('unhandledrejection', e=>{let n=document.getElementById('pencilState');if(n)n.textContent='載入失敗：'+String(e.reason).slice(0,90);});
+</script>
 <script type="module">
-import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs";
-pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+// PDF engine is optional: never block notebook or Pencil input if CDN is offline.
+let pdfjsLib=null;
+async function getPDFEngine(){
+ if(pdfjsLib)return pdfjsLib;
+ const mod=await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs');
+ mod.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs';
+ pdfjsLib=mod;return mod;
+}
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
 let tool="pen",color="#20242c",width=4,penStyle="fountain",pencilOnly=true,zoom=1;
@@ -204,10 +214,11 @@ $("#share").onclick=()=>{render();let out=document.createElement("canvas");out.w
 $("#exportPDF").onclick=()=>{toast("列印版目前只包含手寫筆跡；PDF 底圖請使用 PNG 匯出");const w=window.open("","_blank");if(!w){toast("請允許彈出視窗");return}const pageImgs=book.pages.map(pg=>{const c=document.createElement("canvas");c.width=768;c.height=1024;const x=c.getContext("2d");x.fillStyle="white";x.fillRect(0,0,768,1024);if(pg.paper==="grid"){x.strokeStyle="#e9edf4";for(let k=0;k<768;k+=28){x.beginPath();x.moveTo(k,0);x.lineTo(k,1024);x.stroke()}for(let k=0;k<1024;k+=28){x.beginPath();x.moveTo(0,k);x.lineTo(768,k);x.stroke()}}pg.strokes.forEach(s=>{x.strokeStyle=s.color;x.globalAlpha=s.alpha??1;x.lineWidth=s.width;x.lineCap="round";x.lineJoin="round";x.beginPath();s.points.forEach((pt,i)=>i?x.lineTo(pt.x,pt.y):x.moveTo(pt.x,pt.y));x.stroke();x.globalAlpha=1});return c.toDataURL("image/png")});w.document.write('<html><head><title>列印筆記</title><style>@page{size:A4;margin:0}body{margin:0}img{display:block;width:100%;height:100vh;object-fit:contain;page-break-after:always}</style></head><body>'+pageImgs.map(src=>'<img src="'+src+'">').join('')+'</body></html>');w.document.close();w.onload=()=>w.print();};
 $("#newBook").onclick=async()=>{let title=prompt("筆記本名稱","新筆記本");if(!title)return;let b=defaultBook();b.title=title;await put(b);renderLibrary()};
 $("#importHome").onclick=()=>$("#filePDF").click();$("#importPDF").onclick=()=>$("#filePDF").click();
-$("#filePDF").onchange=async e=>{let f=e.target.files[0];if(!f)return;toast("正在匯入 PDF…");let data=new Uint8Array(await f.arrayBuffer()),pdf=await pdfjsLib.getDocument({data}).promise,pages=[];for(let i=1;i<=pdf.numPages;i++){let pg=await pdf.getPage(i),vp=pg.getViewport({scale:1.5}),c=document.createElement("canvas");c.width=vp.width;c.height=vp.height;await pg.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;let np=newPage();np.paper="";np.bg=c.toDataURL("image/jpeg",.88);pages.push(np)}if(book){book.pages.splice(pageIndex+1,0,...pages);pageIndex++;loadPage()}else{let b=defaultBook();b.title=f.name.replace(/\.pdf$/i,"");b.pages=pages;await put(b);renderLibrary()}toast(`已匯入 ${pages.length} 頁 PDF`)};
+$("#filePDF").onchange=async e=>{let f=e.target.files[0];if(!f)return;toast("正在匯入 PDF…");let engine;try{engine=await getPDFEngine()}catch(err){toast('PDF 元件無法載入，請檢查網路');return}
+let data=new Uint8Array(await f.arrayBuffer()),pdf=await engine.getDocument({data}).promise,pages=[];for(let i=1;i<=pdf.numPages;i++){let pg=await pdf.getPage(i),vp=pg.getViewport({scale:1.5}),c=document.createElement("canvas");c.width=vp.width;c.height=vp.height;await pg.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;let np=newPage();np.paper="";np.bg=c.toDataURL("image/jpeg",.88);pages.push(np)}if(book){book.pages.splice(pageIndex+1,0,...pages);pageIndex++;loadPage()}else{let b=defaultBook();b.title=f.name.replace(/\.pdf$/i,"");b.pages=pages;await put(b);renderLibrary()}toast(`已匯入 ${pages.length} 頁 PDF`)};
 $("#customize").onclick=()=>toast("工具列可依常用工具排序；此版本先保留完整工具列");
 $("#librarySearch").oninput=()=>renderLibrary();$("#librarySort").onchange=()=>renderLibrary();$$('[data-filter]').forEach(el=>el.onclick=()=>{libraryFilter=el.dataset.filter;$$('[data-filter]').forEach(x=>x.classList.toggle('active',x===el));if(libraryFilter==='search')$("#librarySearch").focus();renderLibrary()});
-if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
 init();
 </script>
 </body></html>
