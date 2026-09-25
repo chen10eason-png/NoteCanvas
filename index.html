@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=yes">
 <meta name="theme-color" content="#f7f8fb">
 <link rel="manifest" href="manifest.webmanifest">
-<title>NoteCanvas V5.8</title>
+<title>NoteCanvas V5.12</title>
 <style>
 :root{--bg:#f4f5f8;--card:#fff;--ink:#20242c;--muted:#7d8492;--line:#e3e5ea;--blue:#3478f6;--blue2:#eaf2ff;--shadow:0 8px 28px #1d273514}
 *{box-sizing:border-box}html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI","Noto Sans TC",sans-serif;color:var(--ink);background:var(--bg);overscroll-behavior:none}
@@ -207,6 +207,25 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 .continuous-slot>.page{position:absolute;top:0;left:0;transform-origin:top left;box-shadow:none;}
 .page-preview{width:100%;height:100%;display:block;object-fit:fill;pointer-events:none;}
 @media(max-width:800px){.canvas-space.continuous-pages{padding:20px 28px 90px;min-width:0;}}
+
+/* v5.12: compact floating-feel editing chrome */
+.doc-tabs{background:#e9edf4;padding-left:18px}.doc-tab{box-shadow:0 -2px 10px #22395810}
+.nav{background:#fff;box-shadow:0 1px 4px #16223b09}.nav .title{font-weight:700;letter-spacing:-.25px}
+.editor{background:#e8ebf0}.toolbar{margin:7px auto 6px;width:max-content;max-width:calc(100% - 24px);border:1px solid #e4e8ef;border-radius:17px;box-shadow:0 4px 18px #1b294020;background:#ffffffef;backdrop-filter:blur(20px);overflow-x:auto;justify-content:flex-start;padding:4px 7px;min-height:58px}
+.tool[data-tool]{min-width:53px;height:47px;position:relative}.tool[data-tool].active{background:#e8f0ff;box-shadow:inset 0 0 0 1px #d6e5ff}
+.tool[data-tool].active:after{content:'';position:absolute;bottom:3px;left:17px;right:17px;height:2px;background:#3277f3;border-radius:3px}
+.tool-symbol{font-size:23px}.tool-label{font-size:10px;letter-spacing:.05px}
+.subbar{background:#ffffffed;backdrop-filter:blur(14px);padding:7px 16px;gap:9px;justify-content:center;min-height:50px}
+.setting-caption{font-size:11px;color:#8b94a3;font-weight:650;white-space:nowrap}
+.subbar-divider{width:1px;height:23px;background:#e4e7ed;flex:none;margin:0 3px}
+#width{width:88px;min-width:64px}#widthValue{min-width:18px;font-size:11px;color:#5e6c80;font-variant-numeric:tabular-nums}
+.color-custom{height:26px;width:26px;border:1px dashed #9aa8be;border-radius:50%;background:#fff;color:#5274a9;font-size:19px;line-height:22px;flex:none;cursor:pointer}
+.pen-preset{display:flex;align-items:center;justify-content:center;gap:5px;height:31px;min-width:41px;border:1px solid #e1e5ed;border-radius:10px;background:#fff;cursor:pointer}
+.pen-preset.selected{border-color:#72a3f4;background:#edf4ff}.pen-preset i{display:block;border-radius:50%;width:10px;height:10px}.pen-preset span{font-size:10px;color:#778398}
+.paper-colors{display:flex;gap:8px}.paper-color{width:29px;height:29px;border-radius:50%;border:1px solid #cdd3dd;cursor:pointer}.paper-color.selected{outline:2px solid #3c7cf1;outline-offset:2px}
+#pencilState{background:#eaf6f0;border-color:#d6e9de;color:#398166}
+.viewport{background:#e8ebf0}
+@media(max-width:950px){.toolbar{margin:4px 7px 5px;max-width:calc(100% - 14px)}.subbar{justify-content:flex-start}.setting-caption{display:none}}
 </style>
 </head>
 <body>
@@ -227,13 +246,14 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
   </aside>
   <main class="editor">
    <div class="toolbar" id="toolbar">
-    <button class="tool" data-tool="lasso"><span class="tool-symbol">◌</span><span class="tool-label">套索</span></button><button class="tool active" data-tool="pen"><span class="tool-symbol">✎</span><span class="tool-label">鋼筆</span></button><button class="tool" data-tool="eraser"><span class="tool-symbol">⌫</span><span class="tool-label">橡皮擦</span></button><button class="tool" data-tool="highlighter"><span class="tool-symbol">▰</span><span class="tool-label">螢光筆</span></button><button class="tool" data-tool="shape"><span class="tool-symbol">◇</span><span class="tool-label">圖形</span></button><button class="tool" data-tool="tape"><span class="tool-symbol">▱</span><span class="tool-label">膠帶</span></button><button class="tool" data-tool="image"><span class="tool-symbol">▧</span><span class="tool-label">圖片</span></button><button class="tool" data-tool="text"><span class="tool-symbol">T</span><span class="tool-label">文字</span></button><button class="tool" data-tool="element"><span class="tool-symbol">✦</span><span class="tool-label">元素</span></button><button class="tool" data-tool="laser"><span class="tool-symbol">⌁</span><span class="tool-label">雷射筆</span></button><button class="tool" id="toolbarMore" title="更多工具">⋯<span class="tool-label">更多</span></button><button class="tool" id="exportPDF">PDF ↥</button><button class="tool hidden" id="lassoMove">↔ 移動選取</button><button class="tool hidden" id="lassoCopy">▢ 複製選取</button><button class="tool hidden" id="lassoDelete">⌫ 刪除選取</button><div class="spacer"></div><button class="tool" id="undo">↶</button><button class="tool" id="redo">↷</button>
+    <button class="tool" data-tool="lasso"><span class="tool-symbol">◌</span><span class="tool-label">套索</span></button><button class="tool active" data-tool="pen"><span class="tool-symbol">✎</span><span class="tool-label">鋼筆</span></button><button class="tool" data-tool="eraser"><span class="tool-symbol">⌫</span><span class="tool-label">橡皮擦</span></button><button class="tool" data-tool="highlighter"><span class="tool-symbol">▰</span><span class="tool-label">螢光筆</span></button><button class="tool" data-tool="shape"><span class="tool-symbol">◇</span><span class="tool-label">圖形</span></button><button class="tool" data-tool="tape"><span class="tool-symbol">▱</span><span class="tool-label">膠帶</span></button><button class="tool" data-tool="image"><span class="tool-symbol">▧</span><span class="tool-label">圖片</span></button><button class="tool" data-tool="text"><span class="tool-symbol">T</span><span class="tool-label">文字</span></button><button class="tool" data-tool="element"><span class="tool-symbol">✦</span><span class="tool-label">元素</span></button><button class="tool" data-tool="laser"><span class="tool-symbol">⌁</span><span class="tool-label">雷射筆</span></button><button class="tool" id="toolbarMore" title="更多工具">⋯<span class="tool-label">更多</span></button><button class="tool" id="exportPDF" title="匯出 PDF"><span class="tool-symbol">↥</span><span class="tool-label">PDF</span></button><button class="tool hidden" id="lassoMove">↔ 移動選取</button><button class="tool hidden" id="lassoCopy">▢ 複製選取</button><button class="tool hidden" id="lassoDelete">⌫ 刪除選取</button><div class="spacer"></div><button class="tool" id="undo">↶</button><button class="tool" id="redo">↷</button>
    </div>
-   <div class="subbar">
+   <div class="subbar" id="penSettings">
+    <span class="setting-caption">筆尖</span>
     <button class="chip active" data-pen="fountain">鋼筆</button><button class="chip" data-pen="ball">原子筆</button><button class="chip" data-pen="brush">畫筆</button>
-    <span>粗細</span><input id="width" type="range" min="1" max="18" value="4">
+    <span class="setting-caption">粗細</span><input id="width" type="range" min="1" max="18" value="4" aria-label="筆尖粗細"><output id="widthValue" for="width">4</output><span class="subbar-divider"></span>
     <button class="swatch active" data-color="#20242c" style="background:#20242c"></button><button class="swatch" data-color="#3578f6" style="background:#3578f6"></button><button class="swatch" data-color="#ef5a5a" style="background:#ef5a5a"></button><button class="swatch" data-color="#28a66a" style="background:#28a66a"></button><button class="swatch" data-color="#f2c94c" style="background:#f2c94c"></button>
-    <div class="spacer"></div><span id="pencilState"> Pencil Only</span>
+    <button class="color-custom" id="customColorBtn" title="自訂筆色" aria-label="自訂筆色">＋</button><input type="color" id="customColor" value="#20242c" class="hidden" aria-label="選擇自訂顏色"><span class="subbar-divider"></span><span class="setting-caption">常用筆</span><button class="pen-preset" data-preset="0" title="儲存或套用常用筆 1"><i></i><span>1</span></button><button class="pen-preset" data-preset="1" title="儲存或套用常用筆 2"><i></i><span>2</span></button><button class="pen-preset" data-preset="2" title="儲存或套用常用筆 3"><i></i><span>3</span></button><div class="spacer"></div><span id="pencilState"> Pencil Only</span>
    </div>
    <div class="highlighter-settings hidden" id="highlighterSettings"><span>螢光筆</span><button type="button" class="hl-color selected" data-hl="#f2d64b" style="background:#f2d64b" aria-label="黃色"></button><button type="button" class="hl-color" data-hl="#9be3a0" style="background:#9be3a0" aria-label="綠色"></button><button type="button" class="hl-color" data-hl="#f7a4c6" style="background:#f7a4c6" aria-label="粉色"></button><button type="button" class="hl-color" data-hl="#9bc8fc" style="background:#9bc8fc" aria-label="藍色"></button><label>粗細 <input id="hlWidth" type="range" min="8" max="40" value="18"></label><label class="hl-straight"><input type="checkbox" id="hlStraight"> 直線模式</label></div>
    <div class="viewport" id="viewport" aria-label="筆記頁面">
@@ -260,6 +280,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  <div class="setting"><div><b>Apple Pencil Only</b><div style="font-size:12px;color:#7d8492">手指只負責捲動、平移與縮放，不會留下筆跡。</div></div><div class="switch on" id="pencilSwitch"><i></i></div></div>
  <div class="setting"><div><b>滑動切換頁面</b><div style="font-size:12px;color:#7d8492;margin-top:4px">手指連續捲動多頁；雙指捏合縮放。Apple Pencil 繼續書寫。</div></div><select id="swipeMode" aria-label="滑動換頁方向"><option value="off">單頁（自由移動）</option><option value="horizontal">左右連續捲動</option><option value="vertical">上下連續捲動</option></select></div><div class="setting"><span>翻頁方向</span><span id="swipeHint" style="font-size:12px;color:#78859b">尚未啟用</span></div>
  <div class="setting"><span>紙張</span><select id="paperType"><option value="grid">方格</option><option value="lines">橫線</option><option value="dots">點陣</option><option value="">空白</option></select></div>
+ <div class="setting"><div><b>紙張顏色</b><div class="setting-help">適用於目前頁面</div></div><div class="paper-colors"><button class="paper-color" data-paper-color="#ffffff" title="白色" style="background:#fff"></button><button class="paper-color" data-paper-color="#fff9e9" title="奶油色" style="background:#fff9e9"></button><button class="paper-color" data-paper-color="#f0f6ff" title="淺藍色" style="background:#f0f6ff"></button><button class="paper-color" data-paper-color="#f3f5f7" title="淺灰色" style="background:#f3f5f7"></button></div></div>
  <div class="setting"><span>垃圾桶</span><button class="btn" id="openTrash">查看已刪除頁面</button></div><div class="setting"><span>工具列自訂</span><button class="btn" id="customize">調整</button></div>
  <div style="display:flex;justify-content:flex-end;margin-top:16px"><button class="btn primary" id="closeSettings">完成</button></div>
 </div></div>
@@ -279,7 +300,7 @@ async function getPDFEngine(){
  pdfjsLib=mod;return mod;
 }
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const APP_VERSION="5.11.0";
+const APP_VERSION="5.12.0";
 document.title=`NoteCanvas V${APP_VERSION}`;
 $("#appVersion").textContent=`v${APP_VERSION}`;
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
@@ -376,7 +397,7 @@ async function save(){
   toast("儲存失敗，請先備份筆記本");console.error(err);
  }
 }
-function loadPage(){$("#pageCount").textContent=`${pageIndex+1} / ${book.pages.length}`;document.body.classList.remove("pen-active");selectedIds.clear();updateLassoActions();history=[];future=[];pageEl.className="page "+(p().paper||"");$("#pdfBg").classList.toggle("hidden",!p().bg);if(p().bg)$("#pdfBg").src=p().bg;render();renderThumbs();$("#bookmark").textContent=p().bookmark?"★ 已收藏":"☆ 書籤";renderThumbs();save()}
+function loadPage(){$("#pageCount").textContent=`${pageIndex+1} / ${book.pages.length}`;document.body.classList.remove("pen-active");selectedIds.clear();updateLassoActions();history=[];future=[];pageEl.className="page "+(p().paper||"");pageEl.style.backgroundColor=p().paperColor||"#fff";$("#pdfBg").classList.toggle("hidden",!p().bg);if(p().bg)$("#pdfBg").src=p().bg;render();renderThumbs();$("#bookmark").textContent=p().bookmark?"★ 已收藏":"☆ 書籤";renderThumbs();save()}
 function render(){
  ctx.clearRect(0,0,768,1024);
  // 螢光筆先繪製，再畫一般墨水，讓字跡清楚浮在標記上方。
@@ -850,6 +871,32 @@ $("#tabHome").onclick=()=>$("#back").click();
 $("#tabAdd").onclick=()=>$("#back").click();
 const baseLoadPage=loadPage;
 loadPage=function(){baseLoadPage();if(!continuousSwitching)buildContinuousPages(true)};
+
+// V5.12: Quick pen presets, explicit numeric size and per-page paper tint.
+const presetKey="notecanvas.penPresets.v1";
+let penPresets=[];
+try{const stored=JSON.parse(localStorage.getItem(presetKey)||"null");if(Array.isArray(stored))penPresets=stored.slice(0,3)}catch(_){}
+if(!penPresets.length)penPresets=[{color:"#20242c",width:4,penStyle:"fountain"},{color:"#3578f6",width:3,penStyle:"ball"},{color:"#ef5a5a",width:5,penStyle:"fountain"}];
+function updatePresetButtons(){
+ $$(".pen-preset").forEach((b,i)=>{const v=penPresets[i];b.querySelector("i").style.background=v.color;b.querySelector("i").style.width=Math.min(18,7+v.width)+"px";b.querySelector("i").style.height=Math.min(18,7+v.width)+"px";b.classList.toggle("selected",v.color===color&&v.width===width&&v.penStyle===penStyle)});
+ $("#widthValue").textContent=String(width);
+}
+function setInkColor(next){color=next;$("#customColor").value=next;$$('.swatch').forEach(b=>b.classList.toggle('active',b.dataset.color===next));updatePresetButtons()}
+$$(".pen-preset").forEach(b=>{
+ b.onclick=()=>{const v=penPresets[+b.dataset.preset];penStyle=v.penStyle;width=v.width;$("#width").value=width;setInkColor(v.color);$$('[data-pen]').forEach(x=>x.classList.toggle('active',x.dataset.pen===penStyle));setTool('pen');toast(`已切換常用筆 ${+b.dataset.preset+1}`)};
+ b.oncontextmenu=e=>{e.preventDefault();savePreset(+b.dataset.preset)};
+ let hold; b.addEventListener('touchstart',()=>{hold=setTimeout(()=>{hold=null;savePreset(+b.dataset.preset)},650)},{passive:true});
+ for(const name of ['touchend','touchcancel','touchmove'])b.addEventListener(name,()=>{if(hold)clearTimeout(hold);hold=null},{passive:true});
+});
+function savePreset(i){penPresets[i]={color,width,penStyle};try{localStorage.setItem(presetKey,JSON.stringify(penPresets))}catch(_){}updatePresetButtons();toast(`已儲存常用筆 ${i+1}`)}
+$("#customColorBtn").onclick=()=>$("#customColor").click();
+$("#customColor").oninput=e=>setInkColor(e.target.value);
+$("#width").addEventListener('input',updatePresetButtons);
+$$('.swatch').forEach(b=>b.addEventListener('click',updatePresetButtons));
+$$('[data-pen]').forEach(b=>b.addEventListener('click',updatePresetButtons));
+$$('.paper-color').forEach(b=>b.onclick=()=>{if(!book)return;snapshot();p().paperColor=b.dataset.paperColor;pageEl.style.backgroundColor=p().paperColor;$$('.paper-color').forEach(x=>x.classList.toggle('selected',x===b));save();toast('已更新目前頁面的紙張顏色')});
+updatePresetButtons();
+
 init();
 </script>
 </body></html>
