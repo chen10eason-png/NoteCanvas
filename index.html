@@ -280,6 +280,18 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 .pen-preset{min-width:48px;height:37px}
 .preset-edit-toggle{white-space:nowrap;border:1px solid #cdddf7!important;background:#f3f7ff!important;border-radius:9px!important;font-weight:700!important;min-height:36px}
 @media(max-width:680px){.preset-manager-row{flex-wrap:wrap}.preset-manager-detail{flex-basis:calc(100% - 50px)}.preset-manager-row .btn{flex:1}}
+
+/* V5.16: calm iPad toolbar and explicit preset editing */
+#toolbar{gap:5px!important;padding:8px 12px!important;background:linear-gradient(180deg,#ffffff,#f7faff)!important;border-bottom:1px solid #dce5f3!important;box-shadow:0 2px 12px #213b620b}
+#toolbar .tool{border-radius:12px!important;transition:background .12s ease,box-shadow .12s ease;min-height:44px}
+#toolbar .tool.active{background:#e9f1ff!important;box-shadow:inset 0 0 0 1px #bcd4ff;color:#2364c9!important}
+#toolbar .tool:focus-visible,.pen-preset:focus-visible,.swatch:focus-visible{outline:3px solid #8db9ff;outline-offset:2px}
+#penSettings,#highlighterSettings,.context-settings{background:#fff!important;border-bottom:1px solid #e2e9f4!important;padding:8px 12px!important;gap:8px!important;align-items:center}
+#strokePattern{border:1px solid #dbe4f2;border-radius:9px;background:#f8fbff;padding:8px 6px;color:#334c70;font-size:12px}
+#editPresets{min-height:40px!important}
+.preset-manager-row{background:#fbfdff!important;box-shadow:0 3px 12px #263b600a!important}
+.pen-editor-sheet{max-height:90vh;overflow:auto}
+@media(max-width:800px){#toolbar{gap:3px!important;padding:6px!important}#penSettings{overflow-x:auto;flex-wrap:nowrap!important}#penSettings>*{flex-shrink:0}}
 </style>
 </head>
 <body>
@@ -306,7 +318,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
    <div class="subbar" id="penSettings">
     <span class="setting-caption">筆尖</span>
     <button class="chip active" data-pen="fountain">鋼筆</button><button class="chip" data-pen="ball">原子筆</button><button class="chip" data-pen="brush">畫筆</button>
-    <span class="setting-caption">粗細</span><input id="width" type="range" min="1" max="18" value="4" aria-label="筆尖粗細"><output id="widthValue" for="width">4</output><span class="subbar-divider"></span>
+    <span class="setting-caption">筆觸</span><select id="strokePattern" aria-label="筆觸樣式"><option value="solid">實線</option><option value="dashed">虛線</option><option value="dotted">點線</option></select><span class="setting-caption">粗細</span><input id="width" type="range" min="1" max="18" value="4" aria-label="筆尖粗細"><output id="widthValue" for="width">4</output><span class="subbar-divider"></span>
     <button class="swatch active" data-color="#20242c" style="background:#20242c"></button><button class="swatch" data-color="#3578f6" style="background:#3578f6"></button><button class="swatch" data-color="#ef5a5a" style="background:#ef5a5a"></button><button class="swatch" data-color="#28a66a" style="background:#28a66a"></button><button class="swatch" data-color="#f2c94c" style="background:#f2c94c"></button>
     <button class="color-custom" id="customColorBtn" title="自訂筆色" aria-label="自訂筆色">＋</button><input type="color" id="customColor" value="#20242c" class="hidden" aria-label="選擇自訂顏色"><span class="subbar-divider"></span><span class="setting-caption">常用筆</span><button class="btn preset-edit-toggle" id="editPresets" title="管理所有常用筆">⚙ 管理常用筆</button><button class="pen-preset" data-preset="0" title="儲存或套用常用筆 1"><i></i><span>1</span></button><button class="pen-preset" data-preset="1" title="儲存或套用常用筆 2"><i></i><span>2</span></button><button class="pen-preset" data-preset="2" title="儲存或套用常用筆 3"><i></i><span>3</span></button><div class="spacer"></div><span id="pencilState"> Pencil Only</span>
    </div>
@@ -347,6 +359,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  <p class="preset-edit-guide">第 1 步：修改下方設定　→　第 2 步：點「儲存常用筆」永久保存。</p><div class="pen-editor-preview"><svg viewBox="0 0 300 72" aria-hidden="true"><path id="penPreviewStroke" d="M15 47 Q48 7 84 41 T157 35 T228 36 T285 29" fill="none" stroke="#20242c" stroke-width="4" stroke-linecap="round"/></svg></div>
  <label class="editor-field">名稱 <input id="presetName" maxlength="22" placeholder="例如：藍色原子筆"></label>
  <label class="editor-field">筆型 <select id="presetStyle"><option value="fountain">鋼筆</option><option value="ball">原子筆</option><option value="brush">畫筆</option></select></label>
+ <label class="editor-field">筆觸 <select id="presetPattern"><option value="solid">實線</option><option value="dashed">虛線</option><option value="dotted">點線</option></select></label>
  <label class="editor-field">粗細 <input id="presetWidth" type="range" min="1" max="18" value="4"><output id="presetWidthValue">4</output></label>
  <label class="editor-field">顏色 <input id="presetColor" type="color" value="#20242c"><input id="presetHex" inputmode="text" maxlength="7" placeholder="#20242c" aria-label="HEX 顏色"></label>
  <div class="pen-editor-actions"><button class="btn" id="applyPreset">僅這次使用（不儲存）</button><button class="btn primary" id="savePresetEditor">儲存並使用這支筆</button></div>
@@ -385,11 +398,11 @@ async function getPDFEngine(){
  pdfjsLib=mod;return mod;
 }
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const APP_VERSION="5.15.0";
+const APP_VERSION="5.16.0";
 document.title=`NoteCanvas V${APP_VERSION}`;
 $("#appVersion").textContent=`v${APP_VERSION}`;
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
-let eraserMode="region",eraserSize=4,autoPenAfterErase=false;let tool="pen",color="#20242c",width=4,penStyle="fountain",pencilOnly=true,zoom=1;let highlighterColor="#f2d64b",highlighterWidth=18,highlighterStraight=false;
+let eraserMode="region",eraserSize=4,autoPenAfterErase=false;let tool="pen",color="#20242c",width=4,strokePattern="solid",penStyle="fountain",pencilOnly=true,zoom=1;let highlighterColor="#f2d64b",highlighterWidth=18,highlighterStraight=false;
 let drawing=false,currentStroke=null,lassoStart=null,lassoDrag=null,selectedIds=new Set(),history=[],future=[];
 let db, bookId=null,pageIndex=0, book=null, libraryFilter="all";let pageMenuIndex=null, pageClipboard=null, pageTrash=[];let savePending=0;
 const uid=()=>crypto.randomUUID(), toast=t=>{let x=$("#toast");x.textContent=t;x.classList.remove("hidden");setTimeout(()=>x.classList.add("hidden"),1600)};
@@ -507,7 +520,11 @@ function drawStroke(stroke){
  }
  if(pts.length<2)return;
  ctx.save();ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle=stroke.color;ctx.globalAlpha=stroke.alpha??1;
- for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i];ctx.lineWidth=stroke.width*(stroke.pressure?Math.max(.35,b.p||.5):1);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}ctx.restore();
+ if(stroke.pattern==='dashed'||stroke.pattern==='dotted'){
+  ctx.lineWidth=stroke.width;ctx.setLineDash(stroke.pattern==='dotted'?[.1,Math.max(3,stroke.width*1.8)]:[Math.max(5,stroke.width*3),Math.max(3,stroke.width*1.8)]);
+  ctx.lineCap=stroke.pattern==='dotted'?'round':'butt';ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y);ctx.stroke();ctx.restore();return;
+ }
+ for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i];const factor=stroke.pressure?Math.max(.35,b.p||.5)*(stroke.penStyle==='brush'?1.6:1):1;ctx.lineWidth=stroke.width*factor;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}ctx.restore();
 }
 function pos(e){let r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*768/r.width,y:(e.clientY-r.top)*1024/r.height,p:e.pressure||.5}}
 function allowed(e){return !pencilOnly || e.pointerType==="pen"}
@@ -523,7 +540,7 @@ function showPointer(e){
 cv.addEventListener("pointerdown",e=>{
  showPointer(e);if(!allowed(e)){return} e.preventDefault();activePointer=e.pointerId; try{cv.setPointerCapture(e.pointerId)}catch(_){}
  let q=pos(e);
- if(tool==="pen"||tool==="highlighter"||tool==="eraser"||tool==="shape"||tool==="tape"||tool==="laser"){drawing=true;snapshot();currentStroke={id:uid(),tool,color:tool==="highlighter"?highlighterColor:color,width:tool==="highlighter"?highlighterWidth:width,alpha:tool==="highlighter"?.34:1,pressure:tool==="pen",points:[q]};if(tool==="eraser")eraseAt(q);}
+ if(tool==="pen"||tool==="highlighter"||tool==="eraser"||tool==="shape"||tool==="tape"||tool==="laser"){drawing=true;snapshot();currentStroke={id:uid(),tool,color:tool==="highlighter"?highlighterColor:color,width:tool==="highlighter"?highlighterWidth:width,alpha:tool==="highlighter"?.34:1,pressure:tool==="pen"&&penStyle!=="ball",penStyle:tool==="pen"?penStyle:null,pattern:tool==="pen"?strokePattern:"solid",points:[q]};if(tool==="eraser")eraseAt(q);}
  else if(tool==="lasso"){
   const bounds=selectionBounds();
   if(bounds&&q.x>=bounds.x-8&&q.x<=bounds.x+bounds.w+8&&q.y>=bounds.y-8&&q.y<=bounds.y+bounds.h+8){
@@ -976,7 +993,7 @@ loadPage=function(){baseLoadPage();if(!continuousSwitching)buildContinuousPages(
 
 // V5.14: Editable named pen presets and independent persistent tool palettes.
 const presetKey="notecanvas.penPresets.v2";
-const defaultPresets=[{name:"黑色鋼筆",color:"#20242c",width:4,penStyle:"fountain"},{name:"藍色原子筆",color:"#3578f6",width:3,penStyle:"ball"},{name:"紅色鋼筆",color:"#ef5a5a",width:5,penStyle:"fountain"}];
+const defaultPresets=[{name:"黑色鋼筆",color:"#20242c",width:4,penStyle:"fountain",pattern:"solid"},{name:"藍色原子筆",color:"#3578f6",width:3,penStyle:"ball",pattern:"solid"},{name:"紅色鋼筆",color:"#ef5a5a",width:5,penStyle:"fountain",pattern:"solid"}];
 function readLocal(key,fallback){try{const v=JSON.parse(localStorage.getItem(key)||"null");return v??fallback}catch(_){return fallback}}
 function writeLocal(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch(_){toast("儲存設定失敗，請檢查 Safari 儲存空間")}}
 function validHex(v){return /^#[0-9a-fA-F]{6}$/.test(v||"")}
@@ -985,29 +1002,37 @@ if(!Array.isArray(penPresets)||penPresets.length!==3){const legacy=readLocal("no
 penPresets=penPresets.map((v,i)=>({...defaultPresets[i],...v}));
 let editingPreset=0;
 function updatePresetButtons(){
- $$(".pen-preset").forEach((b,i)=>{const v=penPresets[i];b.querySelector("i").style.background=v.color;b.querySelector("i").style.width=Math.min(18,7+v.width)+"px";b.querySelector("i").style.height=Math.min(18,7+v.width)+"px";b.querySelector("span").textContent=String(i+1);b.title=`${v.name}｜點擊使用；要修改請點「管理常用筆」`;b.classList.toggle("selected",v.color===color&&v.width===width&&v.penStyle===penStyle)});
+ $$(".pen-preset").forEach((b,i)=>{const v=penPresets[i];b.querySelector("i").style.background=v.color;b.querySelector("i").style.width=Math.min(18,7+v.width)+"px";b.querySelector("i").style.height=Math.min(18,7+v.width)+"px";b.querySelector("span").textContent=String(i+1);b.title=`${v.name}｜點擊使用；要修改請點「管理常用筆」`;b.classList.toggle("selected",v.color===color&&v.width===width&&v.penStyle===penStyle&&(v.pattern||"solid")===strokePattern)});
  $("#widthValue").textContent=String(width);
 }
 function setInkColor(next){if(!validHex(next))return;color=next;$("#customColor").value=next;$$('.swatch').forEach(b=>b.classList.toggle('active',b.dataset.color.toLowerCase()===next.toLowerCase()));updatePresetButtons()}
-function applyPreset(i){const v=penPresets[i];penStyle=v.penStyle;width=v.width;$("#width").value=width;setInkColor(v.color);$$('[data-pen]').forEach(x=>x.classList.toggle('active',x.dataset.pen===penStyle));setTool('pen');toast(`已切換：${v.name}`)}
-function openPresetEditor(i){editingPreset=i;$("presetManagerModal").classList.add("hidden");const v=penPresets[i];$("#penEditorTitle").textContent=`編輯常用筆 ${i+1}`;$("#presetName").value=v.name;$("#presetStyle").value=v.penStyle;$("#presetWidth").value=v.width;$("#presetColor").value=v.color;$("#presetHex").value=v.color;updatePresetPreview();$("#penEditorModal").classList.remove("hidden")}
-function updatePresetPreview(){const v=$("#presetWidth").value,c=$("#presetColor").value;$("#presetWidthValue").textContent=v;$("#penPreviewStroke").setAttribute("stroke",c);$("#penPreviewStroke").setAttribute("stroke-width",v)}
-function presetEditorValue(){const c=$("#presetHex").value.trim();if(!validHex(c)){toast("請輸入正確的 HEX 顏色，例如 #3578f6");return null}return {name:$("#presetName").value.trim()||`常用筆 ${editingPreset+1}`,color:c.toLowerCase(),width:+$("#presetWidth").value,penStyle:$("#presetStyle").value}}
-$$('.pen-preset').forEach(b=>{
- const i=+b.dataset.preset;
- b.onclick=()=>applyPreset(i);
- b.oncontextmenu=e=>{e.preventDefault();openPresetEditor(i)};
- let hold=null,held=false;
- b.addEventListener('touchstart',()=>{held=false;hold=setTimeout(()=>{held=true;openPresetEditor(i)},650)},{passive:true});
- for(const name of ['touchend','touchcancel','touchmove'])b.addEventListener(name,()=>{if(hold)clearTimeout(hold);hold=null;if(held){b.onclick=()=>editPresetMode?openPresetEditor(i):applyPreset(i)}},{passive:true});
-});
-$("#editPresets").onclick=()=>{editPresetMode=!editPresetMode;$("#editPresets").textContent=editPresetMode?"完成":"編輯";toast(editPresetMode?"選擇要編輯的常用筆":"已結束編輯")};
+function applyPreset(i){const v=penPresets[i];penStyle=v.penStyle;strokePattern=v.pattern||"solid";$("#strokePattern").value=strokePattern;width=v.width;$("#width").value=width;setInkColor(v.color);$$('[data-pen]').forEach(x=>x.classList.toggle('active',x.dataset.pen===penStyle));setTool('pen');toast(`已切換：${v.name}`)}
+function openPresetEditor(i){editingPreset=i;$("presetManagerModal").classList.add("hidden");const v=penPresets[i];$("#penEditorTitle").textContent=`編輯常用筆 ${i+1}`;$("#presetName").value=v.name;$("#presetStyle").value=v.penStyle;$("#presetPattern").value=v.pattern||"solid";$("#presetWidth").value=v.width;$("#presetColor").value=v.color;$("#presetHex").value=v.color;updatePresetPreview();$("#penEditorModal").classList.remove("hidden")}
+function updatePresetPreview(){const v=$("#presetWidth").value,c=$("#presetColor").value;$("#presetWidthValue").textContent=v;$("#penPreviewStroke").setAttribute("stroke",c);$("#penPreviewStroke").setAttribute("stroke-width",v);$("#penPreviewStroke").setAttribute("stroke-dasharray",$("#presetPattern").value==="dotted"?"0.1 8":$("#presetPattern").value==="dashed"?"12 8":"none")}
+function presetEditorValue(){const c=$("#presetHex").value.trim();if(!validHex(c)){toast("請輸入正確的 HEX 顏色，例如 #3578f6");return null}return {name:$("#presetName").value.trim()||`常用筆 ${editingPreset+1}`,color:c.toLowerCase(),width:+$("#presetWidth").value,penStyle:$("#presetStyle").value,pattern:$("#presetPattern").value}}
+function renderPresetManager(){
+ const root=$("#presetManagerList");root.replaceChildren();
+ penPresets.forEach((v,i)=>{
+  const row=document.createElement('div');row.className='preset-manager-row';
+  const dot=document.createElement('span');dot.className='preset-manager-ink';dot.style.background=v.color;
+  const detail=document.createElement('div');detail.className='preset-manager-detail';
+  const title=document.createElement('strong');title.textContent=v.name;
+  const info=document.createElement('small');info.textContent=`${{fountain:'鋼筆',ball:'原子筆',brush:'畫筆'}[v.penStyle]||'鋼筆'} · ${v.width}px · ${{solid:'實線',dashed:'虛線',dotted:'點線'}[v.pattern||'solid']} · ${v.color}`;
+  detail.append(title,info);
+  const use=document.createElement('button');use.className='btn';use.textContent='使用';use.onclick=()=>{applyPreset(i);$("#presetManagerModal").classList.add('hidden')};
+  const edit=document.createElement('button');edit.className='btn primary';edit.textContent='✎ 編輯';edit.onclick=()=>openPresetEditor(i);
+  row.append(dot,detail,use,edit);root.append(row);
+ });
+}
+$$('.pen-preset').forEach(b=>{const i=+b.dataset.preset;b.onclick=()=>applyPreset(i);b.oncontextmenu=e=>{e.preventDefault();openPresetEditor(i)}});
+$("#editPresets").onclick=()=>{renderPresetManager();$("#presetManagerModal").classList.remove('hidden')};
+$("#closePresetManager").onclick=$("#donePresetManager").onclick=()=>$("#presetManagerModal").classList.add('hidden');
 $("#closePenEditor").onclick=()=>$("#penEditorModal").classList.add("hidden");
 $("#presetColor").oninput=e=>{$("#presetHex").value=e.target.value;updatePresetPreview()};
 $("#presetHex").oninput=e=>{if(validHex(e.target.value)){$("#presetColor").value=e.target.value;updatePresetPreview()}};
-$("#presetWidth").oninput=updatePresetPreview;
-$("#savePresetEditor").onclick=()=>{const v=presetEditorValue();if(!v)return;penPresets[editingPreset]=v;writeLocal(presetKey,penPresets);updatePresetButtons();$("#penEditorModal").classList.add("hidden");toast(`已儲存：${v.name}`)};
-$("#applyPreset").onclick=()=>{const v=presetEditorValue();if(!v)return;penStyle=v.penStyle;width=v.width;$("#width").value=width;setInkColor(v.color);setTool('pen');$("#penEditorModal").classList.add("hidden");toast("已套用到目前筆刷（未覆蓋常用筆）")};
+$("#presetWidth").oninput=updatePresetPreview;$("#presetPattern").onchange=updatePresetPreview;
+$("#savePresetEditor").onclick=()=>{const v=presetEditorValue();if(!v)return;penPresets[editingPreset]=v;writeLocal(presetKey,penPresets);applyPreset(editingPreset);updatePresetButtons();renderPresetManager();$("#penEditorModal").classList.add("hidden");toast(`已儲存：${v.name}`)};
+$("#applyPreset").onclick=()=>{const v=presetEditorValue();if(!v)return;penStyle=v.penStyle;strokePattern=v.pattern||"solid";$("#strokePattern").value=strokePattern;width=v.width;$("#width").value=width;setInkColor(v.color);setTool('pen');$("#penEditorModal").classList.add("hidden");toast("已套用到目前筆刷（未覆蓋常用筆）")};
 // Per-tool color palettes, each 3-12 colors, saved separately.
 const paletteKey="notecanvas.toolPalettes.v1";
 const defaultPalettes={pen:["#20242c","#3578f6","#ef5a5a","#28a66a","#f2c94c"],highlighter:["#f2d64b","#9be3a0","#f7a4c6","#9bc8fc"]};
@@ -1031,7 +1056,7 @@ $("#paletteSave").onclick=()=>{const c=$("#paletteHex").value.trim().toLowerCase
 $("#paletteDelete").onclick=()=>{if(paletteIndex<0){toast('請先選取要刪除的色票');return}if(palettes[paletteTool].length<=1){toast('至少保留一個色票');return}palettes[paletteTool].splice(paletteIndex,1);paletteIndex=-1;writeLocal(paletteKey,palettes);renderToolColors();renderPaletteSlots();toast('已刪除色票')};
 $("#paletteReset").onclick=()=>{if(!confirm('還原這個工具的預設色票？'))return;palettes[paletteTool]=[...defaultPalettes[paletteTool]];paletteIndex=-1;writeLocal(paletteKey,palettes);renderToolColors();renderPaletteSlots()};
 $("#customColor").oninput=e=>setInkColor(e.target.value);
-$("#width").addEventListener('input',updatePresetButtons);
+$("#width").addEventListener('input',updatePresetButtons);$("#strokePattern").onchange=e=>{strokePattern=e.target.value;updatePresetButtons()};
 $$('[data-pen]').forEach(b=>b.addEventListener('click',updatePresetButtons));
 $$('.paper-color').forEach(b=>b.onclick=()=>{if(!book)return;snapshot();p().paperColor=b.dataset.paperColor;pageEl.style.backgroundColor=p().paperColor;$$('.paper-color').forEach(x=>x.classList.toggle('selected',x===b));save();toast('已更新目前頁面的紙張顏色')});
 renderToolColors();updatePresetButtons();
