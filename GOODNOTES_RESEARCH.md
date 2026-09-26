@@ -59,3 +59,7 @@ This is a source inventory, not a claim that all content has been watched, teste
 
 ## v5.24 iOS 優先方向
 移除桌面快捷鍵；iPad/iPhone 提供易點擊的復原、重做、鋼筆、橡皮擦。後續需以實機核對 Goodnotes 手勢與書寫反應，不聲稱已完全相同。
+
+## v5.26.0 的使用者實拍影片參考（與官方研究數目分開）
+
+- 2026-09-26 使用者錄製約 70 秒 Goodnotes 工具操作：實際看到隨工具變更的次設定列、鋼筆／螢光筆／橡皮擦設定、雷射筆線條／圓點。對照文件：`VIDEO_COMPARISON.md`。此為 1 份使用者影片，**不**冒充新分析的官方文件。
