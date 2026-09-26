@@ -1,21 +1,18 @@
-# NoteCanvas v5.26.0 — iPad / iPhone PWA
+# NoteCanvas v5.27.0 — iPad / iPhone PWA
 
-以 **v5.25.0 完整 ZIP 的實際原始碼**為基礎更新，沿用所有筆記與錄音資料結構。不重製 App。
+本版以使用者錄製的 Goodnotes iPad 操作影片為**畫面與互動參考**，以 NoteCanvas v5.26.0 原始碼直接增量修改。使用自行設計的標誌與按鈕圖示，沒有複製 Goodnotes 原始碼、商標或專屬圖示。
 
-## 這一版真正完成
+## 已實作
+- iPad 筆記編輯器改為深藍文件分頁及主工具列，工具設定為畫布上方白色圓角浮動列；同步調整選取狀態、紙張背景和留白。
+- 文件庫「＋ 新建」為真實可用的觸控面板，可選筆記本、白板、文字筆記（建立後開啟文字工具）、學習卡片（建立後開啟卡片管理）及 PDF 匯入；新增筆記本具有紙張預覽選擇與名稱確認。不新增資料庫 schema。
+- 圖形工具增加三角形和菱形，繪製、選取和已有圖形資料格式相容。
+- 原有 Pencil 筆壓、常用筆、色盤、螢光筆、橡皮擦、圖形、套索、雷射筆、錄音、學習卡片及匯入／匯出保持原程式邏輯。
 
-- **單一情境工具列**：鋼筆、螢光筆、橡皮擦、套索、文字、圖形、雷射筆等工具，各自顯示自己的設定列；工具主列和情境列在 iPad / iPhone 觸控介面採用獨立橫向捲動，避免溢出裁切。
-- **鋼筆快速設定**：情境列前段固定放 3 支現有可編輯常用筆，再放筆型、粗細與獨立色票；細緻筆壓、平滑度與實線／虛線／點線仍可從筆刷面板修改。常用筆切換會套用實際設定，不是示意按鈕。
-- **真正的雷射筆模式**：新增線條／圓點兩種模式、大小調整，於獨立暫存繪圖層繪製，抬筆後淡出。雷射筆不寫入筆記筆跡、復原紀錄、匯出檔或 IndexedDB。
-- **其他工具情境設定**：橡皮擦的區域／整筆及抬筆切回鋼筆、螢光筆獨立色盤及直線模式、圖形設定、文字工具保留既有事件處理；圖片加入可重開相簿的按鈕，頁面操作選單新增直接進入既有紙張範本的選項。
-- **向下相容**：不更改 `NoteCanvasDB`（IndexedDB schema 2）、`books` 或 `audio` store；沿用 `notecanvas.penPresets.v2`、`notecanvas.toolPalettes.v1`、`notecanvas.inkPrefs.v1`，舊筆跡仍用既有算法顯示。新版本號已同步至首頁、網頁標題、PWA manifest、SW cache 與完整 ZIP 名稱。
+## 仍存在的差異
+原生 Goodnotes 的筆刷核心、Apple Pencil 觸控延遲、手掌排除、多文件視窗與系統 API 無法僅由錄影直接複製到網頁 PWA；尚未在 iPad Safari + Apple Pencil 實機上驗證，不宣稱逐像素或行為百分之百相同。文字筆記以一般筆記本的可編輯文字物件實作，尚非獨立富文字文件格式。
 
-## 更新前必讀
+## 安全更新
+更新前逐本匯出 JSON，重要錄音另外下載，JSON 備份不包含錄音。在**相同網域與路徑**更新網站，不要清除瀏覽器網站資料。IndexedDB NoteCanvasDB v2 及原有 localStorage key 保持不變。
 
-1. **先在舊版逐本匯出 JSON**，並把重要錄音從錄音管理中各別下載。JSON 備份**不包含錄音**。
-2. 完整解壓 ZIP，把其中全部檔案部署至**原本網址**的 GitHub Pages 目錄；保持 `index.html`、`sw.js`、`manifest.webmanifest` 與圖示相對路徑。
-3. iPad Safari、iPhone Safari / 主畫面 PWA 重新整理；**不要清除網站資料**，否則本機 IndexedDB 筆記與錄音可能遺失。若離線畫面未更新，先回線上重新載入。
-
-## 驗證範圍
-
-請見 `TEST_REPORT.md`、`QA_IPAD_IPHONE.md`：語法／版本／ZIP、Chromium 觸控模擬與記憶體模擬 IndexedDB 功能測試。**尚未執行真正 iPad + Apple Pencil 或 iPhone Safari / WebKit 實機測試**。瀏覽器 PWA 的筆壓、延遲與防手掌誤觸不能宣稱完全等同 Goodnotes 原生 App。
+## 驗證
+查看 TEST_REPORT.md 與 QA_IPAD_IPHONE.md。版本號已同步主程式、網頁標題、manifest、service worker/cache、ZIP。

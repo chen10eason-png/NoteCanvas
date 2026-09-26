@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=yes">
-<meta name="theme-color" content="#f6f8fc">
-<link rel="manifest" href="manifest.webmanifest?v=5.26.0">
-<title>NoteCanvas V5.26.0</title>
+<meta name="theme-color" content="#264574">
+<link rel="manifest" href="manifest.webmanifest?v=5.27.0">
+<title>NoteCanvas V5.27.0</title>
 <style>
 :root{--bg:#f4f5f8;--card:#fff;--ink:#20242c;--muted:#7d8492;--line:#e3e5ea;--blue:#3478f6;--blue2:#eaf2ff;--shadow:0 8px 28px #1d273514}
 *{box-sizing:border-box}html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI","Noto Sans TC",sans-serif;color:var(--ink);background:var(--bg);overscroll-behavior:none}
@@ -488,13 +488,94 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  .preset-row .preset-quick-edit{min-width:19px!important;min-height:19px!important;width:19px;height:19px}
  .context-colors .swatch{width:27px!important;height:27px!important}
 }
+
+/* v5.27: user-recorded tablet workflow reference; independently drawn icons and branding. */
+:root{--nc-navy:#264574;--nc-navy2:#31578e;--nc-canvas:#fafbfc}
+.doc-tabs{background:var(--nc-navy)!important;border:0!important;color:#eaf0fc!important;box-shadow:none!important}
+.doc-tab{background:var(--nc-navy2)!important;border-color:transparent!important;color:#fff!important;border-radius:13px 13px 0 0!important}
+.doc-tab.current{background:#34619b!important}
+.doc-tab-dot,.doc-tab-close,.doc-add,.doc-home,.tab-appname{color:#eaf2ff!important}
+.nav{background:var(--nc-navy)!important;border-bottom:1px solid #5978a6!important;color:#f4f7ff!important;box-shadow:none!important;backdrop-filter:none!important}
+.nav .btn,.nav .title,.nav .page-count,.nav .save-state{color:#edf4ff!important}
+.nav .btn:hover,.nav .btn.active{background:#5274aa!important;color:#fff!important}
+.nav #back{background:#ffffff13!important}
+.editor{background:var(--nc-canvas)!important}
+.editor>.toolbar,#toolbar{background:var(--nc-navy)!important;background-image:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;margin:0!important;max-width:100%!important;width:100%!important;padding:3px 11px!important;min-height:58px!important;justify-content:center;scroll-padding:12px}
+#toolbar .tool{color:#e1edff!important;background:transparent!important;border:1px solid transparent!important;box-shadow:none!important;min-width:48px;height:51px;gap:2px}
+#toolbar .tool-symbol{color:#e5f0ff!important;font-size:24px}
+#toolbar .tool-label{color:#d6e6fd!important;font-size:10px}
+#toolbar .tool.active{color:#234877!important;background:#f7fbff!important;border-color:#f7fbff!important;box-shadow:0 2px 6px #0d274530!important}
+#toolbar .tool.active .tool-symbol,#toolbar .tool.active .tool-label{color:#244979!important}
+#toolbar .tool:active{transform:scale(.97)}
+.editor>.subbar,.editor>.highlighter-settings,.editor>.context-settings{border:1px solid #dce0e7!important;background:#fff!important;border-radius:17px!important;box-shadow:0 3px 12px #25375016!important;margin:6px auto 5px!important;padding:5px 10px!important;min-height:51px!important;height:51px!important;max-width:calc(100% - 26px)!important;width:max-content!important;justify-content:flex-start!important;flex-wrap:nowrap!important;gap:9px!important;align-self:center!important}
+.context-title{background:transparent!important;color:#52637a!important;border-right:1px solid #e2e5ed;border-radius:0!important;padding:7px 12px 7px 3px!important}
+.context-types .chip,.editor>.context-settings .chip{background:transparent!important;border-color:transparent!important;color:#344357;min-height:38px!important;border-radius:10px!important}
+.context-types .chip.active,.editor>.context-settings .chip.active{background:#e7f2fb!important;border-color:#c9e5f6!important;color:#265989!important}
+#penSettings .preset-quick{background:#fff!important;border-color:#eef1f6!important}
+#penSettings .preset-quick .pen-preset.selected{background:#e7f3fb!important}
+#penSettings .subbar-divider{background:#e2e5ee!important}
+#penSettings .swatch{width:29px!important;height:29px!important}
+#penSettings .swatch.active{box-shadow:0 0 0 3px #d8e9fc,0 0 0 4px #4c81b8!important}
+.editor>.viewport{background:var(--nc-canvas)!important}
+.page{box-shadow:0 1px 6px #22395924,0 8px 26px #192d440b!important}
+.page.grid{background-color:#fffdf1;background-image:linear-gradient(#cfced0a6 1px,transparent 1px),linear-gradient(90deg,#cfced0a6 1px,transparent 1px);background-size:28px 28px}
+.library{background:#fff!important}.libmain{background:#fff!important}
+.libside{background:#f8f9fb!important}.libhead h1{font-weight:800!important;color:#171b22!important}
+.libhead .btn.primary{border-radius:26px!important;background:#2363a0!important;padding:0 18px!important;font-weight:750!important}
+.nc-create-pop{position:fixed;right:18px;top:110px;z-index:450;width:min(350px,calc(100vw - 26px));padding:13px;background:#f4f5f7;border-radius:23px;box-shadow:0 18px 55px #1d2d4c38;border:1px solid #e6eaf0}
+.nc-create-pop .nc-create-top{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.nc-create-pop button{border:0;background:#fff;border-radius:13px;min-height:50px;width:100%;text-align:left;padding:13px 16px;font-size:15px;touch-action:manipulation}
+.nc-create-pop .nc-create-top button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;text-align:center;min-height:94px;padding:10px 2px;font-weight:650}
+.nc-create-top strong{font-size:27px;font-weight:450}.nc-create-pop>button{margin:5px 0}
+.nc-new-sheet{width:min(600px,94vw)!important}.nc-form-header,.nc-form-foot{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.nc-form-label{display:block;color:#4d5b71;font-weight:650;font-size:14px;margin:18px 0 8px}
+.nc-form-label input{display:block;width:100%;margin-top:9px;min-height:46px;border:1px solid #cfd8e8;border-radius:12px;padding:9px 14px;background:#fff;color:#1e2837}
+.nc-paper-choices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:10px 0 26px}
+.nc-paper-choices button{padding:10px;border:2px solid transparent;background:#f7f8fb;border-radius:14px;display:flex;align-items:center;flex-direction:column;gap:9px;min-height:128px;touch-action:manipulation}
+.nc-paper-choices button.selected{border-color:#357bd9;background:#eef5ff}
+.nc-paper-choices i{width:58px;height:80px;background:#fff;border:1px solid #dde2eb;box-shadow:0 2px 6px #1c345522;border-radius:2px}
+.nc-paper-choices .preview-grid{background-image:linear-gradient(#d4d9e0 1px,transparent 1px),linear-gradient(90deg,#d4d9e0 1px,transparent 1px);background-size:12px 12px}
+.nc-paper-choices .preview-lines{background-image:linear-gradient(#d4d9e0 1px,transparent 1px);background-size:100% 12px}
+.nc-paper-choices .preview-dots{background-image:radial-gradient(#b3bbc8 1px,transparent 1px);background-size:12px 12px}
+.nc-form-foot{justify-content:flex-end}.nc-form-foot .btn{min-height:44px;min-width:90px}
+@media(pointer:coarse){
+ .editor>.toolbar{grid-row:2!important}.editor>.mobile-writing-actions{grid-row:1!important;background:#f8f9fb!important}
+ #toolbar{justify-content:flex-start!important}
+ .editor>.subbar,.editor>.highlighter-settings,.editor>.context-settings{max-width:calc(100% - 14px)!important;margin:3px auto!important;grid-row:3!important}
+}
+@media(max-width:800px){
+ .nav #back{font-size:0!important;min-width:37px!important}.nav #back:before{content:'‹';font-size:26px}
+ .nav .title{font-size:14px!important}.nav #pageCount{white-space:nowrap}
+ #toolbar .tool{min-width:49px!important}.doc-tabs{min-width:0}
+ .nc-create-pop{top:90px;right:10px}
+ .editor>.subbar,.editor>.highlighter-settings,.editor>.context-settings{width:calc(100% - 12px)!important}
+}
+@media(max-width:600px){
+ .libhead h1{font-size:26px!important}
+ .libhead #restoreHome,.libhead #importHome{display:none}
+ .nc-paper-choices{grid-template-columns:repeat(2,1fr)}
+ .nc-new-sheet{max-height:90dvh!important}
+ #toolbar .tool-label{font-size:10px!important}
+ #toolbar .tool{min-width:47px!important}
+}
+
 </style>
 </head>
 <body>
 <div id="library" class="library">
  <aside class="libside"><div class="logo">NoteCanvas <small id="appVersion" class="version-badge"></small></div><div class="libitem active" data-filter="all">▣ 文件</div><div class="libitem" data-filter="favorite">☆ 我的最愛</div><div class="libitem" data-filter="search">⌕ 搜尋</div><div class="libitem">▤ Study Sets</div><div class="libitem">♧ 範本</div></aside>
- <main class="libmain"><div class="libhead"><h1>文件</h1><div class="spacer"></div><button class="btn" id="restoreHome">匯入備份</button><button class="btn" id="importHome">匯入 PDF</button><button class="btn primary" id="newBook">＋ 新筆記本</button></div><div style="margin-top:18px;display:flex;gap:10px"><input id="librarySearch" placeholder="搜尋筆記本名稱" style="border:1px solid #e3e5ea;border-radius:12px;padding:10px;flex:1"><select id="librarySort" style="border:1px solid #e3e5ea;border-radius:12px;padding:10px"><option value="recent">最近編輯</option><option value="name">名稱</option></select></div><div class="cards" id="bookCards"></div><p id="libraryEmpty" class="library-empty hidden">沒有符合條件的筆記本</p></main>
+ <main class="libmain"><div class="libhead"><h1>文件</h1><div class="spacer"></div><button class="btn" id="restoreHome">匯入備份</button><button class="btn" id="importHome">匯入 PDF</button><button class="btn primary" id="newBook" aria-expanded="false">＋ 新建</button></div><div style="margin-top:18px;display:flex;gap:10px"><input id="librarySearch" placeholder="搜尋筆記本名稱" style="border:1px solid #e3e5ea;border-radius:12px;padding:10px;flex:1"><select id="librarySort" style="border:1px solid #e3e5ea;border-radius:12px;padding:10px"><option value="recent">最近編輯</option><option value="name">名稱</option></select></div><div class="cards" id="bookCards"></div><p id="libraryEmpty" class="library-empty hidden">沒有符合條件的筆記本</p></main>
 </div>
+<div class="nc-create-pop hidden" id="ncCreatePop" role="dialog" aria-label="新增內容">
+ <div class="nc-create-top"><button type="button" data-nc-create="notebook"><strong>▤</strong><span>筆記本</span></button><button type="button" data-nc-create="plain"><strong>▦</strong><span>白板</span></button><button type="button" data-nc-create="text"><strong>▣</strong><span>文字筆記</span></button></div>
+ <button type="button" data-nc-create="pdf">↧ 匯入 PDF</button><button type="button" data-nc-create="study">▤ 學習卡片</button>
+</div>
+<div class="modal hidden" id="ncNewModal" role="dialog" aria-modal="true" aria-labelledby="ncNewTitle"><div class="sheet nc-new-sheet">
+ <div class="nc-form-header"><h3 id="ncNewTitle">新增筆記本</h3><button type="button" class="btn" id="ncNewClose">✕</button></div>
+ <label class="nc-form-label">名稱 <input id="ncNewName" maxlength="200" value="新筆記本" autocomplete="off"></label>
+ <p class="nc-form-label">選擇紙張</p><div class="nc-paper-choices" id="ncPaperChoices"><button type="button" data-nc-paper="grid" class="selected"><i class="preview-grid"></i><span>方格紙</span></button><button type="button" data-nc-paper="lines"><i class="preview-lines"></i><span>橫線紙</span></button><button type="button" data-nc-paper="dots"><i class="preview-dots"></i><span>點陣紙</span></button><button type="button" data-nc-paper="plain"><i></i><span>空白紙</span></button></div>
+ <div class="nc-form-foot"><button type="button" class="btn" id="ncNewCancel">取消</button><button type="button" class="btn primary" id="ncNewConfirm">建立</button></div>
+</div></div>
 <div id="bookMenu" class="book-menu hidden" role="menu" aria-label="筆記本操作"></div>
 
 <div class="app">
@@ -550,7 +631,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  <span class="setting-hint">框選後可移動、複製或刪除</span></div>
     <div class="context-settings hidden" id="shapeSettings" aria-label="圖形設定">
     <span class="context-title">◇ 圖形</span>
-    <button class="chip active" data-shape="rectangle">▭ 矩形</button><button class="chip" data-shape="ellipse">◯ 橢圓</button><button class="chip" data-shape="line">╱ 直線</button><button class="chip" data-shape="arrow">↗ 箭頭</button>
+    <button class="chip active" data-shape="rectangle">▭ 矩形</button><button class="chip" data-shape="ellipse">◯ 橢圓</button><button class="chip" data-shape="line">╱ 直線</button><button class="chip" data-shape="arrow">↗ 箭頭</button><button class="chip" data-shape="triangle">△ 三角形</button><button class="chip" data-shape="diamond">◇ 菱形</button>
     <span class="setting-caption">線條顏色</span><input id="shapeColor" type="color" value="#3578f6" aria-label="圖形線條顏色">
     <span class="setting-caption">粗細</span><input id="shapeWidth" type="range" min="1" max="12" value="3" aria-label="圖形粗細"><output id="shapeWidthValue">3</output>
     <label class="setting-inline"><input id="shapeFill" type="checkbox"> 填滿圖形</label>
@@ -661,7 +742,7 @@ async function getPDFEngine(){
  pdfjsLib=mod;return mod;
 }
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const APP_VERSION="5.26.0";
+const APP_VERSION="5.27.0";
 document.title=`NoteCanvas V${APP_VERSION}`;
 $("#appVersion").textContent=`v${APP_VERSION}`;
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
@@ -835,7 +916,9 @@ function drawStroke(stroke){
 function drawShapeCanvas(g,o){
  const x=o.x,y=o.y,w=o.w,h=o.h,kind=o.shapeKind||'rectangle';
  g.save();g.strokeStyle=o.color||'#3578f6';g.fillStyle=o.color||'#3578f6';g.lineWidth=o.lineWidth||3;g.lineJoin='round';g.lineCap='round';g.beginPath();
- if(kind==='ellipse')g.ellipse(x+w/2,y+h/2,Math.max(.5,Math.abs(w)/2),Math.max(.5,Math.abs(h)/2),0,0,Math.PI*2);
+ if(kind==='triangle'){g.moveTo(x+w/2,y);g.lineTo(x+w,y+h);g.lineTo(x,y+h);g.closePath()}
+ else if(kind==='diamond'){g.moveTo(x+w/2,y);g.lineTo(x+w,y+h/2);g.lineTo(x+w/2,y+h);g.lineTo(x,y+h/2);g.closePath()}
+ else if(kind==='ellipse')g.ellipse(x+w/2,y+h/2,Math.max(.5,Math.abs(w)/2),Math.max(.5,Math.abs(h)/2),0,0,Math.PI*2);
  else if(kind==='line'||kind==='arrow'){
   const x1=o.flipX?x+w:x,y1=o.flipY?y+h:y,x2=o.flipX?x:x+w,y2=o.flipY?y:y+h;
   g.moveTo(x1,y1);g.lineTo(x2,y2);
@@ -1311,7 +1394,16 @@ $("#exportPDF").onclick=async()=>{
   w.focus();w.print();toast("已開啟完整頁面列印，可另存 PDF");
  }catch(e){console.error(e);w.document.body.textContent="輸出失敗，請返回筆記重試";toast("PDF 輸出失敗")}
 };
-$("#newBook").onclick=async()=>{let title=prompt("筆記本名稱","新筆記本");if(!title)return;let b=defaultBook();b.title=title;await put(b);renderLibrary()};
+let ncChosenPaper="grid",ncCreateKind="notebook";
+function ncShowCreation(){const pop=$("#ncCreatePop");pop.classList.toggle("hidden");$("#newBook").setAttribute("aria-expanded",String(!pop.classList.contains("hidden")))}
+function ncOpenNew(paper="grid",kind="notebook"){ncChosenPaper=paper;ncCreateKind=kind;$("#ncCreatePop").classList.add("hidden");$("#newBook").setAttribute("aria-expanded","false");$("#ncNewName").value=kind==="study"?"我的學習卡片":kind==="text"?"文字筆記":paper==="plain"?"新白板":"新筆記本";$$('[data-nc-paper]').forEach(b=>b.classList.toggle("selected",b.dataset.ncPaper===paper));$("#ncNewModal").classList.remove("hidden");$("#ncNewName").focus();$("#ncNewName").select()}
+function ncCloseNew(){$("#ncNewModal").classList.add("hidden")}
+$("#newBook").onclick=ncShowCreation;
+$$('[data-nc-create]').forEach(b=>b.onclick=()=>{const action=b.dataset.ncCreate;$("#ncCreatePop").classList.add("hidden");$("#newBook").setAttribute("aria-expanded","false");if(action==="pdf")$("#filePDF").click();else ncOpenNew(action==="plain"?"plain":"grid",action)});
+$$('[data-nc-paper]').forEach(b=>b.onclick=()=>{ncChosenPaper=b.dataset.ncPaper;$$('[data-nc-paper]').forEach(x=>x.classList.toggle("selected",x===b))});
+$("#ncNewConfirm").onclick=async()=>{const title=$("#ncNewName").value.trim();if(!title){$("#ncNewName").focus();return}const b=defaultBook();b.title=title;b.pages[0].paper=ncChosenPaper==="plain"?"":ncChosenPaper;await put(b);ncCloseNew();renderLibrary();if(ncCreateKind==="text"){await openBook(b.id);setTool("text")}else if(ncCreateKind==="study"){await openBook(b.id);$("#studyCardsOpen").click()}toast("已建立「"+title+"」")};
+$("#ncNewClose").onclick=$("#ncNewCancel").onclick=ncCloseNew;
+document.addEventListener("pointerdown",e=>{if(!e.target.closest("#newBook,#ncCreatePop"))$("#ncCreatePop").classList.add("hidden")});
 $("#restoreHome").onclick=()=>$("#fileBackup").click();
 $("#fileBackup").onchange=async e=>{
  const file=e.target.files?.[0];if(!file)return;
@@ -1379,7 +1471,7 @@ $$('[data-thumb-filter]').forEach(btn=>btn.onclick=()=>{thumbFilter=btn.dataset.
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('#toolOverflow,#toolbarMore'))$('#toolOverflow').classList.add('hidden')});
 applyToolbarPrefs();
 $("#librarySearch").oninput=()=>renderLibrary();$("#librarySort").onchange=()=>renderLibrary();$$('[data-filter]').forEach(el=>el.onclick=()=>{libraryFilter=el.dataset.filter;$$('[data-filter]').forEach(x=>x.classList.toggle('active',x===el));if(libraryFilter==='search')$("#librarySearch").focus();renderLibrary()});
-if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=5.26.0',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=5.27.0',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
 $("#tabHome").onclick=()=>$("#back").click();
 $("#tabAdd").onclick=()=>$("#back").click();
 const baseLoadPage=loadPage;
