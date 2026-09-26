@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=yes">
-<meta name="theme-color" content="#f7f8fb">
-<link rel="manifest" href="manifest.webmanifest">
-<title>NoteCanvas V5.24</title>
+<meta name="theme-color" content="#f6f8fc">
+<link rel="manifest" href="manifest.webmanifest?v=5.25.0">
+<title>NoteCanvas V5.25.0</title>
 <style>
 :root{--bg:#f4f5f8;--card:#fff;--ink:#20242c;--muted:#7d8492;--line:#e3e5ea;--blue:#3478f6;--blue2:#eaf2ff;--shadow:0 8px 28px #1d273514}
 *{box-sizing:border-box}html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI","Noto Sans TC",sans-serif;color:var(--ink);background:var(--bg);overscroll-behavior:none}
@@ -337,6 +337,8 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 .mobile-writing-actions button{width:46px;height:44px;flex:none;border:1px solid #dce4f1;border-radius:13px;background:#fff;color:#3c4b65;font-size:25px;font-weight:650;box-shadow:0 1px 3px #192f4610;touch-action:manipulation}
 .mobile-writing-actions button:active{transform:scale(.96);background:#eaf1ff}
 .mobile-writing-actions button.active{color:#2468d8;background:#e9f1ff;border-color:#9dc0ff}
+.mobile-writing-actions .mobile-hand{display:none}
+@media(pointer:coarse) and (max-width:600px){.mobile-writing-actions .mobile-hand{display:block}}
 @media (pointer:coarse){
  .mobile-writing-actions{display:flex}
  .toolbar{scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;max-width:calc(100% - 12px);margin:3px auto;padding:5px 6px;gap:3px}
@@ -352,6 +354,79 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  .tool[data-tool]{min-width:57px}
  .subbar{justify-content:flex-start;overflow-x:auto;-webkit-overflow-scrolling:touch}
 }
+
+/* v5.25: a real four-row editor on touch devices, including the Pencil action rail. */
+@media(pointer:coarse){
+ .editor,.editor.hl-active{grid-template-rows:52px 61px minmax(52px,auto) minmax(0,1fr)!important;min-height:0}
+ .editor>.mobile-writing-actions{grid-row:1;min-width:0}
+ .editor>.toolbar{grid-row:2;min-width:0;max-width:calc(100% - 12px)!important}
+ .editor>.subbar,.editor>.highlighter-settings,.editor>.context-settings{grid-row:3;min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+ .editor>.viewport{grid-row:4;min-height:0}
+ .mobile-writing-actions{justify-content:flex-start;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+ .mobile-writing-actions button{min-width:44px;width:44px;flex:none}
+ .mobile-writing-actions .mobile-brush{width:auto;padding:0 13px;font-size:13px;font-weight:750;white-space:nowrap;margin-left:auto}
+}
+@media(pointer:coarse) and (max-width:600px){
+ .editor,.editor.hl-active{grid-template-rows:49px 60px minmax(52px,auto) minmax(0,1fr)!important}
+ .mobile-writing-actions{justify-content:space-between;padding:4px 10px;gap:5px}
+ .mobile-writing-actions button{height:41px;min-width:41px;width:41px}
+ .mobile-writing-actions .mobile-brush{min-width:76px;padding:0 8px;font-size:12px}
+ .subbar{padding-left:9px!important;padding-right:9px!important}
+}
+.pen-brush-open{white-space:nowrap;flex:none;min-height:40px;background:#edf4ff!important;border:1px solid #b9d3ff!important;color:#276bd9!important;font-weight:750!important}
+.brush-sheet{width:min(570px,95vw);max-height:min(82dvh,800px);overflow:auto}
+.brush-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brush-sheet-head h3{margin:0}
+.brush-style-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:18px 0}
+.brush-style-grid button{min-height:86px;border:2px solid #dce5f2;border-radius:15px;background:#fafcff;display:grid;gap:5px;align-content:center;justify-items:center;color:#394963;touch-action:manipulation}
+.brush-style-grid button.active{background:#e9f2ff;border-color:#4686ef;color:#2868c6}
+.brush-style-grid .brush-preview{font-size:29px;font-family:Georgia,serif;line-height:1}
+.brush-style-grid small{font-size:11px;color:#748397}
+.brush-row{display:grid;grid-template-columns:116px minmax(0,1fr) 37px;align-items:center;gap:10px;margin:13px 0;font-size:14px}
+.brush-row input[type=range]{width:100%;min-width:0;accent-color:#367bf0;touch-action:pan-y}
+.brush-row output{font-variant-numeric:tabular-nums;text-align:right;color:#3474db;font-weight:750}
+.brush-help{font-size:12px;line-height:1.6;color:#63738a;background:#f2f7ff;padding:11px 13px;border-radius:11px;margin:13px 0}
+.brush-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:17px}
+.palette-arrange{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:7px 0 14px}
+.palette-arrange button{min-height:43px;border:1px solid #d4e1f3;background:#f7faff;border-radius:11px;padding:0 15px;color:#3868aa;font-weight:650}
+.palette-arrange button:disabled{opacity:.35}
+.palette-slot{touch-action:manipulation;min-width:40px;min-height:40px}
+@media(max-width:600px){.brush-sheet{max-height:90dvh;padding:18px}.brush-row{grid-template-columns:90px minmax(0,1fr) 34px}.brush-style-grid button{min-height:76px}}
+
+
+/* v5.25: keep navigation names horizontal and secondary actions reachable on iPhone. */
+#penSettings{justify-content:flex-start!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+#penSettings>*{flex-shrink:0!important}
+#penSettings .chip{white-space:nowrap;min-width:52px}
+#mobileDocActions{display:none}
+@media(max-width:800px){
+ .nav{gap:4px!important;padding:0 8px!important;min-width:0}
+ .nav #back,.nav #sideToggle,.nav #more,.nav #addPageTop{flex:none;white-space:nowrap}
+ .nav .title{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .nav .spacer{display:none}
+ .nav #audioOpen,.nav #studyCardsOpen,.nav #readMode,.nav #jumpPage,.nav #bookmark,.nav #share{display:none!important}
+ #mobileDocActions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:5px 0 17px;border-bottom:1px solid #e5ebf3;margin-bottom:12px}
+ #mobileDocActions button{min-height:44px;padding:7px;border-radius:11px;background:#f6f9ff;border:1px solid #dce6f5;color:#3b5e95;font-size:13px;white-space:nowrap}
+}
+@media(max-width:600px){
+ .nav{gap:3px!important;padding:0 5px!important}
+ .nav #back{min-width:54px;padding:0 5px;font-size:12px}
+ .nav #sideToggle{min-width:33px;padding:0 5px}
+ .nav #addPageTop{display:none!important}
+ .nav #pageCount{font-size:10px}
+ .nav #more{min-width:34px;padding:0 5px}
+}
+.editor.readonly-mode{grid-template-rows:minmax(0,1fr)!important}
+.editor.readonly-mode>.toolbar,.editor.readonly-mode>.mobile-writing-actions,.editor.readonly-mode>.subbar,.editor.readonly-mode>.highlighter-settings,.editor.readonly-mode>.context-settings{display:none!important}
+.editor.readonly-mode>.viewport{grid-row:1!important;min-height:0}
+
+
+/* v5.25: constrain the editor grid track so toolbars cannot widen the whole page. */
+.body,.body.pages-collapsed{min-width:0;max-width:100%;overflow:hidden}
+.editor{grid-template-columns:minmax(0,1fr)!important;min-width:0;width:100%;max-width:100%}
+.editor>.toolbar,.editor>.subbar,.editor>.highlighter-settings,.editor>.context-settings,.editor>.mobile-writing-actions,.editor>.viewport{min-width:0;max-width:100%}
+.editor>.viewport{width:100%;overflow:auto}
+
 </style>
 </head>
 <body>
@@ -378,10 +453,13 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
      <button id="mobileRedo" type="button" aria-label="重做上一筆" title="重做">↷</button>
      <button id="mobilePen" type="button" aria-label="切換鋼筆" title="鋼筆">✎</button>
      <button id="mobileEraser" type="button" aria-label="切換橡皮擦" title="橡皮擦">⌫</button>
+     <button id="mobileHand" class="mobile-hand" type="button" aria-label="手指移動頁面" aria-pressed="false" title="手指移動頁面">✋</button>
+     <button id="mobileBrush" class="mobile-brush" type="button" aria-label="打開畫筆設定">✎ 筆刷設定</button>
     </div><div class="toolbar" id="toolbar">
     <button class="tool" data-tool="lasso"><span class="tool-symbol">◌</span><span class="tool-label">套索</span></button><button class="tool active" data-tool="pen"><span class="tool-symbol">✎</span><span class="tool-label">鋼筆</span></button><button class="tool" data-tool="eraser"><span class="tool-symbol">⌫</span><span class="tool-label">橡皮擦</span></button><button class="tool" data-tool="highlighter"><span class="tool-symbol">▰</span><span class="tool-label">螢光筆</span></button><button class="tool" data-tool="shape"><span class="tool-symbol">◇</span><span class="tool-label">圖形</span></button><button class="tool" data-tool="tape"><span class="tool-symbol">▱</span><span class="tool-label">膠帶</span></button><button class="tool" data-tool="image"><span class="tool-symbol">▧</span><span class="tool-label">圖片</span></button><button class="tool" data-tool="text"><span class="tool-symbol">T</span><span class="tool-label">文字</span></button><button class="tool" data-tool="element"><span class="tool-symbol">✦</span><span class="tool-label">元素</span></button><button class="tool" data-tool="laser"><span class="tool-symbol">⌁</span><span class="tool-label">雷射筆</span></button><button class="tool" id="toolbarMore" title="更多工具">⋯<span class="tool-label">更多</span></button><button class="tool" id="exportPDF" title="匯出 PDF"><span class="tool-symbol">↥</span><span class="tool-label">PDF</span></button><button class="tool hidden" id="lassoAll">☑ 全選</button><button class="tool hidden" id="lassoMove">↔ 移動選取</button><button class="tool hidden" id="lassoCopy">▢ 複製選取</button><button class="tool hidden" id="lassoDelete">⌫ 刪除選取</button><button class="tool hidden" id="lassoDeselect">✕ 取消選取</button><div class="spacer"></div><button class="tool" id="undo">↶</button><button class="tool" id="redo">↷</button>
    </div>
    <div class="subbar" id="penSettings">
+    <button type="button" class="chip pen-brush-open" id="penBrushOpen" aria-label="開啟筆刷設定">⚙ 筆刷設定</button>
     <span class="setting-caption">筆尖</span>
     <button class="chip active" data-pen="fountain">鋼筆</button><button class="chip" data-pen="ball">原子筆</button><button class="chip" data-pen="brush">畫筆</button>
     <span class="setting-caption">筆觸</span><select id="strokePattern" aria-label="筆觸樣式"><option value="solid">實線</option><option value="dashed">虛線</option><option value="dotted">點線</option></select><span class="setting-caption">粗細</span><input id="width" type="range" min="1" max="18" value="4" aria-label="筆尖粗細"><output id="widthValue" for="width">4</output><span class="subbar-divider"></span>
@@ -436,13 +514,31 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  <label class="editor-field">筆型 <select id="presetStyle"><option value="fountain">鋼筆</option><option value="ball">原子筆</option><option value="brush">畫筆</option></select></label>
  <label class="editor-field">筆觸 <select id="presetPattern"><option value="solid">實線</option><option value="dashed">虛線</option><option value="dotted">點線</option></select></label>
  <label class="editor-field">粗細 <input id="presetWidth" type="range" min="1" max="18" value="4"><output id="presetWidthValue">4</output></label>
+ <label class="editor-field">筆壓反應 <input id="presetPressure" type="range" min="0" max="100" step="5" value="65"><output id="presetPressureValue">65%</output></label>
+ <label class="editor-field">筆跡穩定 <input id="presetSmoothing" type="range" min="0" max="100" step="5" value="25"><output id="presetSmoothingValue">25%</output></label>
  <label class="editor-field">顏色 <input id="presetColor" type="color" value="#20242c"><input id="presetHex" inputmode="text" maxlength="7" placeholder="#20242c" aria-label="HEX 顏色"></label>
  <div class="pen-editor-actions"><button class="btn" id="applyPreset">僅這次使用（不儲存）</button><button class="btn primary" id="savePresetEditor">儲存並使用這支筆</button></div>
+ </div></div>
+<div class="modal hidden" id="brushModal" role="dialog" aria-modal="true" aria-labelledby="brushHeading"><div class="sheet brush-sheet">
+ <div class="brush-sheet-head"><h3 id="brushHeading">筆刷設定</h3><button class="btn" type="button" id="brushClose" aria-label="關閉筆刷設定">✕</button></div>
+ <p class="palette-hint">設定會保留在這台裝置；每一筆也記錄當時的筆型與筆壓設定，不會改變舊筆跡。</p>
+ <div class="brush-style-grid" id="brushStyles">
+  <button type="button" data-brush-style="fountain"><span class="brush-preview">𝒜</span><strong>鋼筆</strong><small>自然筆壓</small></button>
+  <button type="button" data-brush-style="ball"><span class="brush-preview">━━</span><strong>原子筆</strong><small>固定粗細</small></button>
+  <button type="button" data-brush-style="brush"><span class="brush-preview">𝓐</span><strong>畫筆</strong><small>強化筆壓</small></button>
+ </div>
+ <label class="brush-row">筆尖粗細 <input type="range" id="brushWidth" min="1" max="18" value="4"><output id="brushWidthValue">4</output></label>
+ <label class="brush-row">筆壓反應 <input type="range" id="brushPressure" min="0" max="100" step="5" value="65"><output id="brushPressureValue">65%</output></label>
+ <label class="brush-row">筆跡穩定 <input type="range" id="brushSmoothing" min="0" max="100" step="5" value="25"><output id="brushSmoothingValue">25%</output></label>
+ <label class="brush-row">筆觸樣式 <select id="brushPattern" aria-label="筆觸樣式"><option value="solid">實線</option><option value="dashed">虛線</option><option value="dotted">點線</option></select><span></span></label>
+ <div class="brush-help">筆壓反應只影響鋼筆與畫筆；原子筆保持固定粗細。筆跡穩定會平滑新輸入的採樣點，越高越平滑，但快速轉角會有較明顯的跟隨感。</div>
+ <div class="brush-foot"><button type="button" class="btn" id="brushManage">編輯常用筆</button><button type="button" class="btn primary" id="brushDone">完成</button></div>
  </div></div>
 <div class="modal hidden" id="paletteModal"><div class="sheet palette-sheet">
  <div class="pen-editor-head"><h3 id="paletteTitle">自訂顏色</h3><button class="btn" id="closePalette">✕</button></div>
  <p class="palette-hint">鋼筆和螢光筆使用各自的色票，最多各 12 色。點選色票即可套用，長按可編輯。</p>
  <div id="paletteSlots" class="palette-slots"></div>
+ <div class="palette-arrange"><span class="palette-hint">調整選取色票位置</span><button type="button" id="paletteMoveLeft">← 左移</button><button type="button" id="paletteMoveRight">右移 →</button></div>
  <label class="editor-field">自訂顏色 <input type="color" id="paletteColor" value="#3578f6"><input id="paletteHex" maxlength="7" value="#3578f6" inputmode="text" aria-label="HEX 顏色"></label>
  <div class="pen-editor-actions"><button class="btn" id="paletteDelete">刪除選取色票</button><button class="btn" id="paletteReset">還原預設</button><button class="btn primary" id="paletteSave">儲存顏色</button></div>
  </div></div>
@@ -458,6 +554,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  </div></div>
  <div class="modal hidden" id="trashModal"><div class="sheet trash-sheet"><h3>最近刪除的頁面</h3><p style="color:#798394;font-size:12px">已刪除頁面會保留在這本筆記本中，可隨時還原。</p><div id="trashItems"></div><div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="btn primary" id="closeTrash">完成</button></div></div></div>
 <div class="modal hidden" id="settings"><div class="sheet"><h3>文件設定</h3>
+<div id="mobileDocActions" aria-label="文件快捷操作"><button type="button" data-mobile-action="audioOpen">◉ 錄音筆記</button><button type="button" data-mobile-action="studyCardsOpen">▤ 學習卡片</button><button type="button" data-mobile-action="jumpPage">⌕ 跳至頁面</button><button type="button" data-mobile-action="addPageTop">＋ 新增頁面</button><button type="button" data-mobile-action="bookmark">☆ 書籤</button><button type="button" data-mobile-action="share">↥ 匯出 PNG</button><button type="button" data-mobile-action="readMode">◉ 閱讀／編輯模式</button><button type="button" data-mobile-action="exportPDF">↥ 匯出 PDF</button></div>
  <div class="setting"><div><b>Apple Pencil Only</b><div style="font-size:12px;color:#7d8492">手指只負責捲動、平移與縮放，不會留下筆跡。</div></div><div class="switch on" id="pencilSwitch"><i></i></div></div>
  <div class="setting"><div><b>滑動切換頁面</b><div style="font-size:12px;color:#7d8492;margin-top:4px">手指連續捲動多頁；雙指捏合縮放。Apple Pencil 繼續書寫。</div></div><select id="swipeMode" aria-label="滑動換頁方向"><option value="off">單頁（自由移動）</option><option value="horizontal">左右連續捲動</option><option value="vertical">上下連續捲動</option></select></div><div class="setting"><span>翻頁方向</span><span id="swipeHint" style="font-size:12px;color:#78859b">尚未啟用</span></div>
  <div class="setting"><span>紙張</span><select id="paperType"><option value="grid">方格</option><option value="lines">橫線</option><option value="dots">點陣</option><option value="">空白</option></select></div>
@@ -481,11 +578,12 @@ async function getPDFEngine(){
  pdfjsLib=mod;return mod;
 }
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const APP_VERSION="5.24.0";
+const APP_VERSION="5.25.0";
 document.title=`NoteCanvas V${APP_VERSION}`;
 $("#appVersion").textContent=`v${APP_VERSION}`;
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
-let eraserMode="region",eraserSize=4,autoPenAfterErase=false;let tool="pen",color="#20242c",width=4,strokePattern="solid",penStyle="fountain",pencilOnly=true,zoom=1;let highlighterColor="#f2d64b",highlighterWidth=18,highlighterStraight=false;
+const phoneTouchLayout=matchMedia("(max-width:600px) and (pointer:coarse)").matches;let fingerNavigate=false;
+let eraserMode="region",eraserSize=4,autoPenAfterErase=false;let tool="pen",color="#20242c",width=4,strokePattern="solid",penStyle="fountain",pencilOnly=!phoneTouchLayout,zoom=1;let pressureSensitivity=65,inkSmoothing=25;let highlighterColor="#f2d64b",highlighterWidth=18,highlighterStraight=false;
 let drawing=false,currentStroke=null,lassoStart=null,lassoDrag=null,selectedIds=new Set(),history=[],future=[];
 let db, bookId=null,pageIndex=0, book=null, libraryFilter="all";let pageMenuIndex=null, pageClipboard=null, pageTrash=[];let savePending=0;
 const uid=()=>crypto.randomUUID(), toast=t=>{let x=$("#toast");x.textContent=t;x.classList.remove("hidden");setTimeout(()=>x.classList.add("hidden"),1600)};
@@ -567,7 +665,8 @@ async function renderLibrary(bs){
  }
 }
 function esc(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-async function openBook(id){setPageSidebar(false);book=(await getAll()).find(x=>x.id===id);bookId=id;pageTrash=book.trash||[];pageIndex=0;$("#library").classList.add("hidden");$("#title").textContent=book.title;$("#tabTitle").textContent=book.title;loadPage()}
+function exitReadMode(){$(".editor").classList.remove("readonly-mode");$("#readMode").classList.remove("active");$("#readMode").textContent="◉ 閱讀"}
+async function openBook(id){exitReadMode();setPageSidebar(false);book=(await getAll()).find(x=>x.id===id);bookId=id;pageTrash=book.trash||[];pageIndex=0;$("#library").classList.add("hidden");$("#title").textContent=book.title;$("#tabTitle").textContent=book.title;loadPage()}
 function p(){return book.pages[pageIndex]}
 function snapshot(){history.push(JSON.stringify(p()));if(history.length>40)history.shift();future=[]}
 async function save(){
@@ -602,6 +701,11 @@ function inkWidth(st,point){
  const base=st.width||4;
  if(!st.pressure)return base;
  const pressure=Number.isFinite(point.p)?point.p:.5;
+ if(Number.isFinite(st.pressureSensitivity)){
+  const strength=(st.penStyle==="brush"?2.1:1.15)*Math.max(0,Math.min(100,st.pressureSensitivity))/100;
+  return Math.max(.35,base*(1+(Math.max(.03,Math.min(1,pressure))-.5)*strength));
+ }
+ // No stored sensitivity: reproduce V5.24 ink widths for all existing notebooks.
  const range=st.penStyle==="brush"?1.65:.95;
  return Math.max(.45,base*(.44+Math.max(.05,Math.min(1,pressure))*range));
 }
@@ -658,21 +762,33 @@ function drawShapeCanvas(g,o){
 }
 function shapeFromDrag(a,b){return {type:'shape',shapeKind,x:Math.min(a.x,b.x),y:Math.min(a.y,b.y),w:Math.max(1,Math.abs(b.x-a.x)),h:Math.max(1,Math.abs(b.y-a.y)),flipX:b.x<a.x,flipY:b.y<a.y,color:shapeColor,lineWidth:shapeWidth,filled:shapeFill}}
 function pos(e){let r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*768/r.width,y:(e.clientY-r.top)*1024/r.height,p:e.pressure||.5}}
-function allowed(e){return !pencilOnly || e.pointerType==="pen"}
+function allowed(e){return e.pointerType==="pen"||(e.pointerType==="touch"&&!pencilOnly&&!fingerNavigate)}
 let shapeKind="rectangle",shapeColor="#3578f6",shapeWidth=3,shapeFill=false;
-let activePointer=null, touchPan=null;
+// Cache finished ink once per stroke instead of redrawing the entire notebook
+// on every Apple Pencil sample. Preview frames are synchronized to the display.
+const finishedInk=document.createElement("canvas");finishedInk.width=768;finishedInk.height=1024;
+const finishedInkContext=finishedInk.getContext("2d");let inkPreviewFrame=0;
+function captureFinishedInk(){finishedInkContext.clearRect(0,0,768,1024);finishedInkContext.drawImage(cv,0,0)}
+function drawInkPreview(){inkPreviewFrame=0;if(!drawing||!currentStroke||tool!=="pen")return;
+ ctx.clearRect(0,0,768,1024);ctx.drawImage(finishedInk,0,0);drawStroke(currentStroke)}
+function queueInkPreview(){if(!inkPreviewFrame)inkPreviewFrame=requestAnimationFrame(drawInkPreview)}
+function stopInkPreview(){if(inkPreviewFrame)cancelAnimationFrame(inkPreviewFrame);inkPreviewFrame=0}
+function sampleInk(last,raw){if(!last||tool!=="pen"||inkSmoothing<=0)return raw;
+ const alpha=1-(inkSmoothing/100)*.58;
+ return {...raw,x:last.x+(raw.x-last.x)*alpha,y:last.y+(raw.y-last.y)*alpha,p:last.p+(raw.p-last.p)*alpha};}
+let activePointer=null,activePointerType=null,touchPan=null;
 let swipeMode="off", swipeTracking=null;
 function showPointer(e){
  const state=$("#pencilState");
- if(state)state.textContent=e.pointerType==="pen"?"✏️ Apple Pencil 已偵測":`輸入：${e.pointerType}（僅 Pencil 可寫）`;
+ if(state)state.textContent=e.pointerType==="pen"?"✏️ Apple Pencil 已偵測":(phoneTouchLayout?(fingerNavigate?"✋ 手指移動":"☝ 手指書寫"):`輸入：${e.pointerType}（僅 Pencil 可寫）`);
 }
 // Canvas 必須在 pointerdown 之前就設定 touch-action:none，
 // 否則 Safari 可能接管 Pencil 手勢並發出 pointercancel。
 // 手指平移改由下方的 touch handlers 處理。
 cv.addEventListener("pointerdown",e=>{
- showPointer(e);if(!allowed(e)){return} e.preventDefault();activePointer=e.pointerId; try{cv.setPointerCapture(e.pointerId)}catch(_){}
+ showPointer(e);if(!allowed(e)){return} e.preventDefault();activePointer=e.pointerId;activePointerType=e.pointerType;try{cv.setPointerCapture(e.pointerId)}catch(_){}
  let q=pos(e);
- if(tool==="pen"||tool==="highlighter"||tool==="eraser"||tool==="shape"||tool==="tape"||tool==="laser"){drawing=true;snapshot();currentStroke={id:uid(),tool,color:tool==="highlighter"?highlighterColor:color,width:tool==="highlighter"?highlighterWidth:width,alpha:tool==="highlighter"?.34:1,pressure:tool==="pen"&&penStyle!=="ball",penStyle:tool==="pen"?penStyle:null,pattern:tool==="pen"?strokePattern:"solid",points:[q]};if(tool==="eraser")eraseAt(q);}
+ if(tool==="pen"||tool==="highlighter"||tool==="eraser"||tool==="shape"||tool==="tape"||tool==="laser"){drawing=true;snapshot();currentStroke={id:uid(),tool,color:tool==="highlighter"?highlighterColor:color,width:tool==="highlighter"?highlighterWidth:width,alpha:tool==="highlighter"?.34:1,pressure:tool==="pen"&&penStyle!=="ball",penStyle:tool==="pen"?penStyle:null,pattern:tool==="pen"?strokePattern:"solid",...(tool==="pen"?{pressureSensitivity,stabilization:inkSmoothing}:{}),points:[q]};if(tool==="pen")captureFinishedInk();if(tool==="eraser")eraseAt(q);}
  else if(tool==="lasso"){
   const bounds=selectionBounds();
   if(bounds&&q.x>=bounds.x-8&&q.x<=bounds.x+bounds.w+8&&q.y>=bounds.y-8&&q.y<=bounds.y+bounds.h+8){
@@ -689,7 +805,11 @@ cv.addEventListener("pointermove",e=>{
  if(drawing&&currentStroke){
   const prevLength=currentStroke.points.length;
   if(tool==="highlighter"&&highlighterStraight){currentStroke.points=[currentStroke.points[0],q];currentStroke.straight=true}
-  else for(const sample of events){const pt=pos(sample),last=currentStroke.points[currentStroke.points.length-1];if(Math.hypot(pt.x-last.x,pt.y-last.y)>.18)currentStroke.points.push(pt)}
+  else {
+   const samplesToKeep=events.length&&events[events.length-1]===e?events:[...events,e];
+   for(const sample of samplesToKeep){const raw=pos(sample),last=currentStroke.points[currentStroke.points.length-1];
+    if(Math.hypot(raw.x-last.x,raw.y-last.y)>.18)currentStroke.points.push(sampleInk(last,raw));}
+  }
   if(tool==="eraser"){
    const pts=currentStroke.points;
    for(let j=Math.max(1,prevLength);j<pts.length;j++){
@@ -697,13 +817,10 @@ cv.addEventListener("pointermove",e=>{
     for(let i=1;i<=n;i++){const t=i/n;eraseAt({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t})}
    }
   }else if(tool==="shape"){render();drawShapeCanvas(ctx,shapeFromDrag(currentStroke.points[0],q))}
-  else if(tool==="pen"&&currentStroke.pattern==="solid"){
-   // Avoid expensive object DOM rebuilding on every Pencil event.
-   // Repaint canvas ink only; the finished stroke uses the same paintInk engine.
-   ctx.clearRect(0,0,768,1024);
-   for(const st of p().strokes.filter(x=>x.tool==="highlighter"))drawStroke(st);
-   for(const st of p().strokes.filter(x=>x.tool!=="highlighter"))drawStroke(st);
-   drawStroke(currentStroke);
+  else if(tool==="pen"){
+   // A single cached image of finished ink + the in-progress stroke per frame.
+   // This applies to solid, dotted, and dashed pen strokes.
+   queueInkPreview();
   }else if(tool==="laser"){render();drawStroke(currentStroke)}
   else{render();drawStroke(currentStroke);if(tool==="highlighter")for(const ink of p().strokes.filter(x=>x.tool!=="highlighter"))drawStroke(ink)}
  }
@@ -714,7 +831,7 @@ cv.addEventListener("pointermove",e=>{
  if(lassoStart){let x=Math.min(q.x,lassoStart.x),y=Math.min(q.y,lassoStart.y),w=Math.abs(q.x-lassoStart.x),h=Math.abs(q.y-lassoStart.y),b=$("#lasso");Object.assign(b.style,{left:x+"px",top:y+"px",width:w+"px",height:h+"px"});}
 });
 cv.addEventListener("pointerup",e=>{
- if(!allowed(e)||activePointer!==e.pointerId)return;activePointer=null;let q=pos(e);
+ if(!allowed(e)||activePointer!==e.pointerId)return;stopInkPreview();activePointer=null;activePointerType=null;let q=pos(e);
  if(drawing&&currentStroke){
    if(["pen","highlighter","eraser","laser"].includes(tool)&&!highlighterStraight){
     const last=currentStroke.points[currentStroke.points.length-1];
@@ -729,20 +846,20 @@ cv.addEventListener("pointerup",e=>{
  if(lassoDrag){lassoDrag=null;save()}
 });
 cv.addEventListener("pointercancel",e=>{
- if(activePointer!==e.pointerId)return;
+ if(activePointer!==e.pointerId)return;stopInkPreview();
  // 儲存已經畫出的筆跡，避免 Safari 中斷時整筆消失。
  if(drawing&&currentStroke&&currentStroke.points.length>1&&["pen","highlighter"].includes(tool))p().strokes.push(currentStroke);
- activePointer=null;drawing=false;currentStroke=null;lassoStart=null;lassoDrag=null;render();save();
+ activePointer=null;activePointerType=null;drawing=false;currentStroke=null;lassoStart=null;lassoDrag=null;render();save();
 });
 // 手指只移動頁面；Pencil 仍由 Pointer Events 獨立處理。
 cv.addEventListener("touchstart",e=>{
- if(!pencilOnly||pinch)return;
+ if(!(pencilOnly||fingerNavigate)||pinch)return;
  const touches=[...e.touches].filter(t=>t.touchType!=="stylus");
  if(!touches.length)return;
  activeFingerScroll=true;touchPan={x:touches[0].clientX,y:touches[0].clientY,left:$("#viewport").scrollLeft,top:$("#viewport").scrollTop};
 }, {passive:true});
 cv.addEventListener("touchmove",e=>{
- if(!pencilOnly||pinch||!touchPan||e.touches.length!==1)return;
+ if(!(pencilOnly||fingerNavigate)||pinch||!touchPan||e.touches.length!==1)return;
  const touches=[...e.touches].filter(t=>t.touchType!=="stylus");
  if(!touches.length)return;
  const v=$("#viewport");v.scrollLeft=touchPan.left+touchPan.x-touches[0].clientX;
@@ -835,7 +952,10 @@ function activateVisiblePage(){
 viewport.addEventListener("scroll",()=>{if(scrollFrame)cancelAnimationFrame(scrollFrame);scrollFrame=requestAnimationFrame(()=>{scrollFrame=0;activateVisiblePage()})},{passive:true});
 // 兩指捏合：縮放整個多頁畫布；不改變書寫座標與筆跡資料。
 viewport.addEventListener("touchstart",e=>{
- if(e.touches.length===2){const [a,b]=e.touches;pinch={distance:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),zoom,midX:(a.clientX+b.clientX)/2,midY:(a.clientY+b.clientY)/2,left:viewport.scrollLeft,top:viewport.scrollTop};touchPan=null}
+ if(e.touches.length===2){
+  // A second finger cancels an uncommitted touch stroke before pinch starts.
+  if(drawing&&activePointerType==="touch"){stopInkPreview();drawing=false;currentStroke=null;activePointer=null;activePointerType=null;lassoStart=null;lassoDrag=null;history.pop();render()}
+  const [a,b]=e.touches;pinch={distance:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),zoom,midX:(a.clientX+b.clientX)/2,midY:(a.clientY+b.clientY)/2,left:viewport.scrollLeft,top:viewport.scrollTop};touchPan=null}
 },{capture:true,passive:true});
 viewport.addEventListener("touchmove",e=>{
  if(!pinch||e.touches.length!==2)return;
@@ -1018,7 +1138,7 @@ function setPageSidebar(open){
  button.setAttribute("aria-label",open?"隱藏頁面縮圖":"顯示頁面縮圖");
  button.title=open?"隱藏頁面縮圖":"顯示頁面縮圖";
 }
-$("#back").onclick=async()=>{setPageSidebar(false);await save();$("#library").classList.remove("hidden");renderLibrary()};
+$("#back").onclick=async()=>{exitReadMode();setPageSidebar(false);await save();$("#library").classList.remove("hidden");renderLibrary()};
 $("#sideToggle").onclick=()=>setPageSidebar($("#bookBody").classList.contains("pages-collapsed"));
 function showTrash(){
  const box=$("#trashItems");box.replaceChildren();
@@ -1040,7 +1160,8 @@ $("#openTrash").onclick=showTrash;
 $("#closeTrash").onclick=()=>$("#trashModal").classList.add("hidden");
 $("#more").onclick=()=>$("#settings").classList.remove("hidden");$("#closeSettings").onclick=()=>$("#settings").classList.add("hidden");
 $("#pencilSwitch").onclick=()=>{pencilOnly=!pencilOnly;$("#pencilSwitch").classList.toggle("on",pencilOnly);$("#pencilState").textContent=pencilOnly?" Pencil Only":"手指可書寫";toast(pencilOnly?"Apple Pencil Only 已開啟":"手指書寫已開啟")};
-$("#paperType").onchange=e=>{p().paper=e.target.value;loadPage()};$("#readMode").onclick=()=>{let on=$("#toolbar").classList.toggle("hidden");$(".subbar").classList.toggle("hidden",on);$("#readMode").classList.toggle("active",on);$("#readMode").textContent=on?"◉ 閱讀中":"◉ 閱讀"};
+$$('[data-mobile-action]').forEach(b=>b.onclick=()=>{$("#settings").classList.add("hidden");$("#"+b.dataset.mobileAction).click()});
+$("#paperType").onchange=e=>{p().paper=e.target.value;loadPage()};$("#readMode").onclick=()=>{let on=$(".editor").classList.toggle("readonly-mode");$("#readMode").classList.toggle("active",on);$("#readMode").textContent=on?"◉ 閱讀中":"◉ 閱讀"};
 function applyZoom(){sizeSlots()}
 function imageLoaded(src){return new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src=src})}
 async function composePage(pg){
@@ -1150,11 +1271,39 @@ $$('[data-thumb-filter]').forEach(btn=>btn.onclick=()=>{thumbFilter=btn.dataset.
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('#toolOverflow,#toolbarMore'))$('#toolOverflow').classList.add('hidden')});
 applyToolbarPrefs();
 $("#librarySearch").oninput=()=>renderLibrary();$("#librarySort").onchange=()=>renderLibrary();$$('[data-filter]').forEach(el=>el.onclick=()=>{libraryFilter=el.dataset.filter;$$('[data-filter]').forEach(x=>x.classList.toggle('active',x===el));if(libraryFilter==='search')$("#librarySearch").focus();renderLibrary()});
-if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=5.25.0',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
 $("#tabHome").onclick=()=>$("#back").click();
 $("#tabAdd").onclick=()=>$("#back").click();
 const baseLoadPage=loadPage;
 loadPage=function(){baseLoadPage();if(!continuousSwitching)buildContinuousPages(true)};
+
+// V5.25: independent, local-only Apple Pencil tuning (no notebook database migration).
+const inkPrefsKey="notecanvas.inkPrefs.v1";
+try{const saved=JSON.parse(localStorage.getItem(inkPrefsKey)||"null");if(saved){pressureSensitivity=Math.max(0,Math.min(100,Number(saved.pressureSensitivity)??65));inkSmoothing=Math.max(0,Math.min(100,Number(saved.inkSmoothing)??25));if(!Number.isFinite(pressureSensitivity))pressureSensitivity=65;if(!Number.isFinite(inkSmoothing))inkSmoothing=25}}catch(_){}
+function saveInkPrefs(){try{localStorage.setItem(inkPrefsKey,JSON.stringify({pressureSensitivity,inkSmoothing}))}catch(_){toast("無法儲存筆刷偏好")}}
+function syncBrushUi(){
+ $("#brushWidth").value=$("#width").value=width;$("#brushWidthValue").textContent=String(width);
+ $("#brushPressure").value=pressureSensitivity;$("#brushPressureValue").textContent=pressureSensitivity+"%";
+ $("#brushSmoothing").value=inkSmoothing;$("#brushSmoothingValue").textContent=inkSmoothing+"%";
+ $("#brushPattern").value=strokePattern;
+ $$('[data-brush-style]').forEach(b=>{const selected=b.dataset.brushStyle===penStyle;b.classList.toggle("active",selected);b.setAttribute("aria-pressed",String(selected))});
+}
+function selectBrushStyle(style){if(!["fountain","ball","brush"].includes(style))return;penStyle=style;$$('[data-pen]').forEach(b=>b.classList.toggle('active',b.dataset.pen===style));syncBrushUi();updatePresetButtons()}
+function openBrushSettings(){if(tool!=="pen")setTool("pen");syncBrushUi();$("#brushModal").classList.remove("hidden")}
+$("#penBrushOpen").onclick=$("#mobileBrush").onclick=openBrushSettings;
+$("#brushClose").onclick=$("#brushDone").onclick=()=>$("#brushModal").classList.add("hidden");
+$("#brushModal").addEventListener("click",e=>{if(e.target.id==="brushModal")$("#brushModal").classList.add("hidden")});
+$$('[data-brush-style]').forEach(b=>b.onclick=()=>selectBrushStyle(b.dataset.brushStyle));
+$("#brushWidth").oninput=e=>{width=Number(e.target.value);$("#width").value=width;syncBrushUi();updatePresetButtons()};
+$("#brushPressure").oninput=e=>{pressureSensitivity=Number(e.target.value);saveInkPrefs();syncBrushUi();updatePresetButtons()};
+$("#brushSmoothing").oninput=e=>{inkSmoothing=Number(e.target.value);saveInkPrefs();syncBrushUi();updatePresetButtons()};
+$("#brushPattern").onchange=e=>{strokePattern=e.target.value;$("#strokePattern").value=strokePattern;updatePresetButtons()};
+$("#brushManage").onclick=()=>{$("#brushModal").classList.add("hidden");$("#editPresets").click()};
+// Selected Pen tool opens its working settings on the second tap, like a touch toolbar.
+const penToolButton=$('[data-tool="pen"]');
+penToolButton.onclick=()=>{if(tool==="pen")openBrushSettings();else setTool("pen")};
+// Keep the toolbar slider and advanced brush sheet synchronized.
+$("#width").addEventListener("input",syncBrushUi);$("#strokePattern").addEventListener("change",syncBrushUi);
 
 // V5.14: Editable named pen presets and independent persistent tool palettes.
 const presetKey="notecanvas.penPresets.v2";
@@ -1171,10 +1320,12 @@ function updatePresetButtons(){
  $("#widthValue").textContent=String(width);
 }
 function setInkColor(next){if(!validHex(next))return;color=next;$("#customColor").value=next;$$('.swatch').forEach(b=>b.classList.toggle('active',b.dataset.color.toLowerCase()===next.toLowerCase()));updatePresetButtons()}
-function applyPreset(i){const v=penPresets[i];penStyle=v.penStyle;strokePattern=v.pattern||"solid";$("#strokePattern").value=strokePattern;width=v.width;$("#width").value=width;setInkColor(v.color);$$('[data-pen]').forEach(x=>x.classList.toggle('active',x.dataset.pen===penStyle));setTool('pen');toast(`已切換：${v.name}`)}
-function openPresetEditor(i){editingPreset=i;$("#presetManagerModal").classList.add("hidden");const v=penPresets[i];$("#penEditorTitle").textContent=`編輯常用筆 ${i+1}`;$("#presetName").value=v.name;$("#presetStyle").value=v.penStyle;$("#presetPattern").value=v.pattern||"solid";$("#presetWidth").value=v.width;$("#presetColor").value=v.color;$("#presetHex").value=v.color;updatePresetPreview();$("#penEditorModal").classList.remove("hidden")}
-function updatePresetPreview(){const v=$("#presetWidth").value,c=$("#presetColor").value;$("#presetWidthValue").textContent=v;$("#penPreviewStroke").setAttribute("stroke",c);$("#penPreviewStroke").setAttribute("stroke-width",v);$("#penPreviewStroke").setAttribute("stroke-dasharray",$("#presetPattern").value==="dotted"?"0.1 8":$("#presetPattern").value==="dashed"?"12 8":"none")}
-function presetEditorValue(){const c=$("#presetHex").value.trim();if(!validHex(c)){toast("請輸入正確的 HEX 顏色，例如 #3578f6");return null}return {name:$("#presetName").value.trim()||`常用筆 ${editingPreset+1}`,color:c.toLowerCase(),width:+$("#presetWidth").value,penStyle:$("#presetStyle").value,pattern:$("#presetPattern").value}}
+function applyPreset(i){const v=penPresets[i];penStyle=v.penStyle;strokePattern=v.pattern||"solid";$("#strokePattern").value=strokePattern;width=v.width;$("#width").value=width;
+ if(Number.isFinite(v.pressureSensitivity))pressureSensitivity=v.pressureSensitivity;if(Number.isFinite(v.stabilization))inkSmoothing=v.stabilization;
+ saveInkPrefs();setInkColor(v.color);$$('[data-pen]').forEach(x=>x.classList.toggle('active',x.dataset.pen===penStyle));setTool('pen');syncBrushUi();toast(`已切換：${v.name}`)}
+function openPresetEditor(i){editingPreset=i;$("#presetManagerModal").classList.add("hidden");const v=penPresets[i];$("#penEditorTitle").textContent=`編輯常用筆 ${i+1}`;$("#presetName").value=v.name;$("#presetStyle").value=v.penStyle;$("#presetPattern").value=v.pattern||"solid";$("#presetWidth").value=v.width;$("#presetPressure").value=v.pressureSensitivity??pressureSensitivity;$("#presetSmoothing").value=v.stabilization??inkSmoothing;$("#presetColor").value=v.color;$("#presetHex").value=v.color;updatePresetPreview();$("#penEditorModal").classList.remove("hidden")}
+function updatePresetPreview(){const v=$("#presetWidth").value,c=$("#presetColor").value;$("#presetWidthValue").textContent=v;$("#presetPressureValue").textContent=$("#presetPressure").value+"%";$("#presetSmoothingValue").textContent=$("#presetSmoothing").value+"%";$("#penPreviewStroke").setAttribute("stroke",c);$("#penPreviewStroke").setAttribute("stroke-width",v);$("#penPreviewStroke").setAttribute("stroke-dasharray",$("#presetPattern").value==="dotted"?"0.1 8":$("#presetPattern").value==="dashed"?"12 8":"none")}
+function presetEditorValue(){const c=$("#presetHex").value.trim();if(!validHex(c)){toast("請輸入正確的 HEX 顏色，例如 #3578f6");return null}return {name:$("#presetName").value.trim()||`常用筆 ${editingPreset+1}`,color:c.toLowerCase(),width:+$("#presetWidth").value,penStyle:$("#presetStyle").value,pattern:$("#presetPattern").value,pressureSensitivity:+$("#presetPressure").value,stabilization:+$("#presetSmoothing").value}}
 function renderPresetManager(){
  const root=$("#presetManagerList");root.replaceChildren();
  penPresets.forEach((v,i)=>{
@@ -1196,9 +1347,9 @@ $("#closePresetManager").onclick=$("#donePresetManager").onclick=()=>$("#presetM
 $("#closePenEditor").onclick=()=>$("#penEditorModal").classList.add("hidden");
 $("#presetColor").oninput=e=>{$("#presetHex").value=e.target.value;updatePresetPreview()};
 $("#presetHex").oninput=e=>{if(validHex(e.target.value)){$("#presetColor").value=e.target.value;updatePresetPreview()}};
-$("#presetWidth").oninput=updatePresetPreview;$("#presetPattern").onchange=updatePresetPreview;
+$("#presetWidth").oninput=updatePresetPreview;$("#presetPattern").onchange=updatePresetPreview;$("#presetPressure").oninput=updatePresetPreview;$("#presetSmoothing").oninput=updatePresetPreview;
 $("#savePresetEditor").onclick=()=>{const v=presetEditorValue();if(!v)return;penPresets[editingPreset]=v;writeLocal(presetKey,penPresets);applyPreset(editingPreset);updatePresetButtons();renderPresetManager();$("#penEditorModal").classList.add("hidden");toast(`已儲存：${v.name}`)};
-$("#applyPreset").onclick=()=>{const v=presetEditorValue();if(!v)return;penStyle=v.penStyle;strokePattern=v.pattern||"solid";$("#strokePattern").value=strokePattern;width=v.width;$("#width").value=width;setInkColor(v.color);setTool('pen');$("#penEditorModal").classList.add("hidden");toast("已套用到目前筆刷（未覆蓋常用筆）")};
+$("#applyPreset").onclick=()=>{const v=presetEditorValue();if(!v)return;penStyle=v.penStyle;strokePattern=v.pattern||"solid";$("#strokePattern").value=strokePattern;width=v.width;$("#width").value=width;pressureSensitivity=v.pressureSensitivity;inkSmoothing=v.stabilization;saveInkPrefs();setInkColor(v.color);setTool('pen');syncBrushUi();$("#penEditorModal").classList.add("hidden");toast("已套用到目前筆刷（未覆蓋常用筆）")};
 // Per-tool color palettes, each 3-12 colors, saved separately.
 const paletteKey="notecanvas.toolPalettes.v1";
 const defaultPalettes={pen:["#20242c","#3578f6","#ef5a5a","#28a66a","#f2c94c"],highlighter:["#f2d64b","#9be3a0","#f7a4c6","#9bc8fc"]};
@@ -1213,9 +1364,12 @@ function renderToolColors(){
  palettes.highlighter.forEach((c,i)=>{const b=document.createElement('button');b.type='button';b.className='hl-color'+(highlighterColor.toLowerCase()===c.toLowerCase()?' selected':'');b.style.background=c;b.dataset.hl=c;b.title='點擊套用，再點一次編輯';b.onclick=()=>{if(highlighterColor.toLowerCase()===c.toLowerCase())openPalette('highlighter',i);else applyPaletteColor('highlighter',c)};b.oncontextmenu=e=>{e.preventDefault();openPalette('highlighter',i)};hlPlus.before(b)});
 }
 function openPalette(tool,index=-1){paletteTool=tool;paletteIndex=index;$("#paletteTitle").textContent=(tool==='pen'?'鋼筆':'螢光筆')+'顏色';const c=palettes[tool][index]|| (tool==='pen'?color:highlighterColor);$("#paletteColor").value=c;$("#paletteHex").value=c;renderPaletteSlots();$("#paletteModal").classList.remove('hidden')}
-function renderPaletteSlots(){const root=$("#paletteSlots");root.replaceChildren();palettes[paletteTool].forEach((c,i)=>{const b=document.createElement('button');b.className='palette-slot'+(i===paletteIndex?' selected':'');b.style.background=c;b.title=`色票 ${i+1}: ${c}`;b.onclick=()=>{paletteIndex=i;$("#paletteColor").value=c;$("#paletteHex").value=c;renderPaletteSlots()};root.append(b)});if(palettes[paletteTool].length<12){const add=document.createElement('button');add.className='palette-slot add';add.textContent='＋';add.title='新增色票';add.onclick=()=>{paletteIndex=-1;renderPaletteSlots()};root.append(add)}}
+function renderPaletteSlots(){const root=$("#paletteSlots");root.replaceChildren();$("#paletteMoveLeft").disabled=paletteIndex<=0;$("#paletteMoveRight").disabled=paletteIndex<0||paletteIndex>=palettes[paletteTool].length-1;palettes[paletteTool].forEach((c,i)=>{const b=document.createElement('button');b.className='palette-slot'+(i===paletteIndex?' selected':'');b.style.background=c;b.title=`色票 ${i+1}: ${c}`;b.onclick=()=>{paletteIndex=i;$("#paletteColor").value=c;$("#paletteHex").value=c;renderPaletteSlots()};root.append(b)});if(palettes[paletteTool].length<12){const add=document.createElement('button');add.className='palette-slot add';add.textContent='＋';add.title='新增色票';add.onclick=()=>{paletteIndex=-1;renderPaletteSlots()};root.append(add)}}
 $("#customColorBtn").onclick=()=>openPalette('pen');$("#hlPaletteOpen").onclick=()=>openPalette('highlighter');
 $("#closePalette").onclick=()=>$("#paletteModal").classList.add('hidden');
+function movePalette(delta){const to=paletteIndex+delta,colors=palettes[paletteTool];if(paletteIndex<0||to<0||to>=colors.length)return;
+ [colors[paletteIndex],colors[to]]=[colors[to],colors[paletteIndex]];paletteIndex=to;writeLocal(paletteKey,palettes);renderToolColors();renderPaletteSlots();}
+$("#paletteMoveLeft").onclick=()=>movePalette(-1);$("#paletteMoveRight").onclick=()=>movePalette(1);
 $("#paletteColor").oninput=e=>$("#paletteHex").value=e.target.value;
 $("#paletteHex").oninput=e=>{if(validHex(e.target.value))$("#paletteColor").value=e.target.value};
 $("#paletteSave").onclick=()=>{const c=$("#paletteHex").value.trim().toLowerCase();if(!validHex(c)){toast('HEX 顏色格式錯誤');return}if(paletteIndex<0){if(palettes[paletteTool].length>=12){toast('最多 12 個色票');return}palettes[paletteTool].push(c)}else palettes[paletteTool][paletteIndex]=c;writeLocal(paletteKey,palettes);applyPaletteColor(paletteTool,c);renderToolColors();$("#paletteModal").classList.add('hidden');toast('色票已儲存')};
@@ -1225,7 +1379,7 @@ $("#customColor").oninput=e=>setInkColor(e.target.value);
 $("#width").addEventListener('input',updatePresetButtons);$("#strokePattern").onchange=e=>{strokePattern=e.target.value;updatePresetButtons()};
 $$('[data-pen]').forEach(b=>b.addEventListener('click',updatePresetButtons));
 $$('.paper-color').forEach(b=>b.onclick=()=>{if(!book)return;snapshot();p().paperColor=b.dataset.paperColor;pageEl.style.backgroundColor=p().paperColor;$$('.paper-color').forEach(x=>x.classList.toggle('selected',x===b));save();toast('已更新目前頁面的紙張顏色')});
-renderToolColors();updatePresetButtons();
+renderToolColors();updatePresetButtons();syncBrushUi();
 
 // V5.19: editable text formatting and selected-object formatting.
 function selectedTextObject(){return book?.pages?.[pageIndex]?.objects?.find(o=>o.type==="text"&&selectedIds.has(o.id))}
@@ -1367,10 +1521,14 @@ window.addEventListener('beforeunload',e=>{if(audioRecorder&&audioRecorder.state
 $("#mobileUndo").onclick=()=>$("#undo").click();
 $("#mobileRedo").onclick=()=>$("#redo").click();
 $("#mobilePen").onclick=()=>setTool("pen");
+function updateHandUi(){const b=$("#mobileHand");b.classList.toggle("active",fingerNavigate);b.setAttribute("aria-pressed",String(fingerNavigate));b.title=fingerNavigate?"目前為手指移動，點一下切回書寫":"目前為手指書寫，點一下切換移動";if(phoneTouchLayout)$("#pencilState").textContent=fingerNavigate?"✋ 手指移動":pencilOnly?" 僅 Pencil":"☝ 手指書寫"}
+$("#mobileHand").onclick=()=>{fingerNavigate=!fingerNavigate;touchPan=null;updateHandUi()};
 $("#mobileEraser").onclick=()=>setTool("eraser");
 const originalMobileSetTool=setTool;
-setTool=function(t){originalMobileSetTool(t);$("#mobilePen").classList.toggle("active",t==="pen");$("#mobileEraser").classList.toggle("active",t==="eraser")};
+setTool=function(t){fingerNavigate=false;originalMobileSetTool(t);updateHandUi();$("#mobilePen").classList.toggle("active",t==="pen");$("#mobileEraser").classList.toggle("active",t==="eraser")};
 $("#mobilePen").classList.add("active");
+if(phoneTouchLayout)$("#pencilSwitch").classList.remove("on");updateHandUi();
+$("#mobileBrush").setAttribute("aria-haspopup","dialog");
 init();
 </script>
 </body></html>
