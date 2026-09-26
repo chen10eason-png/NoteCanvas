@@ -31,3 +31,6 @@ This is a source inventory, not a claim that all content has been watched, teste
 - Not yet verified or implemented: all latest Goodnotes features, 100-source research milestone, Apple Pencil hardware regression on v5.15, true iCloud sync, audio recording, native handwriting OCR, proprietary AI features.
 
 - Implemented in v5.18: page-template chooser, per-page and non-PDF bulk apply, page number jump, typed-text/outline/page-number navigation. Handwriting OCR remains unavailable.
+
+## v5.24 iOS 優先方向
+移除桌面快捷鍵；iPad/iPhone 提供易點擊的復原、重做、鋼筆、橡皮擦。後續需以實機核對 Goodnotes 手勢與書寫反應，不聲稱已完全相同。
