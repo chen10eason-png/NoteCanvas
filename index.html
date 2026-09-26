@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=yes">
 <meta name="theme-color" content="#264574">
-<link rel="manifest" href="manifest.webmanifest?v=5.27.0">
-<title>NoteCanvas V5.27.0</title>
+<link rel="manifest" href="manifest.webmanifest?v=5.28.0">
+<title>NoteCanvas V5.28.0</title>
 <style>
 :root{--bg:#f4f5f8;--card:#fff;--ink:#20242c;--muted:#7d8492;--line:#e3e5ea;--blue:#3478f6;--blue2:#eaf2ff;--shadow:0 8px 28px #1d273514}
 *{box-sizing:border-box}html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI","Noto Sans TC",sans-serif;color:var(--ink);background:var(--bg);overscroll-behavior:none}
@@ -559,6 +559,36 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  #toolbar .tool{min-width:47px!important}
 }
 
+
+/* V5.28: touch-first notebook page management, independent of toolbar scrolling. */
+.page.grid{background-size:var(--paper-step,28px) var(--paper-step,28px)}
+.page.lines{background-size:100% var(--paper-step,30px)}
+.page.dots{background-size:var(--paper-step,24px) var(--paper-step,24px)}
+.nc-page-sheet{width:min(590px,96vw);max-height:min(88dvh,880px);overflow:auto;padding:23px;border-radius:22px}
+.nc-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.nc-sheet-head h3{font-size:21px;margin:5px 0 0}.nc-sheet-head small{font-size:11px;font-weight:760;letter-spacing:1px;color:#7690b4}
+.nc-sheet-label{font-size:13px;font-weight:760;color:#394b65;margin:21px 0 11px}
+.nc-segment{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;border:1px solid #e2e8f3;padding:5px;border-radius:13px;background:#f4f7fb}
+.nc-segment button{min-width:0;min-height:46px;border:0;border-radius:10px;background:transparent;color:#4d6281;font-size:13px;font-weight:700;touch-action:manipulation}
+.nc-segment button.selected{background:white;box-shadow:0 2px 7px #263f651c;color:#245ec0}
+.nc-page-choices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.nc-paper-option{display:flex;flex-direction:column;align-items:center;gap:9px;min-width:0;border:2px solid #e0e7f1;border-radius:13px;padding:12px 7px;background:#fff;font-size:12px;color:#4a5b73;touch-action:manipulation}
+.nc-paper-option.selected{border-color:#417ce1;background:#f0f6ff;color:#1d60ca}
+.nc-paper-preview{width:68px;max-width:100%;aspect-ratio:3/4;background-color:white;border:1px solid #dce2ea;box-shadow:0 2px 8px #28406314;border-radius:2px}
+.nc-paper-preview.grid{background-image:linear-gradient(#9dafc755 1px,transparent 1px),linear-gradient(90deg,#9dafc755 1px,transparent 1px);background-size:10px 10px}
+.nc-paper-preview.lines{background-image:linear-gradient(#9dafc755 1px,transparent 1px);background-size:100% 11px}
+.nc-paper-preview.dots{background-image:radial-gradient(#9dafc7 1px,transparent 1px);background-size:10px 10px}
+.nc-paper-footer,.nc-setting-row,.nc-sheet-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:20px}
+.nc-paper-footer label,.nc-setting-row label{display:flex;align-items:center;gap:9px;color:#506079;font-size:13px}
+.nc-setting-row select{border:1px solid #dde5f0;border-radius:10px;min-height:40px;padding:4px 10px;background:#fff}
+.nc-sheet-actions{border-top:1px solid #e6ecf4;padding-top:17px;justify-content:flex-end}
+.nc-sheet-actions .btn{min-height:44px;white-space:normal}
+.nc-paper-stage{display:flex;gap:17px;align-items:center;margin-top:16px;background:#f6f8fb;border-radius:14px;padding:14px}
+.nc-paper-stage .nc-paper-preview{width:75px;flex:none}.nc-paper-stage small{color:#70829a;line-height:1.65}
+.nc-settings-group{font-weight:790;color:#34629f;font-size:13px;padding:17px 0 0;border-top:1px solid #e3eaf4;margin-top:18px}
+.body.sidebar-right.pages-collapsed{grid-template-columns:minmax(0,1fr)}
+@media(min-width:801px){.body.sidebar-right{grid-template-columns:minmax(0,1fr) 226px}.body.sidebar-right .sidebar{grid-column:2;grid-row:1;border-left:1px solid var(--line);border-right:0}.body.sidebar-right .editor{grid-column:1;grid-row:1}}
+@media(max-width:800px){.body.sidebar-right .sidebar{left:auto;right:0;transform:translateX(102%);border-left:1px solid var(--line);border-right:0}.body.sidebar-right .sidebar.open{transform:translateX(0)}.nav #pageOptionsTop{display:none!important}}
+@media(max-width:600px){.nc-page-sheet{padding:16px;max-height:92dvh}.nc-page-choices{gap:6px}.nc-paper-option{padding:8px 3px;font-size:11px}.nc-paper-preview{width:49px}.nc-sheet-actions .btn{flex:1;min-width:120px}.nc-paper-footer{gap:6px}.nc-paper-footer .btn{font-size:12px;padding:8px}}
 </style>
 </head>
 <body>
@@ -580,7 +610,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 
 <div class="app">
  <div class="doc-tabs"><button class="doc-home" id="tabHome" title="返回文件庫">▦</button><div class="doc-tab current"><span class="doc-tab-dot">✎</span><span id="tabTitle">我的筆記</span><span class="doc-tab-close" aria-hidden="true">⌄</span></div><button class="doc-add" id="tabAdd" title="開啟其他筆記本">＋</button><div class="tab-spacer"></div><span class="tab-appname">NoteCanvas</span></div>
- <header class="nav"><button class="btn" id="back">‹ 文件</button><button class="btn" id="sideToggle" title="顯示頁面縮圖" aria-label="顯示頁面縮圖" aria-expanded="false" aria-controls="sidebar">☷</button><div class="title" id="title">我的筆記</div><div class="spacer"></div><span id="saveState" class="save-state" aria-live="polite">✓ 已儲存</span><span id="pageCount" class="page-count">1 / 1</span><button class="btn" id="audioOpen" title="錄音筆記">◉ 錄音</button><button class="btn" id="studyCardsOpen" title="學習卡片">▤ 學習卡片</button><button class="btn" id="readMode">◉ 閱讀</button><button class="btn" id="jumpPage" title="跳至指定頁面">⌕ 跳頁</button><button class="btn" id="addPageTop">＋ 頁面</button><button class="btn" id="bookmark">☆ 書籤</button><button class="btn" id="share">↥ 匯出</button><button class="btn" id="more">•••</button></header>
+ <header class="nav"><button class="btn" id="back">‹ 文件</button><button class="btn" id="sideToggle" title="顯示頁面縮圖" aria-label="顯示頁面縮圖" aria-expanded="false" aria-controls="sidebar">☷</button><div class="title" id="title">我的筆記</div><div class="spacer"></div><span id="saveState" class="save-state" aria-live="polite">✓ 已儲存</span><span id="pageCount" class="page-count">1 / 1</span><button class="btn" id="audioOpen" title="錄音筆記">◉ 錄音</button><button class="btn" id="studyCardsOpen" title="學習卡片">▤ 學習卡片</button><button class="btn" id="readMode">◉ 閱讀</button><button class="btn" id="jumpPage" title="跳至指定頁面">⌕ 跳頁</button><button class="btn" id="addPageTop">＋ 頁面</button><button class="btn" id="pageOptionsTop" title="目前頁面設定">▤ 頁面設定</button><button class="btn" id="bookmark">☆ 書籤</button><button class="btn" id="share">↥ 匯出</button><button class="btn" id="more">•••</button></header>
  <div class="body pages-collapsed" id="bookBody">
   <aside class="sidebar" id="sidebar">
    <div class="side-tabs"><button class="active" data-sidebar-tab="pages">▦ 頁面</button><button data-sidebar-tab="outline">☷ 大綱</button><button data-sidebar-tab="audio" title="錄音管理">◉ 錄音</button></div>
@@ -661,11 +691,26 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  <div class="page-pop-title" id="pagePopTitle">頁面操作</div>
  <button data-page-action="before">＋ 在前面新增</button><button data-page-action="after">＋ 在後面新增</button><button data-page-action="end">＋ 新增至最後一頁</button>
  <div class="page-pop-separator"></div>
- <button data-page-action="template">▦ 選擇紙張範本</button><button data-page-action="duplicate">▢ 製作頁面副本</button><button data-page-action="copy">▣ 複製頁面</button><button data-page-action="paste">▤ 在後面貼上頁面</button>
+ <button data-page-action="template">▦ 選擇紙張範本</button><button data-page-action="page-settings">⚙ 目前頁面設定</button><button data-page-action="outline">☷ 加入／編輯大綱</button><button data-page-action="clear-ink">⌫ 清除本頁筆跡與物件</button><button data-page-action="duplicate">▢ 製作頁面副本</button><button data-page-action="copy">▣ 複製頁面</button><button data-page-action="paste">▤ 在後面貼上頁面</button>
  <button data-page-action="up">↑ 向前移動</button><button data-page-action="down">↓ 向後移動</button>
  <div class="page-pop-separator"></div><button data-page-action="bookmark">☆ 加入／取消書籤</button><button data-page-action="delete" class="danger">♧ 移至垃圾桶</button><button data-page-action="restore">↶ 還原最近刪除的頁面</button>
  </div>
- <div class="toast hidden" id="toast"></div>
+ 
+<div class="modal hidden" id="insertSheet" role="dialog" aria-modal="true" aria-labelledby="insertHeading"><div class="sheet nc-page-sheet">
+ <div class="nc-sheet-head"><div><small>NOTEBOOK · 新增頁面</small><h3 id="insertHeading">新增頁面</h3></div><button class="btn" id="insertClose" aria-label="關閉">✕</button></div>
+ <p class="nc-sheet-label">新增位置</p><div class="nc-segment" id="insertPositions"><button data-insert-pos="before">在目前頁前</button><button data-insert-pos="after" class="selected">在目前頁後</button><button data-insert-pos="end">最後一頁</button></div>
+ <p class="nc-sheet-label">選擇紙張</p><div class="nc-page-choices" id="insertPapers"></div>
+ <div class="nc-paper-footer"><label>紙張色彩 <input id="insertColor" type="color" value="#ffffff" aria-label="新增頁面紙張顏色"></label><button class="btn" id="insertImportPDF">↧ 匯入 PDF</button><button class="btn" id="insertImage">▧ 插入圖片</button></div>
+ <div class="nc-sheet-actions"><button class="btn" id="insertCancel">取消</button><button class="btn primary" id="insertConfirm">＋ 新增頁面</button></div>
+ </div></div>
+<div class="modal hidden" id="pageSettingsModal" role="dialog" aria-modal="true" aria-labelledby="pageSettingHeading"><div class="sheet nc-page-sheet">
+ <div class="nc-sheet-head"><div><small id="pageSettingNumber">第 1 頁</small><h3 id="pageSettingHeading">頁面設定</h3></div><button class="btn" id="pageSettingsClose" aria-label="關閉">✕</button></div>
+ <p class="nc-sheet-label">紙張樣式（立即預覽）</p><div class="nc-page-choices" id="pageSettingPapers"></div>
+ <div class="nc-setting-row"><label>紙張顏色 <input type="color" id="pageSettingColor" value="#ffffff"></label><label>線條間距 <select id="pageSettingSpacing"><option value="18">緊密</option><option value="24">較小</option><option value="28">標準</option><option value="36">寬鬆</option><option value="44">特寬</option></select></label></div>
+ <div class="nc-paper-stage"><div class="nc-paper-preview grid" id="pagePaperPreview"></div><small>只調整本頁背景，不會移動或刪除已有筆跡。PDF 頁面不會被紙張範本覆蓋。</small></div>
+ <div class="nc-sheet-actions"><button class="btn" id="pageSettingsAll">套用到全部非 PDF 頁面</button><button class="btn primary" id="pageSettingsApply">套用目前頁</button></div>
+ </div></div>
+<div class="toast hidden" id="toast"></div>
 <div class="modal hidden" id="presetManagerModal"><div class="sheet preset-manager-sheet">
  <div class="pen-editor-head"><div><h3>管理常用筆</h3><p class="palette-hint">點「使用」立即切換；點「編輯」修改名稱、筆型、粗細與顏色。</p></div><button class="btn" id="closePresetManager" aria-label="關閉常用筆管理">✕</button></div>
  <div id="presetManagerList" class="preset-manager-list"></div>
@@ -718,11 +763,15 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  </div></div>
  <div class="modal hidden" id="trashModal"><div class="sheet trash-sheet"><h3>最近刪除的頁面</h3><p style="color:#798394;font-size:12px">已刪除頁面會保留在這本筆記本中，可隨時還原。</p><div id="trashItems"></div><div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="btn primary" id="closeTrash">完成</button></div></div></div>
 <div class="modal hidden" id="settings"><div class="sheet"><h3>文件設定</h3>
-<div id="mobileDocActions" aria-label="文件快捷操作"><button type="button" data-mobile-action="audioOpen">◉ 錄音筆記</button><button type="button" data-mobile-action="studyCardsOpen">▤ 學習卡片</button><button type="button" data-mobile-action="jumpPage">⌕ 跳至頁面</button><button type="button" data-mobile-action="addPageTop">＋ 新增頁面</button><button type="button" data-mobile-action="bookmark">☆ 書籤</button><button type="button" data-mobile-action="share">↥ 匯出 PNG</button><button type="button" data-mobile-action="readMode">◉ 閱讀／編輯模式</button><button type="button" data-mobile-action="exportPDF">↥ 匯出 PDF</button></div>
+<div id="mobileDocActions" aria-label="文件快捷操作"><button type="button" data-mobile-action="audioOpen">◉ 錄音筆記</button><button type="button" data-mobile-action="studyCardsOpen">▤ 學習卡片</button><button type="button" data-mobile-action="jumpPage">⌕ 跳至頁面</button><button type="button" data-mobile-action="pageOptionsTop">▤ 頁面設定</button><button type="button" data-mobile-action="addPageTop">＋ 新增頁面</button><button type="button" data-mobile-action="bookmark">☆ 書籤</button><button type="button" data-mobile-action="share">↥ 匯出 PNG</button><button type="button" data-mobile-action="readMode">◉ 閱讀／編輯模式</button><button type="button" data-mobile-action="exportPDF">↥ 匯出 PDF</button></div>
  <div class="setting"><div><b>Apple Pencil Only</b><div style="font-size:12px;color:#7d8492">手指只負責捲動、平移與縮放，不會留下筆跡。</div></div><div class="switch on" id="pencilSwitch"><i></i></div></div>
  <div class="setting"><div><b>滑動切換頁面</b><div style="font-size:12px;color:#7d8492;margin-top:4px">手指連續捲動多頁；雙指捏合縮放。Apple Pencil 繼續書寫。</div></div><select id="swipeMode" aria-label="滑動換頁方向"><option value="off">單頁（自由移動）</option><option value="horizontal">左右連續捲動</option><option value="vertical">上下連續捲動</option></select></div><div class="setting"><span>翻頁方向</span><span id="swipeHint" style="font-size:12px;color:#78859b">尚未啟用</span></div>
  <div class="setting"><span>紙張</span><select id="paperType"><option value="grid">方格</option><option value="lines">橫線</option><option value="dots">點陣</option><option value="">空白</option></select></div>
  <div class="setting"><div><b>紙張顏色</b><div class="setting-help">適用於目前頁面</div></div><div class="paper-colors"><button class="paper-color" data-paper-color="#ffffff" title="白色" style="background:#fff"></button><button class="paper-color" data-paper-color="#fff9e9" title="奶油色" style="background:#fff9e9"></button><button class="paper-color" data-paper-color="#f0f6ff" title="淺藍色" style="background:#f0f6ff"></button><button class="paper-color" data-paper-color="#f3f5f7" title="淺灰色" style="background:#f3f5f7"></button></div></div>
+ <p class="nc-settings-group">頁面顯示</p>
+ <div class="setting"><div><b>頁面管理</b><div class="setting-help">紙張、線條間距及本頁背景</div></div><button class="btn" id="openPageOptions">設定目前頁面</button></div>
+ <div class="setting"><div><b>側邊欄</b><div class="setting-help">可以將頁面縮圖移至另一側</div></div><select id="sidebarPlacement" aria-label="側邊欄位置"><option value="left">左側</option><option value="right">右側</option></select></div>
+ <p class="nc-settings-group">其他</p>
  <div class="setting"><span>垃圾桶</span><button class="btn" id="openTrash">查看已刪除頁面</button></div><div class="setting"><span>工具列自訂</span><button class="btn" id="customize">調整</button></div>
  <div style="display:flex;justify-content:flex-end;margin-top:16px"><button class="btn primary" id="closeSettings">完成</button></div>
 </div></div>
@@ -742,7 +791,7 @@ async function getPDFEngine(){
  pdfjsLib=mod;return mod;
 }
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const APP_VERSION="5.27.0";
+const APP_VERSION="5.28.0";
 document.title=`NoteCanvas V${APP_VERSION}`;
 $("#appVersion").textContent=`v${APP_VERSION}`;
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
@@ -846,7 +895,7 @@ async function save(){
   toast("儲存失敗，請先備份筆記本");console.error(err);
  }
 }
-function loadPage(){clearLaser();$("#pageCount").textContent=`${pageIndex+1} / ${book.pages.length}`;document.body.classList.remove("pen-active");selectedIds.clear();updateLassoActions();history=[];future=[];pageEl.className="page "+(p().paper||"");pageEl.style.backgroundColor=p().paperColor||"#fff";$("#pdfBg").classList.toggle("hidden",!p().bg);if(p().bg)$("#pdfBg").src=p().bg;render();renderThumbs();$("#bookmark").textContent=p().bookmark?"★ 已收藏":"☆ 書籤";save()}
+function loadPage(){clearLaser();$("#pageCount").textContent=`${pageIndex+1} / ${book.pages.length}`;document.body.classList.remove("pen-active");selectedIds.clear();updateLassoActions();history=[];future=[];pageEl.className="page "+(p().paper||"");pageEl.style.backgroundColor=p().paperColor||"#fff";pageEl.style.setProperty("--paper-step",(p().rulingSpacing||(p().paper==="dots"?24:p().paper==="lines"?30:28))+"px");$("#pdfBg").classList.toggle("hidden",!p().bg);if(p().bg)$("#pdfBg").src=p().bg;render();renderThumbs();$("#bookmark").textContent=p().bookmark?"★ 已收藏":"☆ 書籤";save()}
 function render(){
  ctx.clearRect(0,0,768,1024);
  // 螢光筆先繪製，再畫一般墨水，讓字跡清楚浮在標記上方。
@@ -1294,15 +1343,16 @@ function openPagePop(index,anchor){
  pop.querySelector('[data-page-action="down"]').disabled=index===book.pages.length-1;pop.querySelector('[data-page-action="restore"]').disabled=!pageTrash.length;
 }
 function insertPage(at,source){const pg=source?structuredClone(source):newPage();pg.id=uid();book.pages.splice(at,0,pg);pageIndex=at;closePagePop();loadPage();toast("已新增頁面")}
-function addPage(){openPagePop(pageIndex,$("#addPageTop"))}
-$("#addPage").onclick=()=>openPagePop(pageIndex,$("#addPage"));$("#addPageTop").onclick=addPage;
+function addPage(){openInsertSheet(pageIndex)}
+$("#addPage").onclick=()=>openInsertSheet(pageIndex);$("#addPageTop").onclick=addPage;
 $("#pageMenu").onclick=()=>openPagePop(pageIndex,$("#pageMenu"));
 $$("[data-page-action]").forEach(btn=>btn.onclick=()=>{
  const action=btn.dataset.pageAction,i=pageMenuIndex;if(i===null)return;
  if(action==="template"){closePagePop();if(i!==pageIndex){pageIndex=i;loadPage()}$("#templatePicker").click();return}
-  if(action==="before")return insertPage(i);
- if(action==="after")return insertPage(i+1);
- if(action==="end")return insertPage(book.pages.length);
+ if(action==="page-settings"){closePagePop();if(i!==pageIndex){pageIndex=i;loadPage()}openPageSettings();return}
+ if(action==="outline"){closePagePop();if(i!==pageIndex){pageIndex=i;loadPage()}$("#addOutline").click();return}
+ if(action==="clear-ink"){if(!confirm(`清除第 ${i+1} 頁的所有筆跡與物件？紙張與 PDF 底圖會保留。`))return;const pg=book.pages[i];if(i===pageIndex)snapshot();pg.strokes=[];pg.objects=[];pg.tapes=[];closePagePop();if(i===pageIndex){render();renderThumbs();save();toast("已清除本頁內容，可點復原還原")}else{loadPage();toast("已清除所選頁面內容")};return}
+  if(action==="before"||action==="after"||action==="end"){closePagePop();openInsertSheet(i,action);return}
  if(action==="duplicate")return insertPage(i+1,book.pages[i]);
  if(action==="copy"){pageClipboard=structuredClone(book.pages[i]);closePagePop();toast("已複製頁面");return}
  if(action==="paste"){if(pageClipboard)insertPage(i+1,pageClipboard);return}
@@ -1359,11 +1409,11 @@ async function composePage(pg){
  const canvas=document.createElement("canvas");canvas.width=768;canvas.height=1024;const c=canvas.getContext("2d");
  c.fillStyle=pg.paperColor||"white";c.fillRect(0,0,768,1024);
  if(pg.paper==="grid"||pg.paper==="lines"){
-  c.strokeStyle="#e8ebf0";c.lineWidth=1;const step=pg.paper==="grid"?28:30;
+  c.strokeStyle="#e8ebf0";c.lineWidth=1;const step=pg.rulingSpacing||(pg.paper==="grid"?28:30);
   if(pg.paper==="grid")for(let x=0;x<=768;x+=step){c.beginPath();c.moveTo(x,0);c.lineTo(x,1024);c.stroke()}
   for(let y=0;y<=1024;y+=step){c.beginPath();c.moveTo(0,y);c.lineTo(768,y);c.stroke()}
  }else if(pg.paper==="dots"){
-  c.fillStyle="#d7dbe2";for(let x=0;x<768;x+=24)for(let y=0;y<1024;y+=24){c.beginPath();c.arc(x,y,1,0,Math.PI*2);c.fill()}
+  c.fillStyle="#d7dbe2";for(let x=0;x<768;x+=(pg.rulingSpacing||24))for(let y=0;y<1024;y+=(pg.rulingSpacing||24)){c.beginPath();c.arc(x,y,1,0,Math.PI*2);c.fill()}
  }
  if(pg.bg){try{c.drawImage(await imageLoaded(pg.bg),0,0,768,1024)}catch(e){console.warn("背景載入失敗",e)}}
  for(const st of [...pg.strokes.filter(x=>x.tool==="highlighter"),...pg.strokes.filter(x=>x.tool!=="highlighter")]){
@@ -1471,7 +1521,7 @@ $$('[data-thumb-filter]').forEach(btn=>btn.onclick=()=>{thumbFilter=btn.dataset.
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('#toolOverflow,#toolbarMore'))$('#toolOverflow').classList.add('hidden')});
 applyToolbarPrefs();
 $("#librarySearch").oninput=()=>renderLibrary();$("#librarySort").onchange=()=>renderLibrary();$$('[data-filter]').forEach(el=>el.onclick=()=>{libraryFilter=el.dataset.filter;$$('[data-filter]').forEach(x=>x.classList.toggle('active',x===el));if(libraryFilter==='search')$("#librarySearch").focus();renderLibrary()});
-if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=5.27.0',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=5.28.0',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
 $("#tabHome").onclick=()=>$("#back").click();
 $("#tabAdd").onclick=()=>$("#back").click();
 const baseLoadPage=loadPage;
@@ -1655,7 +1705,7 @@ function openTemplateChooser(){if(!book)return;templatePaper=p().paper||'';templ
 $('#templatePicker').onclick=openTemplateChooser;
 $('#closeTemplate').onclick=()=>$('#templateModal').classList.add('hidden');
 $('#templateModal').addEventListener('click',e=>{if(e.target.id==='templateModal')e.currentTarget.classList.add('hidden')});
-function applyTemplate(pg){pg.paper=templatePaper;pg.paperColor=templateColor}
+function applyTemplate(pg){if(pg.paper!==templatePaper)delete pg.rulingSpacing;pg.paper=templatePaper;pg.paperColor=templateColor}
 $('#templateCurrent').onclick=()=>{snapshot();applyTemplate(p());$('#templateModal').classList.add('hidden');loadPage();toast('已套用紙張範本')};
 $('#templateNew').onclick=()=>{const pg=newPage();applyTemplate(pg);$('#templateModal').classList.add('hidden');insertPage(pageIndex+1,pg)};
 $('#templateAll').onclick=()=>{if(!confirm('要將這個範本套用到所有非 PDF 頁面嗎？原有筆跡不會刪除。'))return;let n=0;for(const pg of book.pages){if(pg.bg)continue;applyTemplate(pg);n++}$('#templateModal').classList.add('hidden');loadPage();toast('已更新 '+n+' 頁的紙張範本')};
@@ -1729,6 +1779,54 @@ setTool=function(t){fingerNavigate=false;originalMobileSetTool(t);updateHandUi()
 $("#mobilePen").classList.add("active");
 if(phoneTouchLayout)$("#pencilSwitch").classList.remove("on");updateHandUi();
 $("#mobileBrush").setAttribute("aria-haspopup","dialog");
+
+// V5.28 — page insertion and page settings built on existing page objects and IndexedDB v2.
+const ncPaperKinds=[['grid','方格'],['lines','橫線'],['dots','點陣'],['','空白']];
+const ncPaperNames={grid:'方格',lines:'橫線',dots:'點陣','':'空白'};
+let ncInsertIndex=0,ncInsertPos='after',ncInsertPaper='grid',ncPageDraft={paper:'grid',paperColor:'#ffffff',rulingSpacing:28};
+function ncPaperButtons(rootId,selected,onChoose){
+ const root=$(rootId);root.replaceChildren();
+ for(const [kind,label] of ncPaperKinds){const btn=document.createElement('button');btn.type='button';btn.className='nc-paper-option'+(kind===selected?' selected':'');btn.setAttribute('aria-pressed',String(kind===selected));const preview=document.createElement('span');preview.className='nc-paper-preview'+(kind?' '+kind:'');preview.style.backgroundColor=rootId==='#insertPapers'?$('#insertColor').value:ncPageDraft.paperColor;const t=document.createElement('span');t.textContent=label;btn.append(preview,t);btn.onclick=()=>onChoose(kind);root.append(btn)}
+}
+function openInsertSheet(index=pageIndex,pos='after'){
+ if(!book)return;ncInsertIndex=index;ncInsertPos=pos;ncInsertPaper=book.pages[index]?.paper||'grid';
+ // A PDF is not a reusable paper template; use the previous non-PDF page where possible.
+ if(book.pages[index]?.bg)ncInsertPaper='grid';
+ $('#insertColor').value=book.pages[index]?.paperColor||'#ffffff';
+ $$('[data-insert-pos]').forEach(b=>b.classList.toggle('selected',b.dataset.insertPos===pos));ncPaperButtons('#insertPapers',ncInsertPaper,onInsertChoose);
+ $('#insertSheet').classList.remove('hidden');
+}
+function closeInsertSheet(){$('#insertSheet').classList.add('hidden')}
+$$('[data-insert-pos]').forEach(b=>b.onclick=()=>{ncInsertPos=b.dataset.insertPos;$$('[data-insert-pos]').forEach(v=>v.classList.toggle('selected',v===b))});
+$('#insertColor').oninput=()=>ncPaperButtons('#insertPapers',ncInsertPaper,onInsertChoose);
+function onInsertChoose(k){ncInsertPaper=k;ncPaperButtons('#insertPapers',k,onInsertChoose)}
+// Rebind the initial render to the named handler so all four paper choices work repeatedly.
+$('#insertClose').onclick=$('#insertCancel').onclick=closeInsertSheet;
+$('#insertSheet').onclick=e=>{if(e.target.id==='insertSheet')closeInsertSheet()};
+$('#insertConfirm').onclick=()=>{if(!book)return;const at=ncInsertPos==='before'?ncInsertIndex:ncInsertPos==='end'?book.pages.length:ncInsertIndex+1;const pg=newPage();pg.paper=ncInsertPaper;pg.paperColor=$('#insertColor').value;const source=book.pages[ncInsertIndex];pg.rulingSpacing=source&&!source.bg&&source.paper===ncInsertPaper?source.rulingSpacing:undefined;closeInsertSheet();insertPage(at,pg)};
+$('#insertImportPDF').onclick=()=>{closeInsertSheet();$('#filePDF').click()};
+$('#insertImage').onclick=()=>{closeInsertSheet();$('#fileImage').click()};
+function ncPageSpacing(pg){return Number(pg.rulingSpacing)||(pg.paper==='dots'?24:pg.paper==='lines'?30:28)}
+function ncRenderPageDraft(){
+ ncPaperButtons('#pageSettingPapers',ncPageDraft.paper,k=>{ncPageDraft.paper=k;ncRenderPageDraft()});
+ $('#pageSettingColor').value=ncPageDraft.paperColor;const step=ncPageDraft.rulingSpacing;
+ $('#pageSettingSpacing').value=String([18,24,28,36,44].reduce((a,b)=>Math.abs(b-step)<Math.abs(a-step)?b:a,28));
+ const preview=$('#pagePaperPreview');preview.className='nc-paper-preview'+(ncPageDraft.paper?' '+ncPageDraft.paper:'');preview.style.backgroundColor=ncPageDraft.paperColor;preview.style.backgroundSize=ncPageDraft.paper==='lines'?'100% '+(step/3)+'px':(step/3)+'px '+(step/3)+'px';
+}
+function openPageSettings(){if(!book)return;const pg=p();if(pg.bg){toast('PDF 頁面保留原始底圖；可新增一般筆記頁面設定紙張');return}ncPageDraft={paper:pg.paper||'',paperColor:pg.paperColor||'#ffffff',rulingSpacing:ncPageSpacing(pg)};$('#pageSettingNumber').textContent=`第 ${pageIndex+1} 頁`;ncRenderPageDraft();$('#pageSettingsModal').classList.remove('hidden')}
+function closePageSettings(){$('#pageSettingsModal').classList.add('hidden')}
+$('#pageOptionsTop').onclick=$('#openPageOptions').onclick=()=>{closePagePop();$('#settings').classList.add('hidden');openPageSettings()};
+$('#pageSettingsClose').onclick=closePageSettings;$('#pageSettingsModal').onclick=e=>{if(e.target.id==='pageSettingsModal')closePageSettings()};
+$('#pageSettingColor').oninput=e=>{ncPageDraft.paperColor=e.target.value;ncRenderPageDraft()};
+$('#pageSettingSpacing').onchange=e=>{ncPageDraft.rulingSpacing=Number(e.target.value);ncRenderPageDraft()};
+function ncCommitPaper(pg){pg.paper=ncPageDraft.paper;pg.paperColor=ncPageDraft.paperColor;pg.rulingSpacing=ncPageDraft.rulingSpacing}
+$('#pageSettingsApply').onclick=()=>{snapshot();ncCommitPaper(p());closePageSettings();loadPage();toast('已更新目前頁面紙張')};
+$('#pageSettingsAll').onclick=()=>{if(!confirm('將紙張樣式、顏色和間距套用至所有非 PDF 頁面？已有筆跡保持不變。'))return;let n=0;for(const pg of book.pages){if(pg.bg)continue;ncCommitPaper(pg);n++}closePageSettings();loadPage();toast('已更新 '+n+' 頁紙張')};
+const ncSidebarPref='notecanvas.sidebarPlacement';
+function ncSidebarPlacement(side){side=side==='right'?'right':'left';$('#bookBody').classList.toggle('sidebar-right',side==='right');$('#sidebarPlacement').value=side;try{localStorage.setItem(ncSidebarPref,side)}catch(_){}}
+$('#sidebarPlacement').onchange=e=>ncSidebarPlacement(e.target.value);
+try{ncSidebarPlacement(localStorage.getItem(ncSidebarPref)||'left')}catch(_){ncSidebarPlacement('left')}
+
 init();
 </script>
 </body></html>

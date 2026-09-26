@@ -1,18 +1,16 @@
-# NoteCanvas v5.27.0 — iPad / iPhone PWA
+# NoteCanvas v5.28.0 — Goodnotes-inspired writing page / page management
 
-本版以使用者錄製的 Goodnotes iPad 操作影片為**畫面與互動參考**，以 NoteCanvas v5.26.0 原始碼直接增量修改。使用自行設計的標誌與按鈕圖示，沒有複製 Goodnotes 原始碼、商標或專屬圖示。
+Based on the user's Goodnotes screen recording and the complete V5.27 ZIP. No original Goodnotes code or brand assets included.
 
-## 已實作
-- iPad 筆記編輯器改為深藍文件分頁及主工具列，工具設定為畫布上方白色圓角浮動列；同步調整選取狀態、紙張背景和留白。
-- 文件庫「＋ 新建」為真實可用的觸控面板，可選筆記本、白板、文字筆記（建立後開啟文字工具）、學習卡片（建立後開啟卡片管理）及 PDF 匯入；新增筆記本具有紙張預覽選擇與名稱確認。不新增資料庫 schema。
-- 圖形工具增加三角形和菱形，繪製、選取和已有圖形資料格式相容。
-- 原有 Pencil 筆壓、常用筆、色盤、螢光筆、橡皮擦、圖形、套索、雷射筆、錄音、學習卡片及匯入／匯出保持原程式邏輯。
+## New
+- A touch-first Add Page sheet with insert before/after/end, paper style and color previews, and PDF/image entry points. Existing thumbnail long-menu page copy, paste, reorder, trash and restore remain.
+- Separate current-page settings: ruling type, background color, line/grid/dot spacing with live preview; apply current or all non-PDF pages without erasing notes. Existing pages without `rulingSpacing` render exactly as before.
+- Page menu: page settings, outline title, clear current page ink and objects (preserving PDF or paper background), with confirmation. Undo is available for the current page through the existing in-memory history.
+- Page sidebar may move left/right; preference stays on device. Reading, continuous vertical/horizontal/single page gestures remain unchanged.
+- Small-screen touch layouts and mobile page-settings entry under the document menu.
 
-## 仍存在的差異
-原生 Goodnotes 的筆刷核心、Apple Pencil 觸控延遲、手掌排除、多文件視窗與系統 API 無法僅由錄影直接複製到網頁 PWA；尚未在 iPad Safari + Apple Pencil 實機上驗證，不宣稱逐像素或行為百分之百相同。文字筆記以一般筆記本的可編輯文字物件實作，尚非獨立富文字文件格式。
+## Safety
+Uses unchanged IndexedDB schema and preserves old strokes. Before deploying, export each notebook JSON and download recordings separately; JSON does not contain recordings. Deploy on the existing URL and do not clear Safari website data.
 
-## 安全更新
-更新前逐本匯出 JSON，重要錄音另外下載，JSON 備份不包含錄音。在**相同網域與路徑**更新網站，不要清除瀏覽器網站資料。IndexedDB NoteCanvasDB v2 及原有 localStorage key 保持不變。
-
-## 驗證
-查看 TEST_REPORT.md 與 QA_IPAD_IPHONE.md。版本號已同步主程式、網頁標題、manifest、service worker/cache、ZIP。
+## Limitations
+Web Pencil input cannot replicate native Goodnotes palm rejection or latency. Physical iPad/iPhone validation is **not** claimed. Other Goodnotes screen recording menus not implemented here (e.g. OCR PDF scan, system-wide collaboration) are not implied. See TEST_REPORT.md and QA_IPAD_IPHONE.md.

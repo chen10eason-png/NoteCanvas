@@ -1,54 +1,9 @@
-# NoteCanvas v5.27.0 — iPad / iPhone 實機檢查清單
+# V5.28.0 physical device checklist — NOT YET EXECUTED
 
-以下均待實機執行，不可當作已通過。
-
-- [ ] iPad Safari / 已加入主畫面 PWA：深藍分頁和工具列，白色浮動筆設定列沒有裁切。
-- [ ] Apple Pencil：筆壓、長筆跡、鋼筆／橡皮擦／螢光筆連續切換；手指只移動與雙指縮放。
-- [ ] iPhone Safari：工具列可左右滑，頁面及色盤可操作，返回文件庫不會放大。
-- [ ] 文件庫「＋ 新建」：筆記本／白板／文字筆記／學習卡片／匯入 PDF 各路徑可執行。
-- [ ] 建立不同紙張範本，離開重開後資料仍存在。
-- [ ] 繪製三角形／菱形／矩形；儲存、重開、選取、復原與重做。
-- [ ] 更新舊版原網域 PWA，確認所有舊筆記與錄音完整。
-- [ ] 離線重新啟動與恢復網路後 SW 更新。
-
----
-
-## 原 v5.26 實機檢查清單（留存）
-
-# NoteCanvas v5.26.0 — 實機 QA 清單（尚未執行）
-
-下列檢查需要使用者在真正的 iPad、Apple Pencil、iPhone、Safari 及加到主畫面的 PWA 中確認。本次 Chromium 觸控模擬不能取代這些檢查。
-
-## 更新前
-
-- [ ] 在 v5.25.0 逐本匯出 JSON 備份到「檔案」或其他裝置。
-- [ ] 錄音管理中的重要錄音逐段下載（JSON 不包含音訊）。
-- [ ] 確認原本網站網址與網域不變；不可清除 Safari 網站資料。
-
-## iPad + Apple Pencil
-
-- [ ] 舊筆記（含鋼筆、螢光筆、PDF、圖片、學習卡片與錄音）可正常打開，原本筆跡位置、粗細、顏色不變。
-- [ ] Pencil 長時間持續書寫，三款筆型、筆壓高低、穩定度及線寬實際改變新筆跡；筆跡無漏線、鬼影和突跳。
-- [ ] 手掌放在螢幕上時不誤寫；手指可捲動、平移，雙指可放大／縮小；兩指觸碰時不留下多餘點。
-- [ ] 工具列不互相遮擋；3 支常用筆可編輯並重開後維持；色盤的左右移動保存。
-- [ ] 關閉再重新開啟 PWA，筆跡、筆刷偏好與原本錄音依然存在。
-- [ ] 切換到閱讀模式、離開筆記、開另一筆記，書寫工具列應恢復。
-
-## iPhone + Safari / 加入主畫面
-
-- [ ] 橫直向工具列與次級工具選單不超出螢幕，紙張可水平／垂直移動。
-- [ ] 預設手指可寫字；按「✋ 移動」可用手指平移，再按一次可恢復寫字；雙指縮放不誤畫筆跡。
-- [ ] 「•••」選單能開啟跳頁、錄音、學習卡片、匯出和閱讀模式；返回時不遺留設定浮層。
-- [ ] 觸控復原／重做、鋼筆、橡皮擦與筆刷設定都能實際運作。
-- [ ] 飛航模式重新啟動，PWA 核心頁面仍能載入，資料仍在；重新連線後外部 PDF 函式庫功能恢復。
-
-## 失敗時記錄
-
-記錄機型、iPadOS/iOS 版本、Safari 或主畫面 PWA、筆型／筆壓／穩定度、縮放倍率、頁數，以及能重現問題的操作順序；先保留備份，不要以刪除 PWA 或清除網站資料作為初步除錯手段。
-
-## v5.26 追加實機測項
-
-- [ ] 觸控 iPad 和 iPhone 的情境設定列不遮擋畫布；快速點三支常用筆，再切換螢光筆、橡皮擦、文字與圖形，顯示恰好一列對應設定。
-- [ ] 常用筆切換、筆壓與筆型正確；鋼筆／螢光筆獨立色盤可新增、排序與儲存；重新開啟後維持。
-- [ ] 雷射筆圓點／線條能跟隨 Pencil、抬筆後淡出；翻頁、匯出、復原、重新開啟筆記，雷射軌跡不會被保存。
-- [ ] 新版安裝在原網址後，舊筆記、錄音及頁面操作完全保留。
+- [ ] iPad: add page before/after/last using the new sheet, choose each paper style, new page appears in correct order.
+- [ ] iPad Pencil: write across multi-page notebook, switch to page settings and alter ruling spacing without moving strokes; pan/zoom with fingers.
+- [ ] Open older notebook: all original strokes, PDF pages, recordings and page order intact.
+- [ ] Move sidebar right, reopen app, verify placement persists; both left/right page thumbnails remain tappable.
+- [ ] Page menu: add/edit outline, copy/paste, duplicate, delete/restore and clear ink confirm; undo clear current page.
+- [ ] iPhone portrait: open More > Page Settings, sheet stays visible and controls have usable hit targets.
+- [ ] Offline launch after deployment, service worker refresh, export PNG/PDF in both paper spacing settings.
