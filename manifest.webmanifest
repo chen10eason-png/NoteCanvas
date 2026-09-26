@@ -1,7 +1,7 @@
 {
   "name": "NoteCanvas",
   "short_name": "NoteCanvas",
-  "description": "NoteCanvas v5.28.0 — iPad Apple Pencil／iPhone 觸控優先筆記",
+  "description": "NoteCanvas v5.29.0 — iPad Apple Pencil／iPhone 觸控優先筆記",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#264574",
@@ -18,5 +18,5 @@
       "type": "image/png"
     }
   ],
-  "version": "5.28.0"
+  "version": "5.29.0"
 }

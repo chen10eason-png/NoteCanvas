@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=yes">
 <meta name="theme-color" content="#264574">
-<link rel="manifest" href="manifest.webmanifest?v=5.28.0">
-<title>NoteCanvas V5.28.0</title>
+<link rel="manifest" href="manifest.webmanifest?v=5.29.0">
+<title>NoteCanvas V5.29.0</title>
 <style>
 :root{--bg:#f4f5f8;--card:#fff;--ink:#20242c;--muted:#7d8492;--line:#e3e5ea;--blue:#3478f6;--blue2:#eaf2ff;--shadow:0 8px 28px #1d273514}
 *{box-sizing:border-box}html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI","Noto Sans TC",sans-serif;color:var(--ink);background:var(--bg);overscroll-behavior:none}
@@ -564,19 +564,24 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 .page.grid{background-size:var(--paper-step,28px) var(--paper-step,28px)}
 .page.lines{background-size:100% var(--paper-step,30px)}
 .page.dots{background-size:var(--paper-step,24px) var(--paper-step,24px)}
+.page.cornell{background-image:linear-gradient(90deg,transparent 24%,#d1b1bb 24%,#d1b1bb calc(24% + 1px),transparent calc(24% + 1px)),linear-gradient(transparent 78%,#d1b1bb 78%,#d1b1bb calc(78% + 1px),transparent calc(78% + 1px)),linear-gradient(#e8ebf0 1px,transparent 1px);background-size:100% 100%,100% 100%,100% var(--paper-step,30px)}
+.page.margin{background-image:linear-gradient(90deg,transparent 10%,#e2a3ab 10%,#e2a3ab calc(10% + 1px),transparent calc(10% + 1px)),linear-gradient(#e8ebf0 1px,transparent 1px);background-size:100% 100%,100% var(--paper-step,30px)}
 .nc-page-sheet{width:min(590px,96vw);max-height:min(88dvh,880px);overflow:auto;padding:23px;border-radius:22px}
 .nc-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.nc-sheet-head h3{font-size:21px;margin:5px 0 0}.nc-sheet-head small{font-size:11px;font-weight:760;letter-spacing:1px;color:#7690b4}
 .nc-sheet-label{font-size:13px;font-weight:760;color:#394b65;margin:21px 0 11px}
 .nc-segment{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;border:1px solid #e2e8f3;padding:5px;border-radius:13px;background:#f4f7fb}
 .nc-segment button{min-width:0;min-height:46px;border:0;border-radius:10px;background:transparent;color:#4d6281;font-size:13px;font-weight:700;touch-action:manipulation}
 .nc-segment button.selected{background:white;box-shadow:0 2px 7px #263f651c;color:#245ec0}
-.nc-page-choices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.nc-page-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
 .nc-paper-option{display:flex;flex-direction:column;align-items:center;gap:9px;min-width:0;border:2px solid #e0e7f1;border-radius:13px;padding:12px 7px;background:#fff;font-size:12px;color:#4a5b73;touch-action:manipulation}
 .nc-paper-option.selected{border-color:#417ce1;background:#f0f6ff;color:#1d60ca}
 .nc-paper-preview{width:68px;max-width:100%;aspect-ratio:3/4;background-color:white;border:1px solid #dce2ea;box-shadow:0 2px 8px #28406314;border-radius:2px}
 .nc-paper-preview.grid{background-image:linear-gradient(#9dafc755 1px,transparent 1px),linear-gradient(90deg,#9dafc755 1px,transparent 1px);background-size:10px 10px}
 .nc-paper-preview.lines{background-image:linear-gradient(#9dafc755 1px,transparent 1px);background-size:100% 11px}
 .nc-paper-preview.dots{background-image:radial-gradient(#9dafc7 1px,transparent 1px);background-size:10px 10px}
+.nc-paper-preview.cornell{background-image:linear-gradient(90deg,transparent 24%,#c48b98 24% 25%,transparent 25%),linear-gradient(transparent 78%,#c48b98 78% 79%,transparent 79%),repeating-linear-gradient(transparent 0 9px,#dbe0e8 9px 10px);background-size:100% 100%}
+.nc-paper-preview.margin{background-image:linear-gradient(90deg,transparent 10%,#c48b98 10% 11%,transparent 11%),repeating-linear-gradient(transparent 0 9px,#dbe0e8 9px 10px);background-size:100% 100%}
+.nc-copy-paper{display:flex;align-items:center;gap:9px;margin:12px 0 0;font-size:13px;color:#52617b}.nc-copy-paper input{width:18px;height:18px;accent-color:#3976d5}.nc-page-colors{display:flex;flex-wrap:wrap;gap:12px;margin:7px 0 13px}.nc-page-color{width:36px;height:36px;border-radius:50%;border:2px solid #d8e0ea;box-shadow:inset 0 0 0 1px #0001}.nc-page-color.selected{outline:3px solid #3976d5;outline-offset:2px}.nc-page-view{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.nc-page-view button{border:1px solid #dce4f0;background:#f6f8fc;color:#4b5d78;border-radius:11px;padding:12px 3px;min-height:48px;font-size:12px;font-weight:700}.nc-page-view button.selected{background:#e8f1ff;color:#2764c3;border-color:#84adeb}.nc-page-quick{display:flex;flex-wrap:wrap;gap:8px;margin:15px 0}.nc-page-quick button{flex:1;min-height:43px;font-size:12px}
 .nc-paper-footer,.nc-setting-row,.nc-sheet-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:20px}
 .nc-paper-footer label,.nc-setting-row label{display:flex;align-items:center;gap:9px;color:#506079;font-size:13px}
 .nc-setting-row select{border:1px solid #dde5f0;border-radius:10px;min-height:40px;padding:4px 10px;background:#fff}
@@ -588,7 +593,7 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
 .body.sidebar-right.pages-collapsed{grid-template-columns:minmax(0,1fr)}
 @media(min-width:801px){.body.sidebar-right{grid-template-columns:minmax(0,1fr) 226px}.body.sidebar-right .sidebar{grid-column:2;grid-row:1;border-left:1px solid var(--line);border-right:0}.body.sidebar-right .editor{grid-column:1;grid-row:1}}
 @media(max-width:800px){.body.sidebar-right .sidebar{left:auto;right:0;transform:translateX(102%);border-left:1px solid var(--line);border-right:0}.body.sidebar-right .sidebar.open{transform:translateX(0)}.nav #pageOptionsTop{display:none!important}}
-@media(max-width:600px){.nc-page-sheet{padding:16px;max-height:92dvh}.nc-page-choices{gap:6px}.nc-paper-option{padding:8px 3px;font-size:11px}.nc-paper-preview{width:49px}.nc-sheet-actions .btn{flex:1;min-width:120px}.nc-paper-footer{gap:6px}.nc-paper-footer .btn{font-size:12px;padding:8px}}
+@media(max-width:600px){.nc-page-choices{grid-template-columns:repeat(3,minmax(0,1fr))}.nc-page-sheet{padding:16px;max-height:92dvh}.nc-page-choices{gap:6px}.nc-paper-option{padding:8px 3px;font-size:11px}.nc-paper-preview{width:49px}.nc-sheet-actions .btn{flex:1;min-width:120px}.nc-paper-footer{gap:6px}.nc-paper-footer .btn{font-size:12px;padding:8px}}
 </style>
 </head>
 <body>
@@ -700,14 +705,18 @@ button,input{font:inherit}button{color:inherit}.hidden{display:none!important}
  <div class="nc-sheet-head"><div><small>NOTEBOOK · 新增頁面</small><h3 id="insertHeading">新增頁面</h3></div><button class="btn" id="insertClose" aria-label="關閉">✕</button></div>
  <p class="nc-sheet-label">新增位置</p><div class="nc-segment" id="insertPositions"><button data-insert-pos="before">在目前頁前</button><button data-insert-pos="after" class="selected">在目前頁後</button><button data-insert-pos="end">最後一頁</button></div>
  <p class="nc-sheet-label">選擇紙張</p><div class="nc-page-choices" id="insertPapers"></div>
+ <label class="nc-copy-paper"><input type="checkbox" id="insertMatchCurrent" checked> 沿用目前頁面的紙張樣式、顏色與間距</label>
  <div class="nc-paper-footer"><label>紙張色彩 <input id="insertColor" type="color" value="#ffffff" aria-label="新增頁面紙張顏色"></label><button class="btn" id="insertImportPDF">↧ 匯入 PDF</button><button class="btn" id="insertImage">▧ 插入圖片</button></div>
  <div class="nc-sheet-actions"><button class="btn" id="insertCancel">取消</button><button class="btn primary" id="insertConfirm">＋ 新增頁面</button></div>
  </div></div>
 <div class="modal hidden" id="pageSettingsModal" role="dialog" aria-modal="true" aria-labelledby="pageSettingHeading"><div class="sheet nc-page-sheet">
  <div class="nc-sheet-head"><div><small id="pageSettingNumber">第 1 頁</small><h3 id="pageSettingHeading">頁面設定</h3></div><button class="btn" id="pageSettingsClose" aria-label="關閉">✕</button></div>
  <p class="nc-sheet-label">紙張樣式（立即預覽）</p><div class="nc-page-choices" id="pageSettingPapers"></div>
- <div class="nc-setting-row"><label>紙張顏色 <input type="color" id="pageSettingColor" value="#ffffff"></label><label>線條間距 <select id="pageSettingSpacing"><option value="18">緊密</option><option value="24">較小</option><option value="28">標準</option><option value="36">寬鬆</option><option value="44">特寬</option></select></label></div>
- <div class="nc-paper-stage"><div class="nc-paper-preview grid" id="pagePaperPreview"></div><small>只調整本頁背景，不會移動或刪除已有筆跡。PDF 頁面不會被紙張範本覆蓋。</small></div>
+ <p class="nc-sheet-label">紙張顏色</p><div class="nc-page-colors" id="pageSettingSwatches" aria-label="常用紙張顏色"></div>
+ <div class="nc-setting-row"><label>自訂顏色 <input type="color" id="pageSettingColor" value="#ffffff"></label><label>線條間距 <select id="pageSettingSpacing"><option value="18">緊密</option><option value="24">較小</option><option value="28">標準</option><option value="36">寬鬆</option><option value="44">特寬</option></select></label></div>
+ <div class="nc-paper-stage"><div class="nc-paper-preview grid" id="pagePaperPreview"></div><small>即時預覽紙張效果。變更不會清除已有筆跡；PDF 底圖保持原樣。</small></div>
+ <p class="nc-sheet-label">閱讀與翻頁</p><div class="nc-page-view" id="pageViewChoices" aria-label="頁面捲動方式"><button type="button" data-page-view="vertical">↕ 上下連續</button><button type="button" data-page-view="horizontal">↔ 左右連續</button><button type="button" data-page-view="off">▣ 單頁</button></div>
+ <div class="nc-page-quick"><button class="btn" id="pageDuplicateHere">▢ 複製此頁</button><button class="btn" id="pageAddMatching">＋ 新增相同紙張</button><button class="btn" id="pageOpenThumbnails">☷ 全部頁面</button></div>
  <div class="nc-sheet-actions"><button class="btn" id="pageSettingsAll">套用到全部非 PDF 頁面</button><button class="btn primary" id="pageSettingsApply">套用目前頁</button></div>
  </div></div>
 <div class="toast hidden" id="toast"></div>
@@ -791,7 +800,7 @@ async function getPDFEngine(){
  pdfjsLib=mod;return mod;
 }
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const APP_VERSION="5.28.0";
+const APP_VERSION="5.29.0";
 document.title=`NoteCanvas V${APP_VERSION}`;
 $("#appVersion").textContent=`v${APP_VERSION}`;
 const cv=$("#draw"),ctx=cv.getContext("2d"),ov=$("#overlay"),pageEl=$("#page");
@@ -1408,10 +1417,11 @@ function imageLoaded(src){return new Promise((resolve,reject)=>{const im=new Ima
 async function composePage(pg){
  const canvas=document.createElement("canvas");canvas.width=768;canvas.height=1024;const c=canvas.getContext("2d");
  c.fillStyle=pg.paperColor||"white";c.fillRect(0,0,768,1024);
- if(pg.paper==="grid"||pg.paper==="lines"){
+ if(pg.paper==="grid"||pg.paper==="lines"||pg.paper==="cornell"||pg.paper==="margin"){
   c.strokeStyle="#e8ebf0";c.lineWidth=1;const step=pg.rulingSpacing||(pg.paper==="grid"?28:30);
   if(pg.paper==="grid")for(let x=0;x<=768;x+=step){c.beginPath();c.moveTo(x,0);c.lineTo(x,1024);c.stroke()}
   for(let y=0;y<=1024;y+=step){c.beginPath();c.moveTo(0,y);c.lineTo(768,y);c.stroke()}
+  if(pg.paper==="cornell"||pg.paper==="margin"){c.strokeStyle="#cba5ae";c.beginPath();c.moveTo(pg.paper==="cornell"?184:77,0);c.lineTo(pg.paper==="cornell"?184:77,1024);if(pg.paper==="cornell"){c.moveTo(0,798);c.lineTo(768,798)}c.stroke()}
  }else if(pg.paper==="dots"){
   c.fillStyle="#d7dbe2";for(let x=0;x<768;x+=(pg.rulingSpacing||24))for(let y=0;y<1024;y+=(pg.rulingSpacing||24)){c.beginPath();c.arc(x,y,1,0,Math.PI*2);c.fill()}
  }
@@ -1521,7 +1531,7 @@ $$('[data-thumb-filter]').forEach(btn=>btn.onclick=()=>{thumbFilter=btn.dataset.
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('#toolOverflow,#toolbarMore'))$('#toolOverflow').classList.add('hidden')});
 applyToolbarPrefs();
 $("#librarySearch").oninput=()=>renderLibrary();$("#librarySort").onchange=()=>renderLibrary();$$('[data-filter]').forEach(el=>el.onclick=()=>{libraryFilter=el.dataset.filter;$$('[data-filter]').forEach(x=>x.classList.toggle('active',x===el));if(libraryFilter==='search')$("#librarySearch").focus();renderLibrary()});
-if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=5.28.0',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=5.29.0',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
 $("#tabHome").onclick=()=>$("#back").click();
 $("#tabAdd").onclick=()=>$("#back").click();
 const baseLoadPage=loadPage;
@@ -1780,16 +1790,16 @@ $("#mobilePen").classList.add("active");
 if(phoneTouchLayout)$("#pencilSwitch").classList.remove("on");updateHandUi();
 $("#mobileBrush").setAttribute("aria-haspopup","dialog");
 
-// V5.28 — page insertion and page settings built on existing page objects and IndexedDB v2.
-const ncPaperKinds=[['grid','方格'],['lines','橫線'],['dots','點陣'],['','空白']];
-const ncPaperNames={grid:'方格',lines:'橫線',dots:'點陣','':'空白'};
+// V5.29 — paper templates and unified page settings; unchanged IndexedDB v2.
+const ncPaperKinds=[['grid','方格'],['lines','橫線'],['dots','點陣'],['','空白'],['cornell','康乃爾'],['margin','附邊線']];
+const ncPaperNames={grid:'方格',lines:'橫線',dots:'點陣','':'空白',cornell:'康乃爾',margin:'附邊線'};
 let ncInsertIndex=0,ncInsertPos='after',ncInsertPaper='grid',ncPageDraft={paper:'grid',paperColor:'#ffffff',rulingSpacing:28};
 function ncPaperButtons(rootId,selected,onChoose){
  const root=$(rootId);root.replaceChildren();
  for(const [kind,label] of ncPaperKinds){const btn=document.createElement('button');btn.type='button';btn.className='nc-paper-option'+(kind===selected?' selected':'');btn.setAttribute('aria-pressed',String(kind===selected));const preview=document.createElement('span');preview.className='nc-paper-preview'+(kind?' '+kind:'');preview.style.backgroundColor=rootId==='#insertPapers'?$('#insertColor').value:ncPageDraft.paperColor;const t=document.createElement('span');t.textContent=label;btn.append(preview,t);btn.onclick=()=>onChoose(kind);root.append(btn)}
 }
 function openInsertSheet(index=pageIndex,pos='after'){
- if(!book)return;ncInsertIndex=index;ncInsertPos=pos;ncInsertPaper=book.pages[index]?.paper||'grid';
+ if(!book)return;ncInsertIndex=index;ncInsertPos=pos;ncInsertPaper=book.pages[index]?.paper||'grid';$('#insertMatchCurrent').checked=!book.pages[index]?.bg;
  // A PDF is not a reusable paper template; use the previous non-PDF page where possible.
  if(book.pages[index]?.bg)ncInsertPaper='grid';
  $('#insertColor').value=book.pages[index]?.paperColor||'#ffffff';
@@ -1798,12 +1808,12 @@ function openInsertSheet(index=pageIndex,pos='after'){
 }
 function closeInsertSheet(){$('#insertSheet').classList.add('hidden')}
 $$('[data-insert-pos]').forEach(b=>b.onclick=()=>{ncInsertPos=b.dataset.insertPos;$$('[data-insert-pos]').forEach(v=>v.classList.toggle('selected',v===b))});
-$('#insertColor').oninput=()=>ncPaperButtons('#insertPapers',ncInsertPaper,onInsertChoose);
-function onInsertChoose(k){ncInsertPaper=k;ncPaperButtons('#insertPapers',k,onInsertChoose)}
-// Rebind the initial render to the named handler so all four paper choices work repeatedly.
+$('#insertColor').oninput=()=>{$('#insertMatchCurrent').checked=false;ncPaperButtons('#insertPapers',ncInsertPaper,onInsertChoose)};
+function onInsertChoose(k){ncInsertPaper=k;$('#insertMatchCurrent').checked=false;ncPaperButtons('#insertPapers',k,onInsertChoose)}
+// Rebind the initial render to the handler for all six paper choices.
 $('#insertClose').onclick=$('#insertCancel').onclick=closeInsertSheet;
 $('#insertSheet').onclick=e=>{if(e.target.id==='insertSheet')closeInsertSheet()};
-$('#insertConfirm').onclick=()=>{if(!book)return;const at=ncInsertPos==='before'?ncInsertIndex:ncInsertPos==='end'?book.pages.length:ncInsertIndex+1;const pg=newPage();pg.paper=ncInsertPaper;pg.paperColor=$('#insertColor').value;const source=book.pages[ncInsertIndex];pg.rulingSpacing=source&&!source.bg&&source.paper===ncInsertPaper?source.rulingSpacing:undefined;closeInsertSheet();insertPage(at,pg)};
+$('#insertConfirm').onclick=()=>{if(!book)return;const at=ncInsertPos==='before'?ncInsertIndex:ncInsertPos==='end'?book.pages.length:ncInsertIndex+1;const pg=newPage();const source=book.pages[ncInsertIndex];if($('#insertMatchCurrent').checked&&source&&!source.bg){pg.paper=source.paper||'';pg.paperColor=source.paperColor||'#ffffff';pg.rulingSpacing=source.rulingSpacing}else{pg.paper=ncInsertPaper;pg.paperColor=$('#insertColor').value;pg.rulingSpacing=source&&!source.bg&&source.paper===ncInsertPaper?source.rulingSpacing:undefined}closeInsertSheet();insertPage(at,pg)};
 $('#insertImportPDF').onclick=()=>{closeInsertSheet();$('#filePDF').click()};
 $('#insertImage').onclick=()=>{closeInsertSheet();$('#fileImage').click()};
 function ncPageSpacing(pg){return Number(pg.rulingSpacing)||(pg.paper==='dots'?24:pg.paper==='lines'?30:28)}
@@ -1811,9 +1821,13 @@ function ncRenderPageDraft(){
  ncPaperButtons('#pageSettingPapers',ncPageDraft.paper,k=>{ncPageDraft.paper=k;ncRenderPageDraft()});
  $('#pageSettingColor').value=ncPageDraft.paperColor;const step=ncPageDraft.rulingSpacing;
  $('#pageSettingSpacing').value=String([18,24,28,36,44].reduce((a,b)=>Math.abs(b-step)<Math.abs(a-step)?b:a,28));
- const preview=$('#pagePaperPreview');preview.className='nc-paper-preview'+(ncPageDraft.paper?' '+ncPageDraft.paper:'');preview.style.backgroundColor=ncPageDraft.paperColor;preview.style.backgroundSize=ncPageDraft.paper==='lines'?'100% '+(step/3)+'px':(step/3)+'px '+(step/3)+'px';
+ ncRenderPageColors();const preview=$('#pagePaperPreview');preview.className='nc-paper-preview'+(ncPageDraft.paper?' '+ncPageDraft.paper:'');preview.style.backgroundColor=ncPageDraft.paperColor;preview.style.backgroundSize=ncPageDraft.paper==='cornell'?'100% 100%,100% 100%,100% '+(step/3)+'px':ncPageDraft.paper==='margin'?'100% 100%,100% '+(step/3)+'px':ncPageDraft.paper==='lines'?'100% '+(step/3)+'px':(step/3)+'px '+(step/3)+'px';
 }
-function openPageSettings(){if(!book)return;const pg=p();if(pg.bg){toast('PDF 頁面保留原始底圖；可新增一般筆記頁面設定紙張');return}ncPageDraft={paper:pg.paper||'',paperColor:pg.paperColor||'#ffffff',rulingSpacing:ncPageSpacing(pg)};$('#pageSettingNumber').textContent=`第 ${pageIndex+1} 頁`;ncRenderPageDraft();$('#pageSettingsModal').classList.remove('hidden')}
+const ncPageColors=['#ffffff','#fff9e9','#f0f6ff','#f3f5f7','#fff1f2','#f1fff4','#fff7dc','#f1f0fa'];
+function ncRenderPageColors(){const root=$('#pageSettingSwatches');root.replaceChildren();for(const color of ncPageColors){const b=document.createElement('button');b.type='button';b.className='nc-page-color'+(color===ncPageDraft.paperColor?' selected':'');b.style.backgroundColor=color;b.setAttribute('aria-label','紙張顏色 '+color);b.setAttribute('aria-pressed',String(color===ncPageDraft.paperColor));b.onclick=()=>{ncPageDraft.paperColor=color;ncRenderPageDraft()};root.append(b)}}
+function ncRenderPageView(){$$('[data-page-view]').forEach(b=>{b.classList.toggle('selected',b.dataset.pageView===swipeMode);b.setAttribute('aria-pressed',String(b.dataset.pageView===swipeMode))})}
+$$('[data-page-view]').forEach(b=>b.onclick=()=>{updateSwipeMode(b.dataset.pageView);ncRenderPageView();toast('已變更捲動方式')});
+function openPageSettings(){if(!book)return;const pg=p();if(pg.bg){toast('PDF 頁面保留原始底圖；可新增一般筆記頁面設定紙張');return}ncPageDraft={paper:pg.paper||'',paperColor:pg.paperColor||'#ffffff',rulingSpacing:ncPageSpacing(pg)};$('#pageSettingNumber').textContent=`第 ${pageIndex+1} 頁`;ncRenderPageDraft();ncRenderPageView();$('#pageSettingsModal').classList.remove('hidden')}
 function closePageSettings(){$('#pageSettingsModal').classList.add('hidden')}
 $('#pageOptionsTop').onclick=$('#openPageOptions').onclick=()=>{closePagePop();$('#settings').classList.add('hidden');openPageSettings()};
 $('#pageSettingsClose').onclick=closePageSettings;$('#pageSettingsModal').onclick=e=>{if(e.target.id==='pageSettingsModal')closePageSettings()};
@@ -1821,6 +1835,9 @@ $('#pageSettingColor').oninput=e=>{ncPageDraft.paperColor=e.target.value;ncRende
 $('#pageSettingSpacing').onchange=e=>{ncPageDraft.rulingSpacing=Number(e.target.value);ncRenderPageDraft()};
 function ncCommitPaper(pg){pg.paper=ncPageDraft.paper;pg.paperColor=ncPageDraft.paperColor;pg.rulingSpacing=ncPageDraft.rulingSpacing}
 $('#pageSettingsApply').onclick=()=>{snapshot();ncCommitPaper(p());closePageSettings();loadPage();toast('已更新目前頁面紙張')};
+$('#pageDuplicateHere').onclick=()=>{closePageSettings();insertPage(pageIndex+1,book.pages[pageIndex])};
+$('#pageAddMatching').onclick=()=>{const source=p();const pg=newPage();pg.paper=source.bg?'grid':source.paper||'';pg.paperColor=source.bg?'#ffffff':source.paperColor||'#ffffff';pg.rulingSpacing=source.bg?undefined:source.rulingSpacing;closePageSettings();insertPage(pageIndex+1,pg)};
+$('#pageOpenThumbnails').onclick=()=>{closePageSettings();setPageSidebar(true)};
 $('#pageSettingsAll').onclick=()=>{if(!confirm('將紙張樣式、顏色和間距套用至所有非 PDF 頁面？已有筆跡保持不變。'))return;let n=0;for(const pg of book.pages){if(pg.bg)continue;ncCommitPaper(pg);n++}closePageSettings();loadPage();toast('已更新 '+n+' 頁紙張')};
 const ncSidebarPref='notecanvas.sidebarPlacement';
 function ncSidebarPlacement(side){side=side==='right'?'right':'left';$('#bookBody').classList.toggle('sidebar-right',side==='right');$('#sidebarPlacement').value=side;try{localStorage.setItem(ncSidebarPref,side)}catch(_){}}

@@ -1,4 +1,4 @@
-# V5.28.0 physical device checklist — NOT YET EXECUTED
+# V5.29.0 physical device checklist — NOT YET EXECUTED
 
 - [ ] iPad: add page before/after/last using the new sheet, choose each paper style, new page appears in correct order.
 - [ ] iPad Pencil: write across multi-page notebook, switch to page settings and alter ruling spacing without moving strokes; pan/zoom with fingers.

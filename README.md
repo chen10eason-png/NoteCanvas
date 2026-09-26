@@ -1,4 +1,4 @@
-# NoteCanvas v5.28.0 — Goodnotes-inspired writing page / page management
+# NoteCanvas v5.29.0 — Goodnotes-inspired writing page / page management
 
 Based on the user's Goodnotes screen recording and the complete V5.27 ZIP. No original Goodnotes code or brand assets included.
 
@@ -14,3 +14,9 @@ Uses unchanged IndexedDB schema and preserves old strokes. Before deploying, exp
 
 ## Limitations
 Web Pencil input cannot replicate native Goodnotes palm rejection or latency. Physical iPad/iPhone validation is **not** claimed. Other Goodnotes screen recording menus not implemented here (e.g. OCR PDF scan, system-wide collaboration) are not implied. See TEST_REPORT.md and QA_IPAD_IPHONE.md.
+
+## v5.29.0 page workflow
+- Six independently implemented paper patterns: grid, ruled, dotted, blank, Cornell notes, and left-margin ruled. Exported image/PDF previews include the same lines.
+- Page settings now include six template previews, eight paper colors, spacing, vertical/horizontal/single-page navigation, and shortcuts to duplicate, add matching blank paper, and thumbnails.
+- Add Page can inherit paper color and ruling from the active non-PDF page, without copying ink.
+- Paper templates use fixed existing 768 × 1024 canvas; page-size and landscape changes are intentionally NOT claimed. Existing notebook and recording storage schema is unchanged.
